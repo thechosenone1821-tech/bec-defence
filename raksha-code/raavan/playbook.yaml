@@ -1,0 +1,67 @@
+version: 1
+red_team: RAAVAN
+doctrine: "Sandbox-only adversary. Every technique maps to a fixture, a lab seed, or a synthetic corpus entry. No technique in this file may ever be pointed at a system the operators do not own."
+techniques:
+  - id: T01_voice_clone_vishing
+    name: AI voice-clone impersonation of a police/CBI officer ("digital arrest")
+    kill_chain_stage: initial_access
+    layers: [citizen]
+    fixture: citizen/fixtures/message_fixtures.json#hi[1]
+    expected_defense: MessageGuard CRITICAL verdict; CITIZEN_REPORT_VOICE enters the campaign graph
+  - id: T02_upi_mule_drain
+    name: UPI collect-request mule drain via KYC pretext
+    kill_chain_stage: impact
+    layers: [citizen]
+    fixture: citizen/fixtures/message_fixtures.json#en[3]
+    expected_defense: MessageGuard HIGH+; report rail; 1930 guidance
+  - id: T03_invoice_doc_injection
+    name: Indirect prompt injection smuggled in an AI-read vendor invoice
+    kill_chain_stage: execution
+    layers: [agent]
+    fixture: ring2 bragg_fft_firewall corpus (INDIRECT_INJECTION_BLOCKED)
+    expected_defense: Bragg gate blocks; document quarantined; Lyapunov clamp engaged
+  - id: T04_cookie_replay
+    name: Stolen session cookie replay (laminar→turbulent transition)
+    kill_chain_stage: initial_access
+    layers: [identity]
+    fixture: ring1 cookie_fluid_turbulence transition detector
+    expected_defense: Ring-1 turbulent-session revocation + FIDO2 step-up demand
+  - id: T05_ransomware_parity_collapse
+    name: Bulk encryption with entropy parity collapse on a hospital endpoint
+    kill_chain_stage: impact
+    layers: [endpoint]
+    fixture: ring3 page_curve_trap parity honey-blocks
+    expected_defense: PID dies on first 4 KB write; trap density boosted
+  - id: T06_cloud_token_thrift
+    name: Cloud token theft + off-hours bulk read exfiltration
+    kill_chain_stage: actions_on_objectives
+    layers: [cloud]
+    fixture: lab cloud audit log generator (pending — M6)
+    expected_defense: out-of-hours egress rules; signed-URL anomaly alarm
+  - id: T07_agent_overstep
+    name: AI agent exceeding its assigned permissions on live files/APIs
+    kill_chain_stage: impact
+    layers: [agent]
+    fixture: CERT-In-class agent-overstep scenario (referenced, not reproduced)
+    expected_defense: tool-call drift vs task intent; canary-doc tripwire; human step-up
+  - id: T08_living_off_land
+    name: Living-off-the-land persistence (misused signed tooling)
+    kill_chain_stage: persistence
+    layers: [endpoint]
+    fixture: ring3 landauer_thermal_audit residual-power watch
+    expected_defense: unattributed Joule residual → host isolation (dry-run)
+  - id: T09_canary_credential_fishing
+    name: Phish targeting planted canary credentials
+    kill_chain_stage: initial_access
+    layers: [agent, cloud]
+    fixture: fortress canaries + tripwire escalation
+    expected_defense: canary use ⇒ CRITICAL signal ⇒ AI path isolated from human approval loop
+  - id: T10_governor_probe
+    name: Adversarial probing of the Governor itself (request spray)
+    kill_chain_stage: defense_evasion
+    layers: [governor]
+    fixture: fortress tripwire (≥4 blocked decisions in 60s)
+    expected_defense: tripwire freeze; only human step-up reopens the AI path
+kill_chain_sequence: [T01_voice_clone_vishing, T02_upi_mule_drain, T03_invoice_doc_injection,
+                      T04_cookie_replay, T05_ransomware_parity_collapse, T07_agent_overstep,
+                      T10_governor_probe]

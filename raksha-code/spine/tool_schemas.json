@@ -1,0 +1,124 @@
+[
+  {
+    "name": "drop_bec_cluster",
+    "description": "Block a condensed BEC/botnet cluster at the perimeter edge for a TTL.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "cluster_id": {"type": "string"},
+        "ttl_seconds": {"type": "integer", "minimum": 60, "maximum": 86400}
+      },
+      "required": ["cluster_id", "ttl_seconds"]
+    }
+  },
+  {
+    "name": "revoke_turbulent_session",
+    "description": "Revoke a turbulent (replayed) session token and force FIDO2 re-authentication.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "session_id": {"type": "string"},
+        "user_id": {"type": "string"},
+        "require_fido2": {"type": "boolean"}
+      },
+      "required": ["session_id", "user_id", "require_fido2"]
+    }
+  },
+  {
+    "name": "quarantine_ai_document",
+    "description": "Quarantine an untrusted document that carries an indirect prompt injection.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "doc_hash": {"type": "string"},
+        "agent_id": {"type": "string"}
+      },
+      "required": ["doc_hash", "agent_id"]
+    }
+  },
+  {
+    "name": "clamp_lyapunov_steering",
+    "description": "Increase the Lyapunov restoring stiffness on an internal model showing jailbreak curvature spikes.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "model_id": {"type": "string"},
+        "stiffness_gain": {"type": "number", "minimum": 0.05, "maximum": 1.0}
+      },
+      "required": ["model_id", "stiffness_gain"]
+    }
+  },
+  {
+    "name": "arm_page_curve_traps",
+    "description": "Boost Page-Curve honey-block density on a host ahead of expected ransomware.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "host_id": {"type": "string"},
+        "density_level": {"type": "string", "enum": ["low", "standard", "high"]}
+      },
+      "required": ["host_id", "density_level"]
+    }
+  },
+  {
+    "name": "isolate_thermal_anomaly_host",
+    "description": "Quarantine a host showing persistent unaccounted silicon power draw (suspected hidden rootkit).",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "host_id": {"type": "string"},
+        "dump_hardware_trace": {"type": "boolean"}
+      },
+      "required": ["host_id", "dump_hardware_trace"]
+    }
+  },
+  {
+    "name": "execute_percolation_cut",
+    "description": "Cut the minimal set of non-critical VLAN edges to push the non-backtracking spectral radius below target. Crown-jewel edges are never cut.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "target_spectral_radius": {"type": "number", "minimum": 0.5, "maximum": 0.99},
+        "preserve_tier0_vlans": {"type": "boolean"}
+      },
+      "required": ["target_spectral_radius", "preserve_tier0_vlans"]
+    }
+  },
+  {
+    "name": "deploy_muts_ebpf_shield",
+    "description": "Splice a pre-verified bounds-checked eBPF shield onto a service that hit a memory/CFI mismatch.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "service_id": {"type": "string"},
+        "patch_profile_id": {"type": "string", "enum": ["bounds_check_v1", "cfi_v1", "syscall_filter_v1"]}
+      },
+      "required": ["service_id", "patch_profile_id"]
+    }
+  },
+  {
+    "name": "set_service_readonly",
+    "description": "Drop a service into read-only mode for a bounded TTL while forensics runs.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "service_id": {"type": "string"},
+        "ttl_seconds": {"type": "integer", "minimum": 60, "maximum": 86400}
+      },
+      "required": ["service_id", "ttl_seconds"]
+    }
+  },
+  {
+    "name": "escalate_human_stepup",
+    "description": "Request cryptographic human step-up approval (FIDO2/biometric) for any Tier-0 or high-blast-radius action.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "incident_id": {"type": "string"},
+        "severity": {"type": "number", "minimum": 0.0, "maximum": 1.0},
+        "summary": {"type": "string", "maxLength": 500}
+      },
+      "required": ["incident_id", "severity", "summary"]
+    }
+  }
+]

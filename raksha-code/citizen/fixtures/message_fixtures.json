@@ -1,0 +1,27 @@
+{
+  "_readme": "Synthetic labeled fixtures for MessageGuard development + eval. Hand-authored examples in English/Hindi/Telugu; designed to exercise signal families, NOT to represent real scam traffic statistics. Expected labels are coarse verdict bands.",
+  "scam": [
+    {"lang": "en", "text": "URGENT: Your bank KYC has expired. Click bit.ly/update-kyc-now and verify your account within 24 hours or your account will be blocked.", "expect_at_least": "HIGH"},
+    {"lang": "en", "text": "This is Cyber Crime Branch. An arrest warrant has been issued in your name. Digital arrest proceedings start now — transfer the fine amount immediately to avoid jail.", "expect_at_least": "CRITICAL"},
+    {"lang": "en", "text": "You have been selected for a lucky draw of 25 lakh rupees. Share your UPI PIN and card CVV to claim the prize money.", "expect_at_least": "CRITICAL"},
+    {"lang": "en", "text": "Dear customer, accept this UPI collect request to unblock your electricity connection. Failure to act now leads to permanent disconnection.", "expect_at_least": "HIGH"},
+    {"lang": "hi", "text": "प्रिय ग्राहक, आपका खाता 24 घंटे में बंद हो जाएगा। अभी kyc सत्यापन करें और अपना UPI PIN सबमिट करें।", "expect_at_least": "HIGH"},
+    {"lang": "hi", "text": "यह CBI पुलिस स्टेशन बोल रहा हूँ। डिजिटल अरेस्ट का मामला आपके नाम है। तुरंत जुर्माना ट्रांसफर करें वरना FIR दर्ज होगी।", "expect_at_least": "CRITICAL"},
+    {"lang": "hi", "text": "बधाई हो! आपकी लॉटरी निकल आई है। 25 लाख रुपये का ईनाम पाने के लिए अपना CVV और OTP बताएं।", "expect_at_least": "CRITICAL"},
+    {"lang": "hi", "text": "आपका बिजली कनेक्शन आज रात काट दिया जाएगा। अभी कलेक्शन रिक्वेस्ट एक्सेप्ट करें वरना सप्लाई बंद।", "expect_at_least": "HIGH"},
+    {"lang": "te", "text": "ప్రియ వినియోగదారుడు, మీ ఖాతా 24 గంటల్లో నిలిపివేయబడుతుంది. వెంటనే kyc ధృవీకరణ చేసి మీ UPI పిన్ ఇవ్వండి.", "expect_at_least": "HIGH"},
+    {"lang": "te", "text": "నేను సైబర్ క్రైమ్ బ్రాంచ్ నుండి మాట్లాడుతున్నాను. మీపై అరెస్ట్ వారెంట్ జారీ అయింది. వెంటనే జరిమానా బదిలీ చేయండి.", "expect_at_least": "CRITICAL"},
+    {"lang": "te", "text": "అభినందనలు! మీరు లక్కీ డ్రా లాటరీ గెలుచుకున్నారు. 25 లక్షల రూపాయల బహుమతి కోసం మీ CVV, OTP పంచుకోండి.", "expect_at_least": "CRITICAL"},
+    {"lang": "te", "text": "మీ కరెంట్ కనెక్షన్ ఈ రాత్రి కట్ చేయబడుతుంది. వెంటనే collect request అంగీకరించండి లేకపోతే సప్లై నిలిచిపోతుంది.", "expect_at_least": "HIGH"}
+  ],
+  "clean": [
+    {"lang": "en", "text": "Your electricity bill of Rs 640 for November is ready. Pay via the BBPS app by the 25th to avoid late fee.", "expect": "LOW"},
+    {"lang": "en", "text": "Hi Anjali, lunch tomorrow at the usual place? Priya is joining too.", "expect": "LOW"},
+    {"lang": "en", "text": "Your appointment at City Care Hospital is confirmed for Monday 10:30 AM. Token 34. Please carry your previous reports.", "expect": "LOW"},
+    {"lang": "hi", "text": "अंजलि जी, कल का राशन ले लिया है, शाम को दिखाता हूँ। चिंता मत करो।", "expect": "LOW"},
+    {"lang": "hi", "text": "आपका ऑर्डर #4821 शिप हो गया है, कल तक डिलीवर होगा। ट्रैक करें हमारे ऑफिशियल ऐप पर।", "expect": "LOW"},
+    {"lang": "te", "text": "అంజలీ, రేపు సాయంత్రం బస్సు స్టాండు వద్ద కలుద్దాం. అమ్మ కూడా వస్తుంది.", "expect": "LOW"},
+    {"lang": "te", "text": "మీ అపాయింట్‌మెంట్ ధన్యవాదాలు, ఆసుపత్రి రేపు ఉదయం 10:30 కి. టోకెన్ 12.", "expect": "LOW"},
+    {"lang": "en", "text": "Reminder: apartment maintenance of Rs 2,100 due by 30th. Pay to the registered RWA society account via your banking app.", "expect": "LOW"}
+  ]
+}
