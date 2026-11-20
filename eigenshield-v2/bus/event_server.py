@@ -47,6 +47,19 @@ try:
 except Exception:  # Plane 3/4 not importable: bus still serves telemetry
     _PLANES_34 = False
 
+try:
+    from fortress.telemetry_mac import sign_event, verify_event, SeenEventCache
+    _FORTRESS = True
+except Exception:  # fortress absent: legacy behavior, everything unverified
+    _FORTRESS = False
+    def sign_event(event):  # type: ignore
+        return dict(event)
+    def verify_event(event):  # type: ignore
+        return False
+    class SeenEventCache:  # type: ignore
+        def __init__(self, **kw): pass
+        def check_and_mark(self, event_id): return True
+
 
 # --------------------------------------------------------------------------- #
 # In-process executor: tool -> owning organ (integration seam)
@@ -99,6 +112,8 @@ def create_app(policy_path: Optional[str] = None,
                        allow_methods=["*"], allow_headers=["*"])
 
     buffer: deque[Dict[str, Any]] = deque(maxlen=500)
+    seen_ids = SeenEventCache()
+    state_quarantine = {"unverified_held": 0, "replay_dropped": 0}
     graph = EntityGraph()
     clients: Set[WebSocket] = set()
     state = {"last_plan": None, "orchestration_count": 0, "started_at": time.time()}
@@ -137,7 +152,20 @@ def create_app(policy_path: Optional[str] = None,
             events = list(buffer)[-50:]
             if not events:
                 return {"status": "NO_EVENTS"}
-            plan = orchestrator.plan_actions(events, graph_payload=graph.payload())
+            # FORTRESS: the Commander NEVER sees unsigned telemetry. Forged
+            # events remain visible in the buffer/dashboard (they are security
+            # evidence themselves) but cannot steer the AI or reach an executor.
+            evidence_events = [e for e in events if e.get("verified")]
+            if not evidence_events:
+                try:
+                    from fortress import tripwire
+                    tripwire.shared().record("unverified_disruptive")
+                except ImportError:
+                    pass
+                return {"status": "HELD_UNVERIFIED_EVIDENCE",
+                        "reason": "no organ-signed telemetry in window; AI path held closed",
+                        "unverified_events": len(events)}
+            plan = orchestrator.plan_actions(evidence_events, graph_payload=graph.payload())
             decisions = []
             results = []
             for action in plan.get("actions", []):
@@ -167,10 +195,23 @@ def create_app(policy_path: Optional[str] = None,
             pass  # WS feed is best-effort
 
     def maybe_auto_orchestrate(event: Dict[str, Any]) -> None:
-        if event.get("severity", 0) >= 0.8 and _PLANES_34:
+        if event.get("severity", 0) >= 0.8 and event.get("verified") and _PLANES_34:
             threading.Thread(target=_auto_orchestrate, daemon=True).start()
 
     # ------------------------------------------------------------------ #
+    async def ingest_trusted(event: Dict[str, Any]) -> Dict[str, Any]:
+        """In-process organ path: sign, buffer, broadcast. Never reachable from HTTP."""
+        raw = sign_event(dict(event))
+        evt = sanitize_event(raw)
+        evt["verified"] = verify_event(raw)
+        if seen_ids.check_and_mark(evt["event_id"]):
+            buffer.append(evt)
+            graph.add_event(evt)
+        await broadcast({"type": "event", "data": evt})
+        return evt
+
+    app.state_ingest_trusted = ingest_trusted  # for tests/tools; not routed
+
     @app.get("/")
     async def root():
         return {
@@ -192,6 +233,12 @@ def create_app(policy_path: Optional[str] = None,
     async def api_state():
         return {
             "buffered_events": len(buffer),
+            "governor": governor.status() if governor is not None else None,
+            "fortress": {"telemetry_mac": _FORTRESS,
+                         "unverified_held": state_quarantine["unverified_held"],
+                         "replay_dropped": state_quarantine["replay_dropped"],
+                         **({"tripwire": __import__("fortress.tripwire", fromlist=["shared"]).shared().status()}
+                            if _FORTRESS else {})},
             "entity_graph": graph.snapshot(),
             "last_plan": state["last_plan"],
             "orchestration_count": state["orchestration_count"],
@@ -202,12 +249,35 @@ def create_app(policy_path: Optional[str] = None,
     async def ingest(payload: Any = Body(...)):
         raw_events = payload if isinstance(payload, list) else [payload]
         sanitized = sanitize_batch(raw_events)
+        accepted = 0
+        unverified = 0
         for evt in sanitized:
+            raw_match = next((r for r in raw_events if isinstance(r, dict)
+                              and r.get("event_id") == evt.get("event_id")), None)
+            verified = bool(raw_match and verify_event(raw_match))
+            if verified and not seen_ids.check_and_mark(evt["event_id"]):
+                state_quarantine["replay_dropped"] += 1
+                continue  # replay: dropped, not reprocessed
+            evt = dict(evt)
+            evt["verified"] = verified
+            if not verified:
+                state_quarantine["unverified_held"] += 1
+                unverified += 1
+            try:
+                from bus.sanitizer import looks_like_injection
+                blob = json.dumps(raw_match or evt, default=str)
+                if looks_like_injection(blob):
+                    from fortress import tripwire
+                    tripwire.shared().record("injection_marker")
+            except Exception:
+                pass
             buffer.append(evt)
-            graph.add_event(evt)
+            if verified:
+                graph.add_event(evt)
+            accepted += 1
             await broadcast({"type": "event", "data": evt})
             maybe_auto_orchestrate(evt)
-        return {"accepted": len(sanitized), "received": len(raw_events)}
+        return {"accepted": accepted, "received": len(raw_events), "unverified": unverified}
 
     @app.post("/api/orchestrate")
     async def orchestrate():

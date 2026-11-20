@@ -100,6 +100,19 @@ class Orchestrator:
         plan["actions"] = clean_actions
         if rejected:
             plan["rejected_actions"] = rejected
+        # FORTRESS: canary scan — a hijacked Commander exfiltrates context.
+        try:
+            from fortress import canaries, tripwire
+            if canaries.is_compromised(json.dumps(plan, default=str)):
+                tripwire.shared().record("canary_hit")
+                plan["actions"] = []
+                plan["compromise_suspected"] = True
+                plan["rejected_actions"] = (rejected or []) + [
+                    {"action": {"tool": "*"}, "reason": "FORTRESS canary hit in Commander output — all actions dropped"}
+                ]
+                plan["brief"] = "FORTRESS: canary token detected in AI output. All proposed actions were dropped. Human step-up required."
+        except ImportError:
+            pass
         plan.setdefault("plan_id", f"plan_{uuid.uuid4().hex[:10]}")
         plan.setdefault("brief", self._auto_brief(events, clean_actions))
         plan["generated_at"] = time.time()
@@ -107,8 +120,17 @@ class Orchestrator:
 
     # ------------------------------------------------------------------ #
     def _try_slm(self, events, graph_payload) -> Optional[Dict[str, Any]]:
+        try:
+            from fortress import canaries
+            canary_line = canaries.embed_canary_line()
+        except ImportError:
+            canary_line = None
+        prompt_events = events[-50:]
+        if canary_line:
+            prompt_events = prompt_events + [{"signal_type": "SYSTEM_CANARY_NOTE",
+                                              "note": canary_line}]
         prompt = json.dumps({
-            "telemetry_batch": events[-50:],
+            "telemetry_batch": prompt_events,
             "entity_graph": graph_payload or {},
             "instruction": "Correlate this batch. Emit ONLY the JSON plan object.",
         }, default=str)

@@ -13,11 +13,19 @@ import os
 import time
 from typing import Any, Dict, List
 
+try:
+    from fortress.ledger_anchor import LedgerAnchor
+    _ANCHOR_OK = True
+except Exception:  # fortress absent: ledger chain still verifies, no side-anchor
+    _ANCHOR_OK = False
+    LedgerAnchor = None  # type: ignore
+
 
 class AuditLedger:
     def __init__(self, path: str):
         self.path = path
         os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
+        self.anchor = LedgerAnchor(path + ".anchor") if _ANCHOR_OK else None
 
     def _read_entries(self) -> List[Dict[str, Any]]:
         if not os.path.exists(self.path):
@@ -44,6 +52,11 @@ class AuditLedger:
         entry["hash"] = self._hash_entry(entry)
         with open(self.path, "a", encoding="utf-8") as f:
             f.write(json.dumps(entry, separators=(",", ":"), default=str) + "\n")
+        if self.anchor is not None:
+            try:
+                self.anchor.pin(seq=seq, head_hash=entry["hash"])
+            except Exception:
+                pass  # anchor failure must not destroy the record itself
         return entry
 
     @staticmethod
@@ -53,6 +66,17 @@ class AuditLedger:
         return hashlib.sha256(blob.encode()).hexdigest()
 
     def verify(self) -> Dict[str, Any]:
+        base = self._verify_chain()
+        if self.anchor is not None and self.anchor.exists():
+            cross = self.anchor.verify(base)
+            if not cross.get("ok"):
+                base = dict(base)
+                base["anchor"] = cross
+                base["valid"] = False
+                base["reason"] = f"ledger anchor mismatch: {cross.get('reason')}"
+        return base
+
+    def _verify_chain(self) -> Dict[str, Any]:
         entries = self._read_entries()
         prev = "GENESIS"
         for i, entry in enumerate(entries):

@@ -97,6 +97,20 @@ class PolicyEngine:
         reasons: List[str] = []
         decision = "APPROVED"
 
+        # FORTRESS tripwire: when frozen, the AI path is fully closed. Organs
+        # keep defending; only a human step-up reopens decisions.
+        try:
+            from fortress import tripwire
+            _tw = tripwire.shared()
+            if _tw.is_frozen():
+                return {"decision": "BLOCKED", "tool": action.get("tool") if isinstance(action, dict) else None,
+                        "args": action.get("args") if isinstance(action, dict) else None,
+                        "reasons": [f"FORTRESS tripwire frozen — {_tw.status()['frozen_reason']}; human step-up required"],
+                        "autonomy_mode": self.policy.get("autonomy_mode", "GUARDED_AUTO"),
+                        "fortress_tcb": "frozen", "ts": time.time()}
+        except ImportError:
+            pass
+
         tool = action.get("tool") if isinstance(action, dict) else None
         args = action.get("args", {}) if isinstance(action, dict) else {}
 
@@ -147,14 +161,52 @@ class PolicyEngine:
             reasons.append(f"expected preserved uptime {uptime_estimate}% below floor {self.min_uptime}%")
             decision = "BLOCKED"
 
+        # FORTRESS: independent N-version re-derivation (pure stdlib TCB).
+        # Any disagreement with the in-engine verdict fails CLOSED.
+        try:
+            from fortress import tcb_core, tcb_mirror
+            human_ok = str(context.get("human_stepup", "")).upper() in {"VERIFIED", "TRUE", "APPROVED"}
+            core = tcb_core.decide(tool or "", args if isinstance(args, dict) else {},
+                                   self.tier0_vlans, self.tier0_hosts, human_ok=human_ok)
+            mirror = tcb_mirror.decide(tool or "", args if isinstance(args, dict) else {},
+                                       self.tier0_vlans, self.tier0_hosts, human_ok=human_ok)
+            if core["decision"] != mirror["decision"]:
+                reasons.append(f"FORTRESS TCB disagreement (core={core['decision']} mirror={mirror['decision']}) — fail closed")
+                decision = "BLOCKED"
+                result_tcb_note = "tcb_mismatch"
+                try:
+                    from fortress import tripwire
+                    tripwire.shared().record("tcb_mismatch")
+                except ImportError:
+                    pass
+            elif decision == "APPROVED" and core["decision"] == "BLOCKED":
+                reasons.append("FORTRESS independent TCB rejected action: " + "; ".join(core["reasons"]))
+                decision = "BLOCKED"
+                result_tcb_note = "tcb_override"
+            else:
+                result_tcb_note = "ok"
+        except ImportError:
+            result_tcb_note = "fortress_absent"
+        except Exception as exc:
+            reasons.append(f"FORTRESS TCB error — fail closed: {exc}")
+            decision = "BLOCKED"
+            result_tcb_note = "tcb_error_failclosed"
+
         result = {
             "decision": decision,
             "tool": tool,
             "args": args,
             "reasons": reasons or ["all invariants satisfied"],
             "autonomy_mode": self.policy.get("autonomy_mode", "GUARDED_AUTO"),
+            "fortress_tcb": result_tcb_note,
             "ts": time.time(),
         }
+        if decision == "BLOCKED":
+            try:
+                from fortress import tripwire
+                tripwire.shared().record("blocked")
+            except ImportError:
+                pass
         if decision == "APPROVED" and category:
             self._record_budget(category)
         if self.ledger is not None:
@@ -170,7 +222,17 @@ class PolicyEngine:
 
     def status(self) -> Dict[str, Any]:
         now = time.time()
+        integrity = "UNVERIFIED"
+        try:
+            from fortress.boot_manifest import verify_manifest, DEFAULT_PATHS
+            import os
+            manifest = os.path.join(os.path.dirname(_HERE), "config", "manifest.json")
+            if os.path.exists(manifest):
+                integrity = "ok" if verify_manifest(manifest)["ok"] else "TAMPERED"
+        except Exception:
+            integrity = "unknown"
         return {
+            "config_integrity": integrity,
             "autonomy_mode": self.policy.get("autonomy_mode"),
             "frozen_categories": {k: round(v - now, 1) for k, v in self._frozen_until.items() if v > now},
             "budget_window_usage": {k: len(v) for k, v in self._budget_window.items()},

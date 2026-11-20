@@ -179,3 +179,80 @@ verification at that `seq` (test: `tests/test_audit_ledger.py`).
 | Version | Date | Change |
 | --- | --- | --- |
 | 1.0.0 | 2026-11-20 | Initial freeze. SanitizedEvent schema, 10-tool allowlist, WS envelope (`hello/event/action_plan`), REST surface, degrade semantics. |
+| 2.1.0 | 2026-11-20 | FORTRESS appendix: signed telemetry, verified gate, replay defense, tripwire freeze, TCB N-version cross-check, ledger anchor, manifest boot check, additive REST/WS fields. |
+
+---
+
+## Appendix v2.1 (FORTRESS) — additive deltas, same freeze rules
+
+`CONTRACT_VERSION` semantics: these are **additive** to v1.0.0. UIs that
+ignore the new fields keep working. Nothing in v1.0.0 was removed or
+narrowed except where marked **BREAKING-for-unsigned-producers**.
+
+### A. Organ → bus authentication (**BREAKING-for-unsigned-producers**)
+
+Internal organs MUST emit events carrying
+`mac = HMAC-SHA256(EIGENSHIELD_BUS_KEY, canonical_json(event without mac))`.
+The bus verifies on ingest:
+
+* Events that verify are marked `"verified": true`, enter the entity graph,
+  and are eligible to trigger orchestration.
+* Events that do NOT verify are marked `"verified": false`, stay visible in
+  `/api/state.recent_events` (they are attack evidence), are **never**
+  processed by the Commander or the Governor, and never trigger the
+  entity graph or auto-orchestration.
+* Verified duplicates are replay-dropped for 600 s (`SeenEventCache`).
+
+`SanitizedEvent` therefore gains an out-of-band field set by the bus only:
+`"verified": bool`. Producers MUST NOT set it.
+
+### B. `/api/ingest` response
+
+```json
+{"accepted": 7, "received": 7, "unverified": 0}
+```
+
+`unverified` is additive. `accepted` counts events admitted to the buffer
+(both verified and unverified-but-visible); `replay_dropped`/`unverified_held`
+counters are in `/api/state.fortress`.
+
+### C. `/api/orchestrate` — new outcome
+
+```json
+{"status": "HELD_UNVERIFIED_EVIDENCE",
+ "reason": "no organ-signed telemetry in window; AI path held closed",
+ "unverified_events": 7}
+```
+
+The Commander now consumes **verified events only**. If none exist, no plan
+is produced and no action reaches the Governor.
+
+### D. `/api/state` — new fields
+
+```json
+{ "governor": {"config_integrity": "ok | TAMPERED | UNVERIFIED | unknown", …},
+  "fortress": {"telemetry_mac": true, "unverified_held": n, "replay_dropped": n,
+               "tripwire": {"frozen": false, "frozen_until_in_sec": 0.0,
+                            "frozen_reason": "", "trip_count": 0}} }
+```
+
+### E. Governor decision object — new fields
+
+`"fortress_tcb"`: `"ok | tcb_override | tcb_mismatch | tcb_error_failclosed | frozen | fortress_absent"`.
+Any non-`ok`/`fortress_absent` value means the independent TCB rejected or
+froze the action; the decision is `BLOCKED` and the tripwire may have fired.
+
+### F. Audit ledger
+
+Each append re-pins an HMAC-sealed side anchor (`<ledger>.anchor`).
+`AuditLedger.verify()` now also cross-checks the anchor and reports
+`{"valid": false, "reason": "ledger anchor mismatch: …"}` on truncation
+re-forgery that passes the hash chain alone.
+
+### G. Boot-time integrity
+
+Deployments SHOULD run
+`python -m fortress.boot_manifest --check config/manifest.json` before
+starting the bus (exit 2 ⇒ refuse to boot). Absent a manifest, the bus boots
+with `config_integrity: "UNVERIFIED"` — visible, never silent.
+

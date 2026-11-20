@@ -192,3 +192,14 @@ feed.
   changelog.
 * Security disagreement (A wants organ X to auto-act vs B's governor saying
   no) → **the Governor wins every time.** That is the design.
+
+---
+
+## v2.1 note
+
+FORTRESS (the resilience layer in `fortress/`, plus `demo_06`) is **shared
+infrastructure**: A signs at emission, the bus verifies and gates, B's Governor
+double-checks through the TCB twins and freezes under probing. Neither half may
+disable a FORTRESS control in a feature PR — disabling/weakening any of them
+requires the same sign-off as a contract change (see INTERFACE_CONTRACT.md,
+v2.1 appendix).

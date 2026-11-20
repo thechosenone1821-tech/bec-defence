@@ -17,6 +17,9 @@ Deterministic; used by docs/BACKEND_PART_A.md.
 import json
 import sys
 import uuid
+import os
+import sys
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 TOOL_FOR_SIGNAL = {
     "RANK1_CONDENSATION_DETECTED": ("drop_bec_cluster", lambda e: {"cluster_id": "CLUS_MOCK_01", "ttl_seconds": 3600}),

@@ -12,8 +12,12 @@ Usage: feed stdout into your test harness, or curl each line to /api/ingest.
 
 import argparse
 import json
+import os
+import sys
 import time
 import uuid
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 MOCK_EVENTS = [
     {"ring": "RING_1_PERIMETER_IDENTITY", "organ": "BEC_SPECTRAL_PROJECTOR",
@@ -49,12 +53,22 @@ MOCK_EVENTS = [
 parser = argparse.ArgumentParser()
 parser.add_argument("--count", type=int, default=len(MOCK_EVENTS))
 parser.add_argument("--delay", type=float, default=0.0)
+parser.add_argument("--unsigned", action="store_true",
+                    help="do NOT attach the organ HMAC (simulates an external forged feed)")
 args = parser.parse_args()
+
+try:
+    from fortress.telemetry_mac import sign_event
+    have_mac = True
+except Exception:
+    have_mac = False
 
 for i in range(args.count):
     evt = dict(MOCK_EVENTS[i % len(MOCK_EVENTS)])
     evt["event_id"] = f"evt_mock_{uuid.uuid4().hex[:10]}"
     evt["timestamp_utc"] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+    if have_mac and not args.unsigned:
+        evt = sign_event(evt)  # internal organ path: signed at birth
     print(json.dumps(evt), flush=True)
     if args.delay:
         time.sleep(args.delay)

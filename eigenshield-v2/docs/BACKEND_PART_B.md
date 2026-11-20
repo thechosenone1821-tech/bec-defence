@@ -171,3 +171,23 @@ check exit 0; `ledger.verify()` valid on a 50-entry soak run; contract doc
 reflects reality; runbook paragraph for "SLM is down on stage" added to
 `docs/` (2 sentences: demos/tests proceed on fallback_rules; audiences hear
 "the immune system needs no AI to protect you" — because it doesn't).
+
+---
+
+## v2.1 addendum (FORTRESS) — what Part B gains for free
+
+* The Governor now double-checks every stateless invariant through the
+  independent N-version TCB twins (`fortress/tcb_core.py` +
+  `fortress/tcb_mirror.py`); any disagreement ⇒ BLOCKED + `tcb_mismatch` trip.
+* While the process-wide tripwire is frozen, `evaluate()` returns BLOCKED for
+  **everything** — your orchestration loop needs no changes; it will simply see
+  all-blocked and should surface that on the dashboard (WS frames keep flowing).
+* `AuditLedger.append()` re-pins the HMAC ledger anchor (`<ledger>.anchor`);
+  `verify()` now also cross-checks it. Point your dashboards at
+  `ledger.verify()` and treat `valid: false` as a page-the-CISO event.
+* Orchestration bundles may now come back as
+  `HELD_UNVERIFIED_EVIDENCE` from the bus when no organ-signed telemetry is in
+  the window — that is the system working as designed, not a bug to "handle" by
+  relaxing the check.
+* Config integrity: `governor.status()` (exposed at `/api/state.governor`)
+  reports `config_integrity: ok | TAMPERED | UNVERIFIED`.

@@ -142,3 +142,19 @@ handoff notes for UI/UX (feed shapes they can rely on).
 `pytest tests/test_organs.py tests/test_page_curve.py tests/test_hashimoto.py tests/test_sanitizer.py -q`
 → all green; four stage demos exit 0; contract fixtures updated if (and only
 if) formats changed with B sign-off; `docs/` updated.
+
+---
+
+## v2.1 addendum (FORTRESS) — what Part A must emit now
+
+* **Every event the organs hand to Part B must carry a `mac`** — see
+  `fortress/telemetry_mac.py`. `scripts/mock_plane_a.py` already does this
+  (`--unsigned` simulates the attack). If your organs bypass `mock_plane_a`,
+  import `sign_event` and sign at emission time.
+* Keys: organs get `EIGENSHIELD_BUS_KEY`; the bus holds the same key to verify.
+  Never ship the key inside code or artifacts.
+* Unsigned organ output is *accepted for visibility but never acted on* — a
+  signed-but-garbage organ is bounded by the Governor's budgets, so signing is
+  necessary, not sufficient.
+* `sys.path` tip: run scripts from the `eigenshield-v2/` root or rely on the
+  `sys.path.insert` prelude the mocks use; otherwise `fortress` will not import.
