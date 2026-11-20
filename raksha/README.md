@@ -1,11 +1,13 @@
 # RAKSHA — The Immune System for Digital India
 
 > **Status:** Building — **M1 spine · M2 Sentinel shields · M3 Citizen PWA ·
-> M4 RAAVAN kill chain + cross-app campaign fusion · M5 containment planner +
-> Governor floor** shipped in `../raksha-code/` (67/67 green; organ-backed
-> executor; heuristic citizen detectors — demo-grade by design).
-> Sentinel → Citizen → RAAVAN → containment ✓.
-> **Last updated:** 2026-11-20 · **Version:** docs v0.6.0
+> M4 RAAVAN kill chain + cross-app campaign fusion · M5 containment planner ·
+> M6 measured evals** shipped in `../raksha-code/` (67/67 green; organ-backed
+> executor; heuristic citizen detectors — demo-grade by design). See
+> [EVALS.md](EVALS.md) for the measured table (no adjectives).
+> Sentinel → Citizen → RAAVAN → containment → evals ✓. Stage rehearsal with
+> the human team is next.
+> **Last updated:** 2026-11-20 · **Version:** docs v0.7.0
 > **Tagline:** *"We built Raksha. We sicked a ten-headed AI attacker on it. Live on stage."*
 
 RAKSHA is an AI-native, cross-layer cyber-defence ecosystem for India, built as

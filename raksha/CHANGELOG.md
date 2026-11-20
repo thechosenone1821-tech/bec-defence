@@ -154,6 +154,22 @@
 - Parked: production NetFlow fixture; spectral-radius target as Governor
   context instead of tool-schema clamp; plan-cache per campaign.
 
+## [0.7.0] — 2026-11-20 — AI-assisted maintainer session — M6 measured evals + docs freeze
+
+- `raksha-code/evals/run_evals.py` — runs the fixtures end-to-end and prints
+  the baseline×metric table (B1 threshold-alert, B2 signature list, B3 full
+  isolation vs RAKSHA). Every cell measured this run: 1 fused campaign from
+  the 5-step replay; 5/5 forged probes rejected (AI path held closed);
+  containment severs 14.71% fixture flow with 100% mission-critical weight
+  preserved (ICU INTACT, 0 tier-0 edges); deep-implant cut BLOCKED by the
+  Governor 90% floor; MessageGuard 20/20 synthetic; sandbox wall-clock
+  ingest→decision ~208 ms (not an SLA).
+- `raksha/EVALS.md` — the frozen table, reproduction steps, illustrative
+  ₹-saved arithmetic with every external input marked [VERIFY], and the
+  explicit non-claims. Stage rehearsal / backup video / judges' script are
+  human tasks — NOT done, not claimable from this sandbox.
+- Docs frozen for rehearsal at v0.7.0. Tests 67/67.
+
 ## Unreleased / parked
 
 - RAAVAN `playbook.yaml` (10 techniques, fixtures, expected defenses)

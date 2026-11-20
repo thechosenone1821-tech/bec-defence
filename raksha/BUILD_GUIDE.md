@@ -79,8 +79,10 @@ through the Governor; dry-run executor; `action_plan` WS frame; ledgered
 BLOCKED → human step-up (by design). Ingress cut: 100% critical weight
 preserved, ICU INTACT. Tests 67/67.
 
-**M6 — Evals & stage (day 3):** run baselines; produce the table; rehearse;
-record backup video; freeze docs.
+**M6 — Evals & stage (day 3):** ✅ measured table DONE 2026-11-20
+(`raksha-code/evals/run_evals.py`, frozen in `raksha/EVALS.md`; docs v0.7.0).
+Rehearse ×5, backup video, judges'-turn script, night-before [VERIFY] check =
+human stage tasks (see EVALS.md M6 checklist) — not doable in this sandbox.
 
 ## 4. Porting map (file-level)
 

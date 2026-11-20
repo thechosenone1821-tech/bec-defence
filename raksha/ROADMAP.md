@@ -35,7 +35,7 @@
 
 **Day 3 — prove & rehearse**
 
-- [ ] Eval table produced for real (baseline × metric) — measured, not adjectives
+- [x] Eval table produced for real (baseline × metric) — measured, not adjectives (raksha/EVALS.md; stage rehearsal is human, see M6 checklist)
 - [ ] Stage run-through ×5; every [VERIFY] stat checked the night before
 - [ ] Backup video of the full Act-2 sequence — in case the Wi-Fi dies
 - [ ] Judges'-turn script ("add your attack to RAAVAN") with canned safe inputs

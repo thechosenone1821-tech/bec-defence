@@ -11,6 +11,7 @@
 ```text
 spine/          shared kernel — ported from eigenshield-v2, then hardened for RAKSHA
 spine/containment.py  M5: exhaustive min-disruption cut planner (J = C+λD+μR+νA)
+evals/run_evals.py    M6: measured baseline × metric table (fixtures only)
   sanitizer.py      zero-trust input normalization (HMAC tokens, injection scrub)
   entity_graph.py   10-min attack graph + campaign correlator v0 (union-find)
   ledger.py         append-only SHA-256 hash-chained evidence ledger

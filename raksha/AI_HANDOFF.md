@@ -82,6 +82,7 @@ After ANY substantive change:
 | raksha-code/ | **M1 SHIPPED** — spine + tests green (27/27), PR #1 |
 | Citizen app | **M3 SHIPPED (demo-grade)** — PWA + FastAPI live on :8095; heuristic detectors labeled |
 | Sentinel app | **M2+M4+M5 SHIPPED** — shields + RAAVAN replay + campaign fusion + containment planner live (67/67) |
+| Evals & stage | **M6 IN PROGRESS** — measured table frozen in raksha/EVALS.md; rehearsal/video/judges' script = human tasks (not doable in sandbox) |
 | RAAVAN playbook | NOT STARTED (spec'd in ARCHITECTURE §6) |
 | Verification of [VERIFY] stats | OPEN — maintainer must pull PIB/CERT-In releases |
 | Pilots | OPEN — no MoU yet |
