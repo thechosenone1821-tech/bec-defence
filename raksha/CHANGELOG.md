@@ -101,6 +101,31 @@
   mic integration, fuse report signals into campaign correlator with
   infra-layer events (M4 glue).
 
+## [0.5.0] — 2026-11-20 — AI-assisted maintainer session — M4 RAAVAN + cross-layer campaign fusion shipped
+
+- `raksha-code/raavan/` — playbook.yaml (10 techniques, 6-stage canonical
+  sequence, each mapped to fixture + expected defense) and killchain.py —
+  an honest replay player that feeds SIGNED organ telemetry through the
+  same pipeline real organs use (never a bypass; never a simulated
+  orchestrator). CLI: `python -m raavan.killchain --bus-url http://127.0.0.1:8090`.
+- **Citizen ↔ Sentinel fusion without contract changes**: optional
+  `case_id` on citizen reports (validated, opaque; sanitizer digests it
+  into a stable sha256 token). Citizen leg and all infrastructure legs
+  land on ONE campaign. Caveat: sandbox case tokens are low-entropy
+  fixtures (dictionary-able); production must mint high-entropy randoms
+  or a CERT-In/1930-issued case token — parked for contract v2.2.
+- Live run (fresh bus :8090): forged probe => HELD_UNVERIFIED_EVIDENCE;
+  organ-signed campaign => full dry-run-safe execution (document
+  quarantine, session revocation, trap boost, thermal-host isolation,
+  human step-up at 0.96 severity); fused campaign cmp_d151562f8f,
+  size 5, severity_max 0.96, organs touched CITIZEN_APP + 4 infra organs.
+- Governor counter-attack gate test: RAAVAN's attempt to cut the ICU
+  VLAN (preserve_tier0_vlans=false or Tier-0 in args) is hard-BLOCKED.
+- 60/60 pytest green. Preview servers live on :8090 (Sentinel demo) and
+  :8095 (Citizen demo) — ephemeral, sandbox-scoped.
+- Parked: CASE_ entity prefix as additive contract v2.2 token; temporal-
+  kernel campaign correlator; T06 lab cloud-audit fixture (M6).
+
 ## Unreleased / parked
 
 - RAAVAN `playbook.yaml` (10 techniques, fixtures, expected defenses)

@@ -66,7 +66,7 @@ MessageGuard first
 fallback otherwise — never block the demo on model training). Report rail →
 signed ingest into the same bus.
 
-**M4 — RAAVAN + correlator (day 2):** playbook steps as idempotent scenario
+**M4 — RAAVAN + correlator — ✅ DONE 2026-11-20.** playbook steps as idempotent scenario
 functions writing into sandbox fixtures; correlator fingerprint = token
 overlap + 5-minute temporal proximity + kill-chain stage progression.
 

@@ -27,7 +27,7 @@
 
 **Day 2 — the fight**
 
-- [ ] RAAVAN v1 running the full kill chain in the sandbox (voice → mule → phish → ransom → exfil)
+- [x] RAAVAN v1 running the full kill chain in the sandbox (voice → invoice → replay → ransom) — live `cmp_*` fusion across citizen + infra legs; forged probes held closed; ICU-cut counterattack hard-blocked
 - [ ] Campaign correlator fuses ≥3 weak signals across both apps into one campaign_id
 - [ ] Containment planner cuts the live attack live-on-stage (dry-run): ICU stays ≥90% green
 - [ ] Governor demonstration: RAAVAN attempts an ICU-VLAN cut — hard-blocked, ledger shows it

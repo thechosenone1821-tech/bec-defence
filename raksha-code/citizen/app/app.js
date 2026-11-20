@@ -78,6 +78,7 @@ const sevRange = document.getElementById("sevRange");
 const sevVal = document.getElementById("sevVal");
 sevRange.addEventListener("input", () => { sevVal.textContent = (sevRange.value / 100).toFixed(2); });
 
+const caseRef = document.getElementById("caseRef");
 const btnReport = document.getElementById("btnReport");
 const repOut = document.getElementById("reportResult");
 
@@ -85,7 +86,10 @@ btnReport.addEventListener("click", async () => {
   if (!selectedCategory) { repOut.classList.remove("hidden"); repOut.innerHTML = "<div class='verdict MODERATE'>Pick a category first</div>"; return; }
   btnReport.disabled = true; btnReport.textContent = "Sending…";
   try {
-    const v = await api("/api/citizen/report", {category: selectedCategory, severity: sevRange.value / 100});
+    const body = {category: selectedCategory, severity: sevRange.value / 100};
+    const cref = (caseRef && caseRef.value.trim()) || "";
+    if (cref) body.case_id = cref;
+    const v = await api("/api/citizen/report", body);
     repOut.classList.remove("hidden");
     const fw = v.forwarded && v.forwarded.forwarded ? "✓ reached Raksha response network" : "✓ noted (offline mode — will sync)";
     repOut.innerHTML = `<div class="verdict LOW">REPORTED</div>

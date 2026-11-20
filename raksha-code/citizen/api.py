@@ -113,6 +113,12 @@ def build_app(bus_url: Optional[str] = None, poster: Optional[Callable[[Dict[str
         severity = _clamp_severity(payload.get("severity"), 0.5)
         lang = str(payload.get("lang") or "en")[:8]
         note = str(payload.get("note") or "")[:200]  # may be empty; raw content NOT required
+        case_id = str(payload.get("case_id") or "").strip()
+        if case_id and not __import__("re").fullmatch(r"[A-Za-z0-9_]{3,40}", case_id):
+            raise HTTPException(422, "case_id must match ^[A-Za-z0-9_]{3,40}$")
+        # Optional opaque linkage token (the campaign-fusion key). Never
+        # contains PII; the sanitizer digests it into a stable opaque token.
+        entities = {"case_id": case_id} if case_id else {}
         severity_band = round(severity, 2)
         event = {
             "event_id": f"evt_cit_{uuid.uuid4().hex[:10]}",
@@ -121,7 +127,7 @@ def build_app(bus_url: Optional[str] = None, poster: Optional[Callable[[Dict[str
             "organ": "CITIZEN_APP",
             "signal_type": CATEGORIES[category],
             "severity": severity_band,
-            "entities": {},   # no PII, ever — reports carry category + band only
+            "entities": entities,   # no PII, ever — reports carry category + band (+ optional opaque case token)
             "metrics": {"severity_band": severity_band,
                         "lang_digest": "sha256:" + __import__("hashlib").sha256(lang.encode()).hexdigest()[:8]},
         }
