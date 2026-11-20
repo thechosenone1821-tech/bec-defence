@@ -70,10 +70,14 @@ signed ingest into the same bus.
 functions writing into sandbox fixtures; correlator fingerprint = token
 overlap + 5-minute temporal proximity + kill-chain stage progression.
 
-**M5 — Containment + Governor integration (day 2):** candidate cuts from
-graph neighborhood of attacker; evaluate C/D/R with fixture flows; planner
-returns A*; Governor enforces; executor is a logging dry-run emitting
-`action_plan` WS frames.
+**M5 — Containment + Governor integration (day 2) — ✅ DONE 2026-11-20:**
+`spine/containment.py` exhaustive min-disruption cut on the access layer
+(`J = C + λD + μR + νA`, reachability→Tier-0 = ∅); `POST /api/containment`
+(derives seeds from the live buffer or accepts VLAN list); always routed
+through the Governor; dry-run executor; `action_plan` WS frame; ledgered
+`containment_plan`. Finding: deep-implant cut breaches the 90% uptime floor →
+BLOCKED → human step-up (by design). Ingress cut: 100% critical weight
+preserved, ICU INTACT. Tests 67/67.
 
 **M6 — Evals & stage (day 3):** run baselines; produce the table; rehearse;
 record backup video; freeze docs.

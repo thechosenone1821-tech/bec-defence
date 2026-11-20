@@ -163,7 +163,8 @@ def _build_executor():
 def create_app(policy_path: Optional[str] = None,
                topology_path: Optional[str] = None,
                model: Optional[str] = None) -> FastAPI:
-    app = FastAPI(title="RAKSHA Spine Telemetry Bus", version="0.1.0-m1")
+    TOPOLOGY_PATH = topology_path or os.path.join(os.path.dirname(__file__), "config", "company_topology.json")
+    app = FastAPI(title="RAKSHA Spine Telemetry Bus", version="0.2.0-m5")
     # Dashboard is built separately by the UI/UX team (see docs/UI_UX_BRIEF.md);
     # allow static dev servers on any origin. No credentials are used.
     app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=False,
@@ -174,7 +175,8 @@ def create_app(policy_path: Optional[str] = None,
     state_quarantine = {"unverified_held": 0, "replay_dropped": 0}
     graph = EntityGraph()
     clients: Set[WebSocket] = set()
-    state = {"last_plan": None, "orchestration_count": 0, "started_at": time.time()}
+    state = {"last_plan": None, "orchestration_count": 0, "started_at": time.time(),
+             "last_containment": None}
 
     ledger = None
     governor = None
@@ -308,6 +310,7 @@ def create_app(policy_path: Optional[str] = None,
             "entity_graph": graph.snapshot(),
             "campaigns": graph.campaigns(),
             "last_plan": state["last_plan"],
+            "last_containment": state.get("last_containment"),
             "orchestration_count": state["orchestration_count"],
             "recent_events": list(buffer)[-20:],
         }
@@ -345,6 +348,89 @@ def create_app(policy_path: Optional[str] = None,
             await broadcast({"type": "event", "data": evt})
             maybe_auto_orchestrate(evt)
         return {"accepted": accepted, "received": len(raw_events), "unverified": unverified}
+
+    @app.post("/api/containment")
+    async def containment_propose(payload: Any = Body(default={})):
+        """M5 containment planner: minimum-disruption cut sewing off the
+        attacked side from Tier-0. Proposes only — the Governor disposes,
+        the executor is a dry-run. Fixture-measured; never production SLO."""
+        from spine import containment
+        body = payload if isinstance(payload, dict) else {}
+        seeds = body.get("seeds")
+        if seeds is None:
+            # derive from the live buffer: VLANs named in the current window,
+            # excluding Tier-0/unknown — the attacker's apparent foothold
+            topo = containment.load_topology(TOPOLOGY_PATH)
+            tier0 = set(topo.get("tier0_vlans", []))
+            valid = set(topo.get("vlans", []))
+            derived = []
+            for evt in buffer:
+                v = (evt.get("entities") or {}).get("vlan_id")
+                if v and v in valid and v not in tier0 and v not in derived:
+                    derived.append(v)
+            seeds = derived
+            seed_source = "derived_from_buffer"
+        else:
+            if not isinstance(seeds, list) or not all(isinstance(s, str) for s in seeds):
+                return JSONResponse({"status": "REFUSED", "reason": "seeds must be a list of VLAN id strings"}, status_code=400)
+            seed_source = "caller_supplied"
+
+        def _knob(name, default, lo, hi):
+            try:
+                v = float(body.get(name, default))
+            except (TypeError, ValueError):
+                return default
+            return max(lo, min(hi, v))
+
+        plan = containment.propose(TOPOLOGY_PATH, seeds,
+                                   lam=_knob("lambda", 2.0, 0.0, 100.0),
+                                   mu=_knob("mu", 0.1, 0.0, 100.0),
+                                   nu=_knob("nu", 5.0, 0.0, 100.0))
+        plan["seed_source"] = seed_source
+        bundle = {"plan_source": "containment_planner", "containment": plan}
+
+        if plan.get("status") == "PLAN_PROPOSED" and governor is not None:
+            # Dynamic rho_after from the actual proposed cut (measured, clamped
+            # to the tool schema's [0.5, 0.99] band for the legacy organ RPC).
+            rho_after = 0.99
+            try:
+                from sentinel.shields.ring4_network_healing.hashimoto_percolation import spectral_radius
+                topo = containment.load_topology(TOPOLOGY_PATH)
+                nodes = topo["vlans"]
+                idx = {v: i for i, v in enumerate(nodes)}
+                cut = {tuple(sorted((e["a"], e["b"]))) for e in plan["cut_edges"]}
+                edges_idx = [(idx[e["a"]], idx[e["b"]]) for e in topo["edges"]
+                             if tuple(sorted((e["a"], e["b"]))) not in cut]
+                rho_after = max(0.5, min(0.99, spectral_radius(len(nodes), edges_idx)))
+            except Exception:
+                pass
+            action = {"tool": "execute_percolation_cut",
+                      "args": {"target_spectral_radius": round(rho_after, 4),
+                               "preserve_tier0_vlans": True},
+                      "rationale": f"containment planner {plan['plan_id']}: severs {plan['cut_size']} access-layer edge(s); ICU untouched; tier0 never cut"}
+            decision = governor.evaluate(action, context={"trigger": "containment_planner",
+                                                          "expected_preserved_uptime_pct": plan["preserved_critical_weight_pct"]})
+            bundle["action"] = action
+            bundle["governor"] = decision
+            if decision["decision"] == "APPROVED":
+                bundle["executor_result"] = executor(action["tool"], action["args"])
+                bundle["status"] = "OK"
+            else:
+                bundle["executor_result"] = None
+                bundle["status"] = "HELD_EXECUTION_BLOCKED"
+            if ledger is not None:
+                ledger.append("containment_plan", bundle)
+        else:
+            bundle["governor"] = None
+            bundle["executor_result"] = None
+            bundle["status"] = plan.get("status", "REFUSED")
+        bundle["brief"] = (f"Containment planner proposes cutting {plan.get('cut_size')} edge(s) "
+                           f"({', '.join(e['a'] + '↔' + e['b'] for e in plan.get('cut_edges', []))}). "
+                           f"Tier-0 untouched; ICU {plan.get('icu_status', 'INTACT')}; "
+                           f"fixture flow preserved {plan.get('preserved_fixture_flow_pct')}%.") if plan.get("status") == "PLAN_PROPOSED" else plan.get("reason", "refused")
+        state["last_containment"] = bundle
+        await broadcast({"type": "action_plan", "data": bundle})
+        return JSONResponse(bundle)
 
     @app.post("/api/orchestrate")
     async def orchestrate():

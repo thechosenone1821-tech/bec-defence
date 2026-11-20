@@ -1,15 +1,16 @@
 # raksha-code — RAKSHA application monorepo
 
-> **Status: M1 (spine).** The shared kernel is real and tested; the two apps
-> (`citizen/`, `sentinel/`) are not started yet. Six-day hackathon plan lives in
-> `../raksha/ROADMAP.md`. **Nothing here performs real-world actions** — the
-> executor is a labeled DRY-RUN stub until the Sentinel shields port the
-> organs in M2.
+> **Status: M1–M5 shipped.** spine + Sentinel shields + Citizen PWA + RAAVAN
+> kill chain + containment planner are all real and tested (67/67). Six-day
+> hackathon plan lives in `../raksha/ROADMAP.md`. **Nothing here performs
+> real-world actions** — the organ-backed executor is dry-run by construction
+> (no host ever touched).
 
 ## Layout
 
 ```text
 spine/          shared kernel — ported from eigenshield-v2, then hardened for RAKSHA
+spine/containment.py  M5: exhaustive min-disruption cut planner (J = C+λD+μR+νA)
   sanitizer.py      zero-trust input normalization (HMAC tokens, injection scrub)
   entity_graph.py   10-min attack graph + campaign correlator v0 (union-find)
   ledger.py         append-only SHA-256 hash-chained evidence ledger
@@ -25,7 +26,7 @@ spine/          shared kernel — ported from eigenshield-v2, then hardened for 
   orchestrator.py   local SLM planner (Ollama; deterministic fallback offline)
   ledger_cli.py     verify / tail / replay the evidence ledger
   config/           policy.yaml · company_topology.json · manifest.json (pinned)
-tests/          pytest — 27 tests incl. M1 end-to-end campaign flow
+tests/          pytest — 67 tests incl. M1 end-to-end campaign flow
 requirements.txt
 ```
 
@@ -42,7 +43,7 @@ citizen/          RAKSHA Citizen (M3) — offline PWA + same-origin FastAPI
 cd raksha-code
 python -m venv ../.venv && source ../.venv/bin/activate   # or reuse repo venv
 pip install -r requirements.txt
-pytest -q                                        # 54 passed expected
+pytest -q                                        # 67 passed expected
 python -m spine.boot_manifest --check spine/config/manifest.json
 python -m spine.ledger_cli verify                # (after any run wrote a ledger)
 python -m spine.bus --policy spine/config/policy.yaml \

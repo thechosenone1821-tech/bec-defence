@@ -126,6 +126,34 @@
 - Parked: CASE_ entity prefix as additive contract v2.2 token; temporal-
   kernel campaign correlator; T06 lab cloud-audit fixture (M6).
 
+## [0.6.0] — 2026-11-20 — AI-assisted maintainer session — M5 containment planner + Governor integration
+
+- `spine/containment.py` — exhaustive minimum-disruption cut over the access
+  layer of `company_topology.json` (10 non-crown edges — the whole space is
+  enumerated, no heuristics, deterministic). Objective
+  `J = C + λD + μR + νA` (cut size; fixture-flow fraction severed; residual
+  mission-critical weight reachable by the attacker; count of
+  clinical-adjacent severed roads) s.t. reachability seeds → Tier-0 == ∅.
+  Crown-jewel edges never candidates; ICU/cold-chain/core-auth roads carry
+  the ν penalty so they are cut only when unavoidable. Every number labeled
+  FIXTURE-MEASURED.
+- `POST /api/containment` on the bus (additive): seeds caller-supplied or
+  derived live from the event buffer; builds a dry-run
+  `execute_percolation_cut` action (measured rho_after clamped into the
+  tool schema band) and submits it to the Governor — never executes itself.
+- **Deep-implant finding (honest, doctrine-true):** once the attacker is in
+  VLAN_CORP_IT, the cheapest isolating cut severs 44% of mission-critical
+  fixture weight → Governor BLOCKS (below the 90% preserved-uptime floor) →
+  human step-up. The system refuses autonomous core surgery by design.
+- Ingress case (guest/maint/lab): 3 low/standard edges cut, 100% critical
+  weight preserved, Governor APPROVED, dry-run PERCOLATION_CUT_APPROVED,
+  ICU INTACT. `/api/state.last_containment` + `action_plan` WS frame +
+  ledger `containment_plan` entry.
+- Tests 60 → 67/67. Docs v0.6.0. Live previews on :8090 (Sentinel) and
+  :8095 (Citizen).
+- Parked: production NetFlow fixture; spectral-radius target as Governor
+  context instead of tool-schema clamp; plan-cache per campaign.
+
 ## Unreleased / parked
 
 - RAAVAN `playbook.yaml` (10 techniques, fixtures, expected defenses)

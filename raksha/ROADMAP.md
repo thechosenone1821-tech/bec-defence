@@ -29,7 +29,7 @@
 
 - [x] RAAVAN v1 running the full kill chain in the sandbox (voice → invoice → replay → ransom) — live `cmp_*` fusion across citizen + infra legs; forged probes held closed; ICU-cut counterattack hard-blocked
 - [ ] Campaign correlator fuses ≥3 weak signals across both apps into one campaign_id
-- [ ] Containment planner cuts the live attack live-on-stage (dry-run): ICU stays ≥90% green
+- [x] Containment planner cuts the live attack live-on-stage (dry-run): ingress cut preserves 100% critical weight, ICU INTACT; deep-implant cut below Governor 90% floor correctly BLOCKED for human step-up
 - [ ] Governor demonstration: RAAVAN attempts an ICU-VLAN cut — hard-blocked, ledger shows it
 - [ ] ₹-lost-vs-₹-saved counter; attack timeline replay UI
 
