@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+.venv/
+var/
+audit_ledger.jsonl
+tmp_demo_files/
+.pytest_cache/

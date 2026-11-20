@@ -1,0 +1,4 @@
+# Local virtual environments (created by tooling; not project source)
+.venv/
+# Release archives (rebuild from the branch; not source)
+eigenshield-v2-final.zip
