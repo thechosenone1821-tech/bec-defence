@@ -29,17 +29,25 @@ tests/          pytest — 27 tests incl. M1 end-to-end campaign flow
 requirements.txt
 ```
 
+citizen/          RAKSHA Citizen (M3) — offline PWA + same-origin FastAPI
+  messageguard/     deterministic scam-script scorer (en/hi/te signal families)
+  voiceguard/       interface + spectral fallback (NEVER claims clones; labelled)
+  fixtures/         20-item synthetic labeled corpus (hand-authored)
+  api.py            GET /api/citizen/health · POST screen_message / screen_voice / report
+  app/              PWA: home · check message · check voice · report · 1930 panic button
+
 ## Quickstart
 
 ```bash
 cd raksha-code
 python -m venv ../.venv && source ../.venv/bin/activate   # or reuse repo venv
 pip install -r requirements.txt
-pytest -q                                        # 27 passed expected
+pytest -q                                        # 54 passed expected
 python -m spine.boot_manifest --check spine/config/manifest.json
 python -m spine.ledger_cli verify                # (after any run wrote a ledger)
 python -m spine.bus --policy spine/config/policy.yaml \
     --topology spine/config/company_topology.json --port 8090
+python -m citizen.api --port 8095                 # Citizen app + PWA
 curl -s localhost:8090/api/health
 ```
 

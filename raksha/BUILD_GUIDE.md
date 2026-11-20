@@ -59,7 +59,8 @@ Identity (auth-log fixture → Ring-1 filter), Cloud (exfil heuristics on
 fixture logs), AI-Agent (tool-call drift + canary-doc). Each ships with:
 firing fixture, silent-case fixture, tests.
 
-**M3 — Citizen app (days 2–3, parallel with M2):** MessageGuard first
+**M3 — Citizen app — ✅ DONE 2026-11-20 (demo-grade, honestly labeled).**
+MessageGuard first
 (highest demo value per hour; embedding+regex ensemble), VoiceGuard second
 (pretrained anti-spoof model via ONNX if available; deterministic spectral
 fallback otherwise — never block the demo on model training). Report rail →

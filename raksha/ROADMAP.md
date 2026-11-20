@@ -22,7 +22,7 @@
 
 - [x] Repo layout per `BUILD_GUIDE.md` §2; shared packages extracted from eigenshield-v2 (spine ported: sanitizer, ledger, Governor, TCB, tripwire, bus) — M1 DONE, 27/27 tests green
 - [x] Sentinel: shields ported (all 8 organs from eigenshield-v2), organ-backed executor, tests 37/37 green — hospital-profile graph seeding is the remaining Day-1 item
-- [ ] Citizen: PWA skeleton; VoiceGuard stub returning calibrated verdicts from bundled model; MessageGuard rule+embedding v1
+- [x] Citizen: PWA shipped (vanilla JS, offline SW, 1930 panic button); MessageGuard v0 (synthetic-tuned rules, en/hi/te, 20/20 on synthetic corpus); VoiceGuard = interface + spectral fallback (honest non-model); report rail signed+forwarded — 54/54 green
 - [ ] Shared bus + ledger wired end-to-end with one synthetic campaign
 
 **Day 2 — the fight**

@@ -73,6 +73,34 @@
 - Citizen app NOT started — next session per maintainer's sequencing
   (Sentinel first, then Citizen).
 
+## [0.4.0] — 2026-11-20 — AI-assisted maintainer session — M3 Citizen app (demo-grade, honest) shipped
+
+- `raksha-code/citizen/` — offline-first **PWA** + same-origin FastAPI
+  service (`python -m citizen.api --port 8095`, live preview open):
+  home / Check Message / Check Voice / Report screens, 1930 helpline
+  panic button, service-worker offline shell, zero-PII reporting by
+  construction (entities {} — category + severity band only, HMAC-signed).
+- **MessageGuard v0** (`citizen/messageguard/scorer.py`): deterministic
+  signal-family scorer for en/hi/te scam scripts (authority impersonation,
+  credential grabs, money-action, prize, urgency, link-grab), tuned on a
+  synthetic hand-authored corpus (12 scam + 8 clean, en/hi/te) — 20/20 =
+  1.00 ON THE SYNTHETIC CORPUS. Real-world accuracy is UNMEASURED and
+  presented nowhere as such.
+- **VoiceGuard v0**: interface + spectral fallback only; verdicts
+  SILENT/SUSPICIOUS/INCONCLUSIVE; INCONCLUSIVE is the default for real
+  speech. NOT a trained anti-spoof model; UI labels itself accordingly.
+- **Report rail** forwards a signed citizen event (`CITIZEN_REPORT_*`)
+  to the spine bus; verified end-to-end in tests (verify_event passes,
+  no raw content/PII in payload). Without RAKSHA_BUS_URL it honestly
+  reports "stored locally (demo mode)".
+- 54/54 pytest green across spine + shields + citizen.
+- 2026-11-20 also: `/api/ingest` field `verified` documented; citizen
+  event ring maps to RING_UNKNOWN at the sanitizer boundary (contract
+  untouched — additive enum extension deferred to contract v2.2).
+- Not done: on-device model for voice (trained AASIST/RawNet unknown),
+  mic integration, fuse report signals into campaign correlator with
+  infra-layer events (M4 glue).
+
 ## Unreleased / parked
 
 - RAAVAN `playbook.yaml` (10 techniques, fixtures, expected defenses)

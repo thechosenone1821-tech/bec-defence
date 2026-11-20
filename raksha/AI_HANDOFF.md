@@ -80,7 +80,7 @@ After ANY substantive change:
 | EIGENSHIELD v2.1 FORTRESS | Built, tested, pushed (PR #1, open) |
 | RAKSHA docs | v0.1.0 — initial set committed |
 | raksha-code/ | **M1 SHIPPED** — spine + tests green (27/27), PR #1 |
-| Citizen app | NOT STARTED |
+| Citizen app | **M3 SHIPPED (demo-grade)** — PWA + FastAPI live on :8095; heuristic detectors labeled |
 | Sentinel app | **M2 SHIPPED** — shields ported, organ executor live, 37/37 green |
 | RAAVAN playbook | NOT STARTED (spec'd in ARCHITECTURE §6) |
 | Verification of [VERIFY] stats | OPEN — maintainer must pull PIB/CERT-In releases |
