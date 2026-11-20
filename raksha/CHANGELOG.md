@@ -53,6 +53,26 @@
   for v0.2 branding sweep); campaign correlator has no temporal kernel or
   weighted fingerprint yet; citizen app untouched.
 
+## [0.3.0] — 2026-11-20 — AI-assisted maintainer session — M2 Sentinel shields shipped
+
+- `raksha-code/sentinel/shields/` — all 8 organs ported from eigenshield-v2
+  reflexes (ring1 identity, ring2 AI defense, ring3 endpoint, ring4 network
+  healing) plus base_organ; tests carried over (test_organs, test_hashimoto,
+  test_page_curve). 37/37 pytest green.
+- Bus executor is now **organ-backed** (`executor_mode: "organ"` at
+  /api/state + /api/health): tools route to the real shield RPCs, which are
+  dry-run-safe by construction. Fallback to labeled `DRY_RUN_*` stubs is
+  loud and automatic (unimportable shields), or forced via
+  `RAKSHA_EXECUTOR=dry-run`. Nothing on any host is ever modified.
+- Live smoke (port 8091): signed campaign => actions executed by organs
+  (TRAP_DENSITY_BOOSTED, HOST_ISOLATED, SESSION_REVOKED), campaign fused
+  (`cmp_612f5cec46`, size 3), config_integrity ok.
+- Scope note: organs run through their designed safety surfaces (PageCurve
+  never os.kill; percolation cuts virtual; MUTs is a control-surface
+  simulation). Real CAP_BPF/eBPF paths remain out of scope and are labeled.
+- Citizen app NOT started — next session per maintainer's sequencing
+  (Sentinel first, then Citizen).
+
 ## Unreleased / parked
 
 - RAAVAN `playbook.yaml` (10 techniques, fixtures, expected defenses)

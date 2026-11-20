@@ -21,7 +21,7 @@
 **Day 1 — foundations**
 
 - [x] Repo layout per `BUILD_GUIDE.md` §2; shared packages extracted from eigenshield-v2 (spine ported: sanitizer, ledger, Governor, TCB, tripwire, bus) — M1 DONE, 27/27 tests green
-- [ ] Sentinel: hospital profile graph seeded; Endpoint shield (parity-trap demo); Identity shield live on fixture auth stream
+- [x] Sentinel: shields ported (all 8 organs from eigenshield-v2), organ-backed executor, tests 37/37 green — hospital-profile graph seeding is the remaining Day-1 item
 - [ ] Citizen: PWA skeleton; VoiceGuard stub returning calibrated verdicts from bundled model; MessageGuard rule+embedding v1
 - [ ] Shared bus + ledger wired end-to-end with one synthetic campaign
 

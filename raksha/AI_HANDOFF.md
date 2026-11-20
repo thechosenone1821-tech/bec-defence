@@ -81,7 +81,7 @@ After ANY substantive change:
 | RAKSHA docs | v0.1.0 — initial set committed |
 | raksha-code/ | **M1 SHIPPED** — spine + tests green (27/27), PR #1 |
 | Citizen app | NOT STARTED |
-| Sentinel app | M2 next — port planes 1/2 organs into shields (see BUILD_GUIDE §4) |
+| Sentinel app | **M2 SHIPPED** — shields ported, organ executor live, 37/37 green |
 | RAAVAN playbook | NOT STARTED (spec'd in ARCHITECTURE §6) |
 | Verification of [VERIFY] stats | OPEN — maintainer must pull PIB/CERT-In releases |
 | Pilots | OPEN — no MoU yet |

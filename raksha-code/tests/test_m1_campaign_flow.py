@@ -80,7 +80,11 @@ def test_synthetic_campaign_flows_end_to_end(stack):
     statuses = [res["result"]["status"] for res in bundle["results"]]
     assert "arm_page_curve_traps" in tools        # parity collapse ⇒ trap pre-arm
     assert "escalate_human_stepup" in tools       # sev ≥ 0.9 ⇒ human asked
-    assert all(s.startswith("DRY_RUN_") or s in {"APPROVED", "BLOCKED", "ESCALATE"}
+    organ_ok = {"CLUSTER_DROPPED", "SESSION_REVOKED", "DOCUMENT_QUARANTINED",
+                "STEERING_CLAMPED", "TRAPS_ARMED", "TRAP_DENSITY_BOOSTED",
+                "HOST_ISOLATED", "PERCOLATION_CUT_APPROVED", "SHIELD_DEPLOYED",
+                "SERVICE_READONLY_SET", "HUMAN_STEPUP_REQUESTED", "SHIELD_SPLICED"}
+    assert all(s.startswith("DRY_RUN_") or s in organ_ok or s in {"APPROVED", "BLOCKED", "ESCALATE"}
                for s in statuses)
     assert bundle["decisions"] and all(
         d["fortress_tcb"] in {"ok", "tcb_override", "frozen", "fortress_absent"} for d in bundle["decisions"])
@@ -94,6 +98,7 @@ def test_synthetic_campaign_flows_end_to_end(stack):
     assert camp["severity_max"] == pytest.approx(0.96)
     assert USER in camp["entities"] and HOST in camp["entities"]
 
+    assert state["executor_mode"] == "organ"        # sentinel shields wired (M2)
     assert state["fortress"]["telemetry_mac"] is True
     assert state["fortress"]["unverified_held"] == 0
     assert state["governor"]["config_integrity"] == "ok"

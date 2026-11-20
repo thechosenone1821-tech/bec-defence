@@ -62,11 +62,50 @@ except Exception:  # fortress absent: legacy behavior, everything unverified
 
 
 # --------------------------------------------------------------------------- #
-# In-process executor — DRY-RUN STUBS (M1)
-# The organs are ported to Sentinel shields in M2; until then every tool
-# returns a structurally faithful, clearly-labeled dry-run result. Nothing
-# touches the host. Shapes intentionally mirror the future real responses.
+# In-process executor — organ-backed (M2) with DRY_RUN fallback
+# Preferred path: the Sentinel shield organs (sentinel/shields). Their RPCs are
+# dry-run SAFE by construction (no os.kill, virtual graph cuts, simulated
+# eBPF). If the shields are not importable, degrade loudly to labeled
+# DRY_RUN stubs — never silently, never to something real.
+# RAKSHA_EXECUTOR=dry-run forces the stub table (CI, stages without shields).
 # --------------------------------------------------------------------------- #
+def _try_organ_executor():
+    from sentinel.shields.ring1_perimeter_identity import BECSpectralFilter, CookieFluidTurbulence
+    from sentinel.shields.ring2_ai_defense import BraggFFTFirewall, HessianLyapunovGuard
+    from sentinel.shields.ring3_endpoint_silicon import PageCurveTrap, LandauerThermalAudit
+    from sentinel.shields.ring4_network_healing import HashimotoPercolation, MutsEbpfRepair
+
+    bec = BECSpectralFilter()
+    cookie = CookieFluidTurbulence()
+    bragg = BraggFFTFirewall()
+    lyap = HessianLyapunovGuard()
+    trap = PageCurveTrap()  # dry-run by default: never os.kill from the bus
+    thermal = LandauerThermalAudit()
+    percol = HashimotoPercolation()
+    muts = MutsEbpfRepair()
+
+    table = {
+        "drop_bec_cluster": lambda a: bec.drop_cluster(a.get("cluster_id", "CLUS_UNKNOWN"), int(a.get("ttl_seconds", 3600))),
+        "revoke_turbulent_session": lambda a: cookie._rpc_revoke(a),
+        "quarantine_ai_document": lambda a: bragg._rpc_quarantine(a),
+        "clamp_lyapunov_steering": lambda a: lyap._rpc_clamp(a),
+        "arm_page_curve_traps": lambda a: trap._rpc_arm(a),
+        "isolate_thermal_anomaly_host": lambda a: thermal._rpc_isolate(a),
+        "execute_percolation_cut": lambda a: percol._rpc_execute_cut(a),
+        "deploy_muts_ebpf_shield": lambda a: muts._rpc_deploy(a),
+        "set_service_readonly": lambda a: {"status": "SERVICE_READONLY_SET", "service_id": a.get("service_id"), "ttl_seconds": a.get("ttl_seconds"), "dry_run": True},
+        "escalate_human_stepup": lambda a: {"status": "HUMAN_STEPUP_REQUESTED", "incident_id": a.get("incident_id"), "severity": a.get("severity"), "summary": str(a.get("summary", ""))[:280]},
+    }
+
+    def execute(tool: str, args: Dict[str, Any]) -> Dict[str, Any]:
+        fn = table.get(tool)
+        if fn is None:
+            return {"status": "ERROR", "reason": f"no executor for tool {tool}"}
+        return fn(args)
+
+    return execute, "organ"
+
+
 def _dry(tool: str, args: Dict[str, Any], **extra) -> Dict[str, Any]:
     out = {"status": f"DRY_RUN_{tool.upper()}", "tool": tool, "args": dict(args),
            "dry_run": True, "executed_at": time.time()}
@@ -74,7 +113,7 @@ def _dry(tool: str, args: Dict[str, Any], **extra) -> Dict[str, Any]:
     return out
 
 
-def _build_executor():
+def _build_dry_executor():
     table = {
         "drop_bec_cluster": lambda a: _dry("drop_bec_cluster", a,
             detail={"cluster_id": a.get("cluster_id"), "ttl_seconds": a.get("ttl_seconds", 3600)}),
@@ -108,7 +147,16 @@ def _build_executor():
             return {"status": "ERROR", "reason": f"no executor for tool {tool}"}
         return fn(args)
 
-    return execute
+    return execute, "dry-run"
+
+
+def _build_executor():
+    if os.environ.get("RAKSHA_EXECUTOR", "auto") != "dry-run":
+        try:
+            return _try_organ_executor()
+        except Exception as exc:
+            print(f"[spine] shields unavailable ({exc}); executor degraded to dry-run stubs")
+    return _build_dry_executor()
 
 
 # --------------------------------------------------------------------------- #
@@ -148,7 +196,7 @@ def create_app(policy_path: Optional[str] = None,
         except Exception:
             return {"frozen": False, "status": "tripwire unavailable"}
 
-    executor = _build_executor()
+    executor, executor_mode = _build_executor()
     orchestrate_lock = threading.Lock()
 
     async def broadcast(message: Dict[str, Any]) -> None:
@@ -244,12 +292,14 @@ def create_app(policy_path: Optional[str] = None,
         if orchestrator is not None:
             mode = orchestrator.mode()
         return {"status": "ok", "planes_3_4": _PLANES_34, "commander_mode": mode,
+                "executor_mode": executor_mode,
                 "uptime_sec": round(time.time() - state["started_at"], 1)}
 
     @app.get("/api/state")
     async def api_state():
         return {
             "buffered_events": len(buffer),
+            "executor_mode": executor_mode,
             "governor": governor.status() if governor is not None else None,
             "fortress": {"telemetry_mac": _FORTRESS,
                          "unverified_held": state_quarantine["unverified_held"],
