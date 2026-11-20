@@ -47,11 +47,12 @@ tests/                     pytest, grows with code
 
 ## 3. Build order (do not improvise the sequence)
 
-**M1 — Spine first (days 1):** extract from eigenshield-v2, with tests
-carried over: sanitizer → ledger (+ anchor) → Governor (+ TCB twins) →
-attack graph v2 (temporal + campaigns) → bus (verified-only ingest) →
-ledger CLI for replay. **Exit:** one synthetic campaign flows bus→graph→
-governor→ledger and back out via `/api/state`.
+**M1 — Spine first (days 1) — ✅ DONE 2026-11-20.** Extracted from
+eigenshield-v2, tests carried over: sanitizer → ledger (+ anchor) →
+Governor (+ TCB twins) → attack graph with campaign correlator v0 → bus
+(verified-only ingest) → ledger CLI (`spine/ledger_cli.py`). **Exit met:**
+one synthetic campaign flows bus→graph→Governor→ledger→`/api/state`
+(see `raksha-code/tests/test_m1_campaign_flow.py`; 27/27 green).
 
 **M2 — Sentinel shields (days 1–2):** Endpoint (parity trap on fixture FS),
 Identity (auth-log fixture → Ring-1 filter), Cloud (exfil heuristics on

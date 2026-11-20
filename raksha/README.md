@@ -1,8 +1,8 @@
 # RAKSHA — The Immune System for Digital India
 
-> **Status:** Documentation stage — **not yet built**. This directory is the
-> single source of truth for what RAKSHA is and how we build it.
-> **Last updated:** 2026-11-20 · **Version:** docs v0.1.0
+> **Status:** Building — **M1 (shared spine) is shipped and tested** in
+> `../raksha-code/` (27/27 green); the two apps are not started yet.
+> **Last updated:** 2026-11-20 · **Version:** docs v0.2.0
 > **Tagline:** *"We built Raksha. We sicked a ten-headed AI attacker on it. Live on stage."*
 
 RAKSHA is an AI-native, cross-layer cyber-defence ecosystem for India, built as

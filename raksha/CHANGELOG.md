@@ -29,6 +29,30 @@
 - Third-party numbers remain UNVERIFIED; see `CONTEXT.md §5` and
   `PROBLEM_STATEMENT.md` checklist. Nothing merged to `main`; PR #1 open.
 
+## [0.2.0] — 2026-11-20 — AI-assisted maintainer session — M1 spine shipped
+
+- `raksha-code/` monorepo created; spine ported from eigenshield-v2
+  (sanitizer, entity graph, ledger + anchor, Governor + TCB twins, tripwire,
+  canary, boot manifest, telemetry MAC, bus, orchestrator, watchdog, slip
+  client) and hardened: RAKSHA branding, package-relative boot manifest
+  (portable), layout-aware manifest lookup in Governor.status().
+- New in spine (not a straight port): attack-graph **campaign correlator v0**
+  (deterministic union-find over shared entity tokens in the sliding window;
+  stable `cmp_*` ids; exposed at `/api/state.campaigns`).
+- Executor is a **labeled DRY_RUN stub** — no host is ever touched until the
+  M2 Sentinel shields port the organs. Nothing executes for real.
+- Porting is copy-with-adaptation, NOT runtime dependency on eigenshield-v2;
+  that tree stays frozen as the reference build.
+- Tests: 27/27 green incl. new `test_m1_campaign_flow.py` — the BUILD_GUIDE
+  §M1 exit criterion: synthetic 3-event campaign flows bus → graph →
+  Governor → ledger → `/api/state`; unsigned batch is held closed
+  (`HELD_UNVERIFIED_EVIDENCE`); campaign fused as `cmp_*`.
+- Live boot smoke (port 8090) verified the same flow with a real uvicorn
+  process, `config_integrity: ok`, signed vs unsigned batch behavior.
+- Known deltas: env vars still `EIGENSHIELD_*` (RAKSHA_* rename scheduled
+  for v0.2 branding sweep); campaign correlator has no temporal kernel or
+  weighted fingerprint yet; citizen app untouched.
+
 ## Unreleased / parked
 
 - RAAVAN `playbook.yaml` (10 techniques, fixtures, expected defenses)

@@ -79,9 +79,9 @@ After ANY substantive change:
 | --- | --- |
 | EIGENSHIELD v2.1 FORTRESS | Built, tested, pushed (PR #1, open) |
 | RAKSHA docs | v0.1.0 — initial set committed |
-| raksha-code/ | NOT STARTED |
+| raksha-code/ | **M1 SHIPPED** — spine + tests green (27/27), PR #1 |
 | Citizen app | NOT STARTED |
-| Sentinel app | NOT STARTED |
+| Sentinel app | M2 next — port planes 1/2 organs into shields (see BUILD_GUIDE §4) |
 | RAAVAN playbook | NOT STARTED (spec'd in ARCHITECTURE §6) |
 | Verification of [VERIFY] stats | OPEN — maintainer must pull PIB/CERT-In releases |
 | Pilots | OPEN — no MoU yet |

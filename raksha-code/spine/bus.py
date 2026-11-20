@@ -1,0 +1,336 @@
+"""SPINE — FastAPI + WebSocket real-time telemetry broker.
+
+    python -m bus.event_server --policy config/policy.yaml \
+        --topology config/company_topology.json --model qwen3.5:4b \
+        --host 0.0.0.0 --port 8080
+
+Endpoints
+---------
+GET  /api/health      liveness + commander mode (slm | fallback_rules)
+GET  /api/state       ring buffer stats, entity-graph snapshot, last plan
+POST /api/ingest      raw organ event -> sanitize -> buffer -> broadcast
+POST /api/orchestrate force a correlation pass over the current buffer
+WS   /ws/telemetry    live feed: event | action_plan | governor_decision | tool_result
+GET  /                JSON service card (dashboard UI is built by the UI/UX team)
+
+High-severity ingests (severity >= 0.8) trigger a background orchestration
+pass automatically. The in-process executor dispatches Governor-APPROVED
+actions to the owning organs. In production this crosses a signed-RPC
+boundary (see reflexes.base_organ.sign_rpc); here it is one process.
+"""
+
+from __future__ import annotations
+
+import argparse
+import asyncio
+import json
+import os
+import threading
+import time
+from collections import deque
+from typing import Any, Dict, List, Optional, Set
+
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Body
+from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
+from starlette.concurrency import run_in_threadpool
+
+from spine.sanitizer import sanitize_event, sanitize_batch
+from spine.entity_graph import EntityGraph
+
+try:
+    from spine.orchestrator import Orchestrator
+    from spine.slm_client import SLMClient
+    from spine.governor import PolicyEngine
+    from spine.ledger import AuditLedger
+    _PLANES_34 = True
+except Exception:  # Plane 3/4 not importable: bus still serves telemetry
+    _PLANES_34 = False
+
+try:
+    from spine.telemetry_mac import sign_event, verify_event, SeenEventCache
+    _FORTRESS = True
+except Exception:  # fortress absent: legacy behavior, everything unverified
+    _FORTRESS = False
+    def sign_event(event):  # type: ignore
+        return dict(event)
+    def verify_event(event):  # type: ignore
+        return False
+    class SeenEventCache:  # type: ignore
+        def __init__(self, **kw): pass
+        def check_and_mark(self, event_id): return True
+
+
+# --------------------------------------------------------------------------- #
+# In-process executor — DRY-RUN STUBS (M1)
+# The organs are ported to Sentinel shields in M2; until then every tool
+# returns a structurally faithful, clearly-labeled dry-run result. Nothing
+# touches the host. Shapes intentionally mirror the future real responses.
+# --------------------------------------------------------------------------- #
+def _dry(tool: str, args: Dict[str, Any], **extra) -> Dict[str, Any]:
+    out = {"status": f"DRY_RUN_{tool.upper()}", "tool": tool, "args": dict(args),
+           "dry_run": True, "executed_at": time.time()}
+    out.update(extra)
+    return out
+
+
+def _build_executor():
+    table = {
+        "drop_bec_cluster": lambda a: _dry("drop_bec_cluster", a,
+            detail={"cluster_id": a.get("cluster_id"), "ttl_seconds": a.get("ttl_seconds", 3600)}),
+        "revoke_turbulent_session": lambda a: _dry("revoke_turbulent_session", a,
+            detail={"session_id": a.get("session_id"), "user_id": a.get("user_id"),
+                    "require_fido2": a.get("require_fido2", True)}),
+        "quarantine_ai_document": lambda a: _dry("quarantine_ai_document", a,
+            detail={"doc_hash": a.get("doc_hash"), "agent_id": a.get("agent_id")}),
+        "clamp_lyapunov_steering": lambda a: _dry("clamp_lyapunov_steering", a,
+            detail={"model_id": a.get("model_id"), "stiffness_gain": a.get("stiffness_gain")}),
+        "arm_page_curve_traps": lambda a: _dry("arm_page_curve_traps", a,
+            detail={"host_id": a.get("host_id"), "density_level": a.get("density_level")}),
+        "isolate_thermal_anomaly_host": lambda a: _dry("isolate_thermal_anomaly_host", a,
+            detail={"host_id": a.get("host_id"), "dump_hardware_trace": a.get("dump_hardware_trace")}),
+        "execute_percolation_cut": lambda a: _dry("execute_percolation_cut", a,
+            detail={"target_spectral_radius": a.get("target_spectral_radius"),
+                    "preserve_tier0_vlans": a.get("preserve_tier0_vlans")}),
+        "deploy_muts_ebpf_shield": lambda a: _dry("deploy_muts_ebpf_shield", a,
+            detail={"service_id": a.get("service_id"),
+                    "patch_profile_id": a.get("patch_profile_id")}),
+        "set_service_readonly": lambda a: _dry("set_service_readonly", a,
+            detail={"service_id": a.get("service_id"), "ttl_seconds": a.get("ttl_seconds")}),
+        "escalate_human_stepup": lambda a: _dry("escalate_human_stepup", a,
+            detail={"incident_id": a.get("incident_id"), "severity": a.get("severity"),
+                    "summary": str(a.get("summary", ""))[:280]}),
+    }
+
+    def execute(tool: str, args: Dict[str, Any]) -> Dict[str, Any]:
+        fn = table.get(tool)
+        if fn is None:
+            return {"status": "ERROR", "reason": f"no executor for tool {tool}"}
+        return fn(args)
+
+    return execute
+
+
+# --------------------------------------------------------------------------- #
+def create_app(policy_path: Optional[str] = None,
+               topology_path: Optional[str] = None,
+               model: Optional[str] = None) -> FastAPI:
+    app = FastAPI(title="RAKSHA Spine Telemetry Bus", version="0.1.0-m1")
+    # Dashboard is built separately by the UI/UX team (see docs/UI_UX_BRIEF.md);
+    # allow static dev servers on any origin. No credentials are used.
+    app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=False,
+                       allow_methods=["*"], allow_headers=["*"])
+
+    buffer: deque[Dict[str, Any]] = deque(maxlen=500)
+    seen_ids = SeenEventCache()
+    state_quarantine = {"unverified_held": 0, "replay_dropped": 0}
+    graph = EntityGraph()
+    clients: Set[WebSocket] = set()
+    state = {"last_plan": None, "orchestration_count": 0, "started_at": time.time()}
+
+    ledger = None
+    governor = None
+    orchestrator = None
+    if _PLANES_34:
+        policy_path = policy_path or os.path.join(os.path.dirname(__file__), "config", "policy.yaml")
+        ledger = AuditLedger(os.path.join(os.path.dirname(policy_path), "audit_ledger.jsonl"))
+        try:
+            governor = PolicyEngine(policy_path, ledger=ledger)
+            slm = SLMClient(model=model or os.environ.get("EIGENSHIELD_MODEL", "qwen3.5:4b"))
+            orchestrator = Orchestrator(slm=slm)
+        except Exception as exc:
+            print(f"[bus] Plane 3/4 wiring degraded: {exc}")
+
+    def _tripwire_status():
+        try:
+            from spine import tripwire
+            return tripwire.shared().status()
+        except Exception:
+            return {"frozen": False, "status": "tripwire unavailable"}
+
+    executor = _build_executor()
+    orchestrate_lock = threading.Lock()
+
+    async def broadcast(message: Dict[str, Any]) -> None:
+        dead: List[WebSocket] = []
+        payload = json.dumps(message, default=str)
+        for ws in list(clients):
+            try:
+                await ws.send_text(payload)
+            except Exception:
+                dead.append(ws)
+        for ws in dead:
+            clients.discard(ws)
+
+    def run_pipeline(trigger: str = "manual") -> Dict[str, Any]:
+        if orchestrator is None or governor is None:
+            return {"status": "DEGRADED", "reason": "Plane 3/4 not wired"}
+        with orchestrate_lock:
+            events = list(buffer)[-50:]
+            if not events:
+                return {"status": "NO_EVENTS"}
+            # FORTRESS: the Commander NEVER sees unsigned telemetry. Forged
+            # events remain visible in the buffer/dashboard (they are security
+            # evidence themselves) but cannot steer the AI or reach an executor.
+            evidence_events = [e for e in events if e.get("verified")]
+            if not evidence_events:
+                try:
+                    from spine import tripwire
+                    tripwire.shared().record("unverified_disruptive")
+                except ImportError:
+                    pass
+                return {"status": "HELD_UNVERIFIED_EVIDENCE",
+                        "reason": "no organ-signed telemetry in window; AI path held closed",
+                        "unverified_events": len(events)}
+            plan = orchestrator.plan_actions(evidence_events, graph_payload=graph.payload())
+            decisions = []
+            results = []
+            for action in plan.get("actions", []):
+                decision = governor.evaluate(action, context={"trigger": trigger, "graph": graph.snapshot()})
+                decisions.append(decision)
+                if decision["decision"] == "APPROVED":
+                    result = executor(action["tool"], action.get("args", {}))
+                    results.append({"tool": action["tool"], "result": result})
+                else:
+                    results.append({"tool": action["tool"], "result": {"status": decision["decision"]}})
+            state["last_plan"] = plan
+            state["orchestration_count"] += 1
+            bundle = {"status": "OK", "trigger": trigger, "plan_id": plan.get("plan_id"),
+                      "commander_mode": plan.get("commander_mode"),
+                      "actions": plan.get("actions", []),
+                      "decisions": decisions, "results": results,
+                      "brief": plan.get("brief", "")}
+            if ledger is not None:
+                ledger.append("orchestration", bundle)
+            return bundle
+
+    def _auto_orchestrate() -> None:
+        bundle = run_pipeline(trigger="auto_high_severity")
+        try:
+            asyncio.run(broadcast({"type": "action_plan", "data": bundle}))
+        except Exception:
+            pass  # WS feed is best-effort
+
+    def maybe_auto_orchestrate(event: Dict[str, Any]) -> None:
+        if event.get("severity", 0) >= 0.8 and event.get("verified") and _PLANES_34:
+            threading.Thread(target=_auto_orchestrate, daemon=True).start()
+
+    # ------------------------------------------------------------------ #
+    async def ingest_trusted(event: Dict[str, Any]) -> Dict[str, Any]:
+        """In-process organ path: sign, buffer, broadcast. Never reachable from HTTP."""
+        raw = sign_event(dict(event))
+        evt = sanitize_event(raw)
+        evt["verified"] = verify_event(raw)
+        if seen_ids.check_and_mark(evt["event_id"]):
+            buffer.append(evt)
+            graph.add_event(evt)
+        await broadcast({"type": "event", "data": evt})
+        return evt
+
+    app.state_ingest_trusted = ingest_trusted  # for tests/tools; not routed
+
+    @app.get("/")
+    async def root():
+        return {
+            "service": "RAKSHA Spine Telemetry Bus",
+            "status": "online",
+            "dashboard": "served separately — see raksha/ROADMAP.md (SOC console owned by UI/UX team)",
+            "endpoints": ["/api/health", "/api/state", "/api/ingest", "/api/orchestrate", "/ws/telemetry"],
+        }
+
+    @app.get("/api/health")
+    async def health():
+        mode = "unavailable"
+        if orchestrator is not None:
+            mode = orchestrator.mode()
+        return {"status": "ok", "planes_3_4": _PLANES_34, "commander_mode": mode,
+                "uptime_sec": round(time.time() - state["started_at"], 1)}
+
+    @app.get("/api/state")
+    async def api_state():
+        return {
+            "buffered_events": len(buffer),
+            "governor": governor.status() if governor is not None else None,
+            "fortress": {"telemetry_mac": _FORTRESS,
+                         "unverified_held": state_quarantine["unverified_held"],
+                         "replay_dropped": state_quarantine["replay_dropped"],
+                         **({"tripwire": _tripwire_status()} if _FORTRESS else {})},
+            "entity_graph": graph.snapshot(),
+            "campaigns": graph.campaigns(),
+            "last_plan": state["last_plan"],
+            "orchestration_count": state["orchestration_count"],
+            "recent_events": list(buffer)[-20:],
+        }
+
+    @app.post("/api/ingest")
+    async def ingest(payload: Any = Body(...)):
+        raw_events = payload if isinstance(payload, list) else [payload]
+        sanitized = sanitize_batch(raw_events)
+        accepted = 0
+        unverified = 0
+        for evt in sanitized:
+            raw_match = next((r for r in raw_events if isinstance(r, dict)
+                              and r.get("event_id") == evt.get("event_id")), None)
+            verified = bool(raw_match and verify_event(raw_match))
+            if verified and not seen_ids.check_and_mark(evt["event_id"]):
+                state_quarantine["replay_dropped"] += 1
+                continue  # replay: dropped, not reprocessed
+            evt = dict(evt)
+            evt["verified"] = verified
+            if not verified:
+                state_quarantine["unverified_held"] += 1
+                unverified += 1
+            try:
+                from spine.sanitizer import looks_like_injection
+                blob = json.dumps(raw_match or evt, default=str)
+                if looks_like_injection(blob):
+                    from spine import tripwire
+                    tripwire.shared().record("injection_marker")
+            except Exception:
+                pass
+            buffer.append(evt)
+            if verified:
+                graph.add_event(evt)
+            accepted += 1
+            await broadcast({"type": "event", "data": evt})
+            maybe_auto_orchestrate(evt)
+        return {"accepted": accepted, "received": len(raw_events), "unverified": unverified}
+
+    @app.post("/api/orchestrate")
+    async def orchestrate():
+        bundle = await run_in_threadpool(run_pipeline, "manual")
+        await broadcast({"type": "action_plan", "data": bundle})
+        return JSONResponse(bundle)
+
+    @app.websocket("/ws/telemetry")
+    async def ws_telemetry(ws: WebSocket):
+        await ws.accept()
+        clients.add(ws)
+        try:
+            await ws.send_text(json.dumps({"type": "hello", "data": {"buffered_events": len(buffer)}}))
+            while True:
+                await ws.receive_text()  # keepalive / client pings
+        except WebSocketDisconnect:
+            pass
+        finally:
+            clients.discard(ws)
+
+    return app
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description="RAKSHA spine telemetry broker")
+    parser.add_argument("--policy", default="config/policy.yaml")
+    parser.add_argument("--topology", default="config/company_topology.json")
+    parser.add_argument("--model", default=os.environ.get("EIGENSHIELD_MODEL", "qwen3.5:4b"))
+    parser.add_argument("--host", default="0.0.0.0")
+    parser.add_argument("--port", type=int, default=8080)
+    args = parser.parse_args()
+
+    import uvicorn
+    app = create_app(policy_path=args.policy, topology_path=args.topology, model=args.model)
+    uvicorn.run(app, host=args.host, port=args.port, log_level="info")
+
+
+if __name__ == "__main__":
+    main()
