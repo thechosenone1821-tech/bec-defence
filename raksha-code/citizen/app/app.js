@@ -58,8 +58,17 @@ let activeStream = null;
 let cancelCapture = false;
 
 consentVoice.addEventListener("change", () => {
+  if (!consentVoice.checked) {
+    if (activeRecorder && activeRecorder.state !== "inactive") {
+      cancelCapture = true;
+      activeRecorder.stop();
+      stopMicrophoneTracks();
+      setVoiceState("inactive", "Consent withdrawn. Recording stopped; no sample will be sent.");
+    } else {
+      voiceStatusText.textContent = "Microphone inactive. Consent is required before access.";
+    }
+  }
   btnVoice.disabled = !consentVoice.checked || Boolean(activeRecorder);
-  if (!consentVoice.checked && !activeRecorder) voiceStatusText.textContent = "Microphone inactive. Consent is required before access.";
 });
 function setVoiceState(state, message) {
   voiceStatus.dataset.state = state;
@@ -149,6 +158,7 @@ btnVoice.addEventListener("click", async () => {
   try {
     setVoiceState("requesting", "Waiting for microphone permission…");
     samples = await captureTwoSecondWindow();
+    if (!consentVoice.checked) throw new Error("Consent was withdrawn. No sample was sent.");
     setVoiceState("processing", "Sending the consented sample to the configured RAKSHA service…");
     const v = await api("/api/citizen/screen_voice", {consent:true,sample_rate:16000,samples:Array.from(samples)});
     const toneClass = v.verdict === "SUSPICIOUS" ? "HIGH" : (v.verdict === "LIKELY_GENUINE" ? "LOW" : "MODERATE");
@@ -206,5 +216,12 @@ btnReport.addEventListener("click", async () => {
     btnReport.disabled = false;
     btnReport.textContent = "Send report";
   }
+});
+window.addEventListener("pagehide", () => {
+  if (activeRecorder && activeRecorder.state !== "inactive") {
+    cancelCapture = true;
+    activeRecorder.stop();
+  }
+  stopMicrophoneTracks();
 });
 if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js").catch(() => {});

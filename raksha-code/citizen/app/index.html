@@ -9,63 +9,70 @@
 <title>RAKSHA Citizen — डिजिटल रक्षक</title>
 </head>
 <body>
-<header><div class="logo">RAKSHA<span>रक्षक</span></div><div class="badge">ADVISORY SCREENING</div></header>
+<header>
+  <div class="logo">RAKSHA<span>रक्षक</span></div>
+  <div class="badge">DEMO BUILD — heuristic detectors</div>
+</header>
+
 <nav class="tabs">
   <button class="tab active" data-tab="home">Home</button>
   <button class="tab" data-tab="message">Check Message</button>
-  <button class="tab" data-tab="voice">VoiceGuard</button>
+  <button class="tab" data-tab="voice">Check Voice</button>
   <button class="tab" data-tab="report">Report</button>
 </nav>
+
 <main>
   <section id="home" class="panel active">
     <h1>The shield between your family<br>and the scammers.</h1>
-    <p class="lede">Check a suspicious message. Screen a short voice sample. Report an incident without attaching private audio.</p>
+    <p class="lede">Paste a suspicious message. Screen a suspicious call.
+       Report with one tap. Raksha watches so you don't have to.</p>
     <div class="stats">
       <div class="stat"><b>1930</b><span>National cybercrime helpline</span></div>
-      <div class="stat"><b>2 sec</b><span>Voice sample window</span></div>
-      <div class="stat"><b>0</b><span>Audio files retained after screening</span></div>
+      <div class="stat"><b>&lt;2s</b><span>on-device verdict time</span></div>
+      <div class="stat"><b>0</b><span>bytes of raw content sent anywhere</span></div>
     </div>
-    <div class="callout danger">If someone claims arrest proceedings, asks for UPI PIN, OTP or CVV — do not act under pressure. Call 1930.</div>
+    <div class="callout danger">If someone claims arrest proceedings, asks for UPI PIN, OTP or CVV — it is a scam. Hang up. Call 1930.</div>
   </section>
+
   <section id="message" class="panel">
     <h2>Check a message</h2>
     <p class="hint">SMS / WhatsApp / call script — anything you doubt. English · हिंदी · తెలుగు.</p>
     <textarea id="msgText" rows="5" placeholder="e.g. प्रिय ग्राहक, आपका खाता 24 घंटे में बंद..."></textarea>
     <button class="primary" id="btnScreenMessage">Screen this message</button>
-    <div id="msgResult" class="result hidden" aria-live="polite"></div>
+    <div id="msgResult" class="result hidden"></div>
   </section>
+
   <section id="voice" class="panel">
-    <h2>VoiceGuard</h2>
-    <p class="hint">Record a short sample using your microphone. VoiceGuard does not listen to or intercept phone calls; it only analyses the sample you choose to record.</p>
-    <div class="privacy-note">
-      <strong>Before recording</strong>
-      <p>Your two-second sample will be sent to the RAKSHA service configured for this app for screening. Use only a server you trust or host yourself. Audio is processed in memory and is not saved, reported, or added to telemetry.</p>
-    </div>
-    <label class="consent-row"><input type="checkbox" id="voiceConsent"><span>I understand and consent to sending a two-second microphone sample to this RAKSHA service.</span></label>
-    <div class="voice-controls">
-      <button class="primary" id="btnScreenVoice" disabled>Record 2-second sample and screen</button>
-      <button class="secondary hidden" id="btnCancelVoice" type="button">Stop recording</button>
-    </div>
-    <div id="voiceStatus" class="voice-status" role="status" aria-live="polite"><span class="mic-indicator" id="micIndicator"></span><span id="voiceStatusText">Microphone inactive. Consent is required before access.</span></div>
-    <div id="voiceResult" class="result hidden" aria-live="polite"></div>
+    <h2>Check a voice</h2>
+    <p class="hint">Voice screening is a <b>heuristic fallback</b> in this demo and is labelled as such on every verdict. Only bundled sample tones are analysed here — the production anti-spoof model ships separately behind the same screen.</p>
+    <button class="primary" id="btnScreenVoice">Analyse sample tone A (synthetic)</button>
+    <div id="voiceResult" class="result hidden"></div>
   </section>
+
   <section id="report" class="panel">
     <h2>Report an incident — one tap</h2>
-    <p class="hint">Reports contain the category and a severity band. VoiceGuard audio is never attached to a report.</p>
+    <p class="hint">No phone numbers, no message content, no personal data leaves this phone. We send only the category and a severity band — signed and tokenized.</p>
     <div class="report-grid">
-      <button class="chip" data-cat="voice">Voice / call scam</button>
-      <button class="chip" data-cat="message">Message scam</button>
-      <button class="chip" data-cat="financial">Money / UPI fraud</button>
-      <button class="chip" data-cat="other">Other</button>
+      <button class="chip" data-cat="voice">📞 Voice / call scam</button>
+      <button class="chip" data-cat="message">💬 Message scam</button>
+      <button class="chip" data-cat="financial">🪙 Money / UPI fraud</button>
+      <button class="chip" data-cat="other">⚠️ Other</button>
     </div>
-    <input id="caseRef" class="case-ref" type="text" maxlength="40" placeholder="Case ref (demo kits only — leave blank normally)" autocomplete="off">
-    <label class="sev">Severity<input type="range" id="sevRange" min="0" max="100" value="80"><span id="sevVal">0.80</span></label>
+    <input id="caseRef" class="case-ref" type="text" maxlength="40"
+           placeholder="Case ref (demo kits only — leave blank normally)" autocomplete="off">
+    <label class="sev">Severity
+      <input type="range" id="sevRange" min="0" max="100" value="80">
+      <span id="sevVal">0.80</span>
+    </label>
     <button class="primary" id="btnReport">Send report</button>
-    <div id="reportResult" class="result hidden" aria-live="polite"></div>
-    <a class="panic" href="tel:1930">Need help now? Call 1930</a>
+    <div id="reportResult" class="result hidden"></div>
+    <a class="panic" href="tel:1930">🆘 Need help now? Call 1930</a>
   </section>
 </main>
-<footer>RAKSHA Citizen · open-source defence for every Indian phone · verdicts are advisory, not legal or police advice</footer>
+
+<footer>
+  RAKSHA Citizen · open-source defence for every Indian phone · verdicts are advisory, not legal or police advice
+</footer>
 <script src="app.js"></script>
 </body>
 </html>
