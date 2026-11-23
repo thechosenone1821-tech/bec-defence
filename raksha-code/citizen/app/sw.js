@@ -1,14 +1,17 @@
 /* RAKSHA Citizen — offline shell cache */
-const CACHE = "raksha-citizen-v0.3.0";
+const CACHE = "raksha-citizen-v0.4.0-voiceguard";
 const ASSETS = ["./", "./index.html", "./styles.css", "./app.js", "./manifest.json"];
-
-self.addEventListener("install", e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)));
+self.addEventListener("install", event => {
+  event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(ASSETS)));
   self.skipWaiting();
 });
-self.addEventListener("activate", e => e.waitUntil(clients.claim()));
-self.addEventListener("fetch", e => {
-  const url = new URL(e.request.url);
-  if (url.pathname.startsWith("/api/")) return; /* never cache verdicts or reports */
-  e.respondWith(caches.match(e.request).then(r => r || fetch(e.request)));
+self.addEventListener("activate", event => {
+  event.waitUntil(caches.keys().then(keys => Promise.all(
+    keys.filter(key => key.startsWith("raksha-citizen-") && key !== CACHE).map(key => caches.delete(key))
+  )).then(() => clients.claim()));
+});
+self.addEventListener("fetch", event => {
+  const url = new URL(event.request.url);
+  if (url.pathname.startsWith("/api/")) return;
+  event.respondWith(caches.match(event.request).then(response => response || fetch(event.request)));
 });
