@@ -202,6 +202,20 @@
   operating-system phone-call audio, and the configured service receives the
   explicitly consented sample for processing.
 
+## [0.9.1] — 2026-11-23 — VoiceGuard build session — Phase 5 handoff audit
+
+- Audited the final branch tree and restored the optional ONNX adapter and its
+  mock-session tests after an intermediate stale-tree commit omitted them.
+- Added a regression test ensuring screened audio and derived feature vectors
+  are not attached to the Citizen incident-report event.
+- Hardened page-exit cleanup: active capture is marked cancelled and consent
+  cleared before recorder and microphone tracks are stopped.
+- Focused isolated test workspace: 24/24 tests passed; JavaScript syntax check
+  passed. These are focused checks, not the full repository suite.
+- Full repository pytest/service smoke suite remains unverified because the
+  sandbox could not clone the repository (network/DNS unavailable). A real
+  browser microphone session also remains a manual release gate.
+
 ## Unreleased / parked
 
 - RAAVAN `playbook.yaml` (10 techniques, fixtures, expected defenses)

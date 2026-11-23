@@ -116,3 +116,21 @@ def test_voice_endpoint_requires_sample_list(client):
         json={"samples": "not audio", "consent": True},
     )
     assert response.status_code == 422
+
+
+def test_screened_audio_is_not_attached_to_incident_report(client, captured):
+    voice = client.post(
+        "/api/citizen/screen_voice",
+        json={"samples": _tone(), "sample_rate": 16000, "consent": True},
+    )
+    assert voice.status_code == 200
+    report = client.post(
+        "/api/citizen/report",
+        json={"category": "voice", "severity": 0.8},
+    )
+    assert report.status_code == 200
+    assert len(captured) == 1
+    event_text = json.dumps(captured[0])
+    assert "samples" not in event_text
+    assert "spectral_centroid" not in event_text
+    assert "lfcc_mean" not in event_text

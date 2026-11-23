@@ -40,3 +40,11 @@ def test_samples_are_sent_only_with_explicit_consent_and_cleared():
 def test_service_worker_never_caches_api_requests():
     sw = (APP / "sw.js").read_text(encoding="utf-8")
     assert 'if (url.pathname.startsWith("/api/")) return;' in sw
+
+
+def test_page_exit_marks_active_capture_cancelled_before_stopping():
+    js = (APP / "app.js").read_text(encoding="utf-8")
+    pagehide = js.split('window.addEventListener("pagehide"', 1)[1]
+    assert "cancelCapture = true;" in pagehide
+    assert "consentVoice.checked = false;" in pagehide
+    assert "stopMicrophoneTracks();" in pagehide

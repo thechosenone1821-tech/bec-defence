@@ -58,16 +58,19 @@ roadmap therefore follows the explicit VoiceGuard contract in
 - Exit gate: JavaScript syntax check and focused PWA regression tests pass.
 
 ## Phase 5 — End-to-end verification, documentation, and handoff
-**Status: IN PROGRESS**
+**Status: PARTIAL — branch audit and focused checks complete; full suite/browser check pending**
 
-- Focused acoustic, model adapter, API and PWA checks: 24/24 pass locally.
-- Next verification: run the repository's complete pytest suite and service
-  smoke checks from a complete checkout; compare against the pre-existing
-  67-test baseline and fix regressions.
-- Verify PWA in a real browser for microphone permission, cancellation,
-  resampling and memory cleanup. Static checks are not a substitute for a
-  browser session.
-- Document optional ONNX Runtime setup and the exact model export contract.
+- Focused acoustic, mock ONNX adapter, API-contract and PWA static checks:
+  24/24 pass in an isolated local test workspace; JavaScript syntax check passes.
+- Final Git tree audit confirms all VoiceGuard core, model, API, PWA, test and
+  documentation files coexist on this branch. An intermediate stale-tree
+  commit dropped the model adapter; it was detected and restored before handoff.
+- The complete repository pytest suite and service smoke checks were not run:
+  the sandbox could not clone GitHub (DNS/network unavailable), so this is not
+  a claim that the existing 67-test suite remains green.
+- Real-browser microphone permission, cancellation, resampling and cleanup
+  still need manual verification; static tests are not a browser session.
+- Documented optional ONNX Runtime setup and the exact model export contract.
 - Report exact outcomes and remaining limitations. Do not claim anti-spoof
   accuracy until supplied model weights are benchmarked on representative
   consented data.

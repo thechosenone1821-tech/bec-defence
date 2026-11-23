@@ -218,10 +218,9 @@ btnReport.addEventListener("click", async () => {
   }
 });
 window.addEventListener("pagehide", () => {
-  if (activeRecorder && activeRecorder.state !== "inactive") {
-    cancelCapture = true;
-    activeRecorder.stop();
-  }
+  cancelCapture = true;
+  consentVoice.checked = false;
+  if (activeRecorder && activeRecorder.state !== "inactive") activeRecorder.stop();
   stopMicrophoneTracks();
 });
 if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js").catch(() => {});
