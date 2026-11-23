@@ -210,7 +210,7 @@
   are not attached to the Citizen incident-report event.
 - Hardened page-exit cleanup: active capture is marked cancelled and consent
   cleared before recorder and microphone tracks are stopped.
-- Focused isolated test workspace: 24/24 tests passed; JavaScript syntax check
+- Focused isolated test workspace: 25/25 tests passed; JavaScript syntax check
   passed. These are focused checks, not the full repository suite.
 - Full repository pytest/service smoke suite remains unverified because the
   sandbox could not clone the repository (network/DNS unavailable). A real

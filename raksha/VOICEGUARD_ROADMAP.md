@@ -61,7 +61,7 @@ roadmap therefore follows the explicit VoiceGuard contract in
 **Status: PARTIAL — branch audit and focused checks complete; full suite/browser check pending**
 
 - Focused acoustic, mock ONNX adapter, API-contract and PWA static checks:
-  24/24 pass in an isolated local test workspace; JavaScript syntax check passes.
+  25/25 pass in an isolated local test workspace; JavaScript syntax check passes.
 - Final Git tree audit confirms all VoiceGuard core, model, API, PWA, test and
   documentation files coexist on this branch. An intermediate stale-tree
   commit dropped the model adapter; it was detected and restored before handoff.
