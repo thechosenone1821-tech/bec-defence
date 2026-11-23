@@ -170,6 +170,52 @@
   human tasks — NOT done, not claimable from this sandbox.
 - Docs frozen for rehearsal at v0.7.0. Tests 67/67.
 
+## [0.8.0] — 2026-11-23 — VoiceGuard build session — Acoustic core, ONNX boundary, consent-gated API
+
+- Replaced the tone-only VoiceGuard stub with bounded two-second, 16 kHz
+  mono input validation and deterministic spectral/LFCC/LPCC descriptors.
+- Preserved the conservative fallback: degenerate signal anomalies may be
+  flagged, but ordinary speech remains INCONCLUSIVE without a supplied model.
+- Added an optional ONNX Runtime adapter with a documented waveform/output
+  contract. No trained weights or performance claims are bundled.
+- Added explicit API consent gating, a strict 32,000-sample cap, sample-rate
+  validation, model-readiness reporting, and request-memory-only audio handling.
+- Focused local suite: 19 VoiceGuard/model/API tests passed. This is not a
+  claim that the repository-wide suite has run in this environment.
+- The browser UI and PWA microphone flow are still pending; browser capture
+  is not an operating-system phone-call interception capability.
+- Added `raksha/features.md` as a transparent source-backed inventory because
+  no pre-existing `features.md` or Maya path was present in `main_final`.
+
+## [0.9.0] — 2026-11-23 — VoiceGuard build session — Consent-first PWA microphone UX
+
+- Replaced the bundled sample-tone demo with user-started two-second
+  microphone capture, explicit consent, visible recording state, a cancel
+  control, 16 kHz mono resampling, and track cleanup on completion/failure.
+- Consent withdrawal cancels in-flight capture before submission; page exit
+  stops active recording and microphone tracks. Temporary sample arrays are
+  zeroed after screening.
+- Updated offline-shell cache version; API paths remain excluded from caching.
+- Added five PWA privacy/behavior regression checks. JavaScript syntax check
+  passed; focused VoiceGuard/model/API/PWA suite: 24 passed locally.
+- Browser capture screens a sample the user records. It does not access
+  operating-system phone-call audio, and the configured service receives the
+  explicitly consented sample for processing.
+
+## [0.9.1] — 2026-11-23 — VoiceGuard build session — Phase 5 handoff audit
+
+- Audited the final branch tree and restored the optional ONNX adapter and its
+  mock-session tests after an intermediate stale-tree commit omitted them.
+- Added a regression test ensuring screened audio and derived feature vectors
+  are not attached to the Citizen incident-report event.
+- Hardened page-exit cleanup: active capture is marked cancelled and consent
+  cleared before recorder and microphone tracks are stopped.
+- Focused isolated test workspace: 25/25 tests passed; JavaScript syntax check
+  passed. These are focused checks, not the full repository suite.
+- Full repository pytest/service smoke suite remains unverified because the
+  sandbox could not clone the repository (network/DNS unavailable). A real
+  browser microphone session also remains a manual release gate.
+
 ## Unreleased / parked
 
 - RAAVAN `playbook.yaml` (10 techniques, fixtures, expected defenses)
