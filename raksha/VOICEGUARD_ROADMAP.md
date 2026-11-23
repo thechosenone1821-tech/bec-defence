@@ -14,66 +14,67 @@ roadmap therefore follows the explicit VoiceGuard contract in
 ## Phase 1 — Audio contract and feature extraction
 **Status: COMPLETE**
 
-- Define a strict mono, 16 kHz, maximum two-second audio contract.
+- Strict mono, 16 kHz, maximum two-second audio contract.
 - Reject malformed, non-finite, oversized, multi-channel, and unsupported-rate
   input without producing a positive authenticity verdict.
-- Add stable spectral descriptors, LFCC and LPCC summaries.
-- Keep fallback behavior conservative: silence and degenerate signal patterns
-  can be surfaced; ordinary speech is INCONCLUSIVE.
-- Tests: input bounds, deterministic behavior, feature shape/finiteness,
-  silence, tone, and non-claim behavior.
+- Spectral descriptors, LFCC and LPCC summaries.
+- Conservative fallback: degenerate signal anomalies can be surfaced;
+  ordinary speech remains INCONCLUSIVE.
 - Exit gate: focused VoiceGuard tests green.
 
 ## Phase 2 — Optional local anti-spoof model adapter
 **Status: COMPLETE (adapter only; no trained weights)**
 
-- Add an ONNX Runtime adapter with an explicit 16 kHz, 32,000-sample waveform
-  input and documented probability/logit output contract.
-- Support a configurable local model file through
-  \`RAKSHA_VOICEGUARD_ONNX\`; never download weights automatically.
-- Cache a loaded model; if it cannot load or inference returns invalid values,
-  fail closed to INCONCLUSIVE/fallback.
-- Add tests using deterministic fake sessions for the ONNX boundary.
-- Exit gate: model interface, output shape, thresholds, and model-error tests
-  green. Actual model accuracy is not an exit claim.
+- ONNX Runtime adapter with a 16 kHz, 32,000-sample waveform input and
+  documented probability/logit output contract.
+- Configurable local model file through \`RAKSHA_VOICEGUARD_ONNX\`; no
+  automatic model downloads.
+- Model load or inference errors fail closed.
+- Exit gate: deterministic mock-session, output, threshold and failure tests
+  green. This does not measure real model accuracy.
 
 ## Phase 3 — Privacy-aware API and service integration
 **Status: COMPLETE**
 
-- Require \`consent: true\` on every voice-screen request.
-- Enforce at most 32,000 mono samples at 16 kHz.
-- Expose model readiness without revealing a local filesystem path.
-- Keep raw audio out of persistent storage, report events, and telemetry.
-- Preserve the signed Citizen incident-report flow.
-- Exit gate: consent, validation, response, and retention-contract tests green.
+- Every voice-screen request requires \`consent: true\`.
+- Maximum 32,000 mono samples at 16 kHz.
+- Model readiness is exposed without disclosing a local filesystem path.
+- Raw audio is kept out of persistent storage, incident reports and telemetry.
+- Existing signed Citizen report path preserved.
+- Exit gate: API consent, validation, response and retention tests green.
 
 ## Phase 4 — Consent-first Citizen PWA microphone experience
-**Status: IN PROGRESS**
+**Status: COMPLETE**
 
-- Replace the bundled sample-tone button with a user-started microphone sample.
-- Explain that the sample is sent to the configured RAKSHA service for
-  screening; require the user to confirm before requesting microphone access.
-- Show a clear recording indicator while capturing, stop tracks immediately,
-  and clear in-memory audio after analysis (target under 3 seconds after capture).
-- Show verdict, engine/model status, advisory limitations, and the 1930 route.
-- Do not claim to monitor or intercept the live phone call. Native Android
-  call-screening integration is outside this PWA phase.
-- Tests: JavaScript syntax/static checks, safe error handling, and manual
-  browser permission/capture/cleanup checklist.
-- Exit gate: consent cannot be bypassed through UI; tracks are stopped on
-  success, failure, and cancellation; no audio persisted.
+- Removed bundled test-tone button and added user-started microphone capture.
+- Consent is unchecked by default and explained before microphone access.
+- Capture is visibly indicated and limited to two seconds; the user can cancel.
+- Audio is converted to mono 16 kHz, then sent only to the configured service
+  after rechecking consent.
+- Microphone tracks stop on completion, failure, cancellation and page exit.
+  In-memory arrays are cleared after screening.
+- API responses and report flows remain separate; service worker never caches
+  API requests.
+- Exit gate: JavaScript syntax check and focused PWA regression tests pass.
 
 ## Phase 5 — End-to-end verification, documentation, and handoff
-**Status: PENDING**
+**Status: IN PROGRESS**
 
-- Run focused VoiceGuard tests and the complete existing repository pytest
-  suite; resolve regressions.
-- Add integration tests for health/model readiness, consent gate, API request
-  validation, and absence of audio in Citizen report events.
-- Run service-worker/PWA smoke tests and document browser support/limitations.
-- Update README, changelog, and feature matrix; publish setup instructions
-  for optional ONNX Runtime and local model weights.
-- Report exact test outcomes, what is still unmeasured, and the native Android
-  follow-on requirement.
-- Exit gate: all available tests pass; no claim of deepfake accuracy without a
-  separately benchmarked and supplied model.
+- Focused acoustic, model adapter, API and PWA checks: 24/24 pass locally.
+- Next verification: run the repository's complete pytest suite and service
+  smoke checks from a complete checkout; compare against the pre-existing
+  67-test baseline and fix regressions.
+- Verify PWA in a real browser for microphone permission, cancellation,
+  resampling and memory cleanup. Static checks are not a substitute for a
+  browser session.
+- Document optional ONNX Runtime setup and the exact model export contract.
+- Report exact outcomes and remaining limitations. Do not claim anti-spoof
+  accuracy until supplied model weights are benchmarked on representative
+  consented data.
+
+## Non-negotiable boundaries
+
+- This PWA cannot intercept cellular/VoIP call audio. Native Android
+  CallScreeningService integration is a separate project phase.
+- No model weights or real-world performance dataset are present in the repo.
+- VoiceGuard is advisory; a verdict cannot identify a caller or prove fraud.

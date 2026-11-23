@@ -187,6 +187,21 @@
 - Added `raksha/features.md` as a transparent source-backed inventory because
   no pre-existing `features.md` or Maya path was present in `main_final`.
 
+## [0.9.0] — 2026-11-23 — VoiceGuard build session — Consent-first PWA microphone UX
+
+- Replaced the bundled sample-tone demo with user-started two-second
+  microphone capture, explicit consent, visible recording state, a cancel
+  control, 16 kHz mono resampling, and track cleanup on completion/failure.
+- Consent withdrawal cancels in-flight capture before submission; page exit
+  stops active recording and microphone tracks. Temporary sample arrays are
+  zeroed after screening.
+- Updated offline-shell cache version; API paths remain excluded from caching.
+- Added five PWA privacy/behavior regression checks. JavaScript syntax check
+  passed; focused VoiceGuard/model/API/PWA suite: 24 passed locally.
+- Browser capture screens a sample the user records. It does not access
+  operating-system phone-call audio, and the configured service receives the
+  explicitly consented sample for processing.
+
 ## Unreleased / parked
 
 - RAAVAN `playbook.yaml` (10 techniques, fixtures, expected defenses)
