@@ -1,2 +1,0 @@
-# Optional runtime only. No model weights are downloaded or bundled.
-onnxruntime>=1.17

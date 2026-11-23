@@ -1,6 +1,7 @@
 import json
 import os
 import sys
+import math
 
 import pytest
 
@@ -17,51 +18,101 @@ def captured():
 
 @pytest.fixture()
 def client(captured):
-    app = build_app(bus_url="http://unused.invalid",
-                    poster=lambda evt: (captured.append(evt), {"accepted": 1})[1])
+    app = build_app(
+        bus_url="http://unused.invalid",
+        poster=lambda evt: (captured.append(evt), {"accepted": 1})[1],
+        voice_model_provider=lambda: None,
+        voice_model_status_provider=lambda: {
+            "configured": False, "loaded": False, "error": None,
+            "contract": "mono_float32_16khz_32000_samples_to_spoof_probability",
+        },
+    )
     return TestClient(app)
 
 
+def _tone(seconds=2.0):
+    return [0.6 * math.sin(2 * math.pi * 440 * i / 16000)
+            for i in range(int(seconds * 16000))]
+
+
 def test_health(client):
-    r = client.get("/api/citizen/health").json()
-    assert r["status"] == "ok"
-    assert "heuristic" in r["honesty"]
+    result = client.get("/api/citizen/health").json()
+    assert result["status"] == "ok"
+    assert "advisory" in result["honesty"]
+    assert result["voiceguard"]["loaded"] is False
 
 
 def test_screen_message_endpoint(client):
-    v = client.post("/api/citizen/screen_message",
-                    json={"text": "URGENT: CBI digital arrest — transfer fine immediately"}).json()
-    assert v["verdict"] in {"HIGH", "CRITICAL"}
-    assert v["helpline"] == "1930"
+    result = client.post(
+        "/api/citizen/screen_message",
+        json={"text": "URGENT: CBI digital arrest — transfer fine immediately"},
+    ).json()
+    assert result["verdict"] in {"HIGH", "CRITICAL"}
+    assert result["helpline"] == "1930"
 
 
 def test_report_signs_and_forwards_tokenized_event(client, captured):
-    v = client.post("/api/citizen/report",
-                    json={"category": "voice", "severity": 0.9, "lang": "te",
-                          "note": "raw scam message must NOT appear anywhere"}).json()
-    assert v["status"] == "REPORTED"
-    assert v["forwarded"]["forwarded"] is True
+    result = client.post(
+        "/api/citizen/report",
+        json={"category": "voice", "severity": 0.9, "lang": "te",
+              "note": "raw scam message must NOT appear anywhere"},
+    ).json()
+    assert result["status"] == "REPORTED"
+    assert result["forwarded"]["forwarded"] is True
     assert len(captured) == 1
-    evt = captured[0]
+    event = captured[0]
     from spine.telemetry_mac import verify_event
-    assert verify_event(evt) is True
-    assert evt["signal_type"] == "CITIZEN_REPORT_VOICE"
-    assert evt["entities"] == {}                       # no PII, by construction
-    assert "raw scam message" not in json.dumps(evt)   # note never leaves
+    assert verify_event(event) is True
+    assert event["signal_type"] == "CITIZEN_REPORT_VOICE"
+    assert event["entities"] == {}
+    assert "raw scam message" not in json.dumps(event)
 
 
 def test_report_rejects_unknown_category(client):
-    r = client.post("/api/citizen/report", json={"category": "everything"})
-    assert r.status_code == 422
+    response = client.post("/api/citizen/report", json={"category": "everything"})
+    assert response.status_code == 422
 
 
-def test_screen_voice_endpoint(client):
-    import math
-    samples = [0.6 * math.sin(2 * math.pi * 440 * i / 16000) for i in range(16000)]
-    v = client.post("/api/citizen/screen_voice", json={"samples": samples}).json()
-    assert v["verdict"] in {"SUSPICIOUS", "INCONCLUSIVE", "SILENT"}
+def test_voice_requires_explicit_consent(client):
+    response = client.post(
+        "/api/citizen/screen_voice",
+        json={"samples": _tone()},
+    )
+    assert response.status_code == 403
 
 
-def test_screen_voice_rejects_oversized(client):
-    r = client.post("/api/citizen/screen_voice", json={"samples": [0.0] * 250_000})
-    assert r.status_code == 413
+def test_voice_endpoint_screens_with_consent(client):
+    response = client.post(
+        "/api/citizen/screen_voice",
+        json={"samples": _tone(), "sample_rate": 16000, "consent": True},
+    )
+    assert response.status_code == 200
+    result = response.json()
+    assert result["verdict"] in {"SUSPICIOUS", "INCONCLUSIVE", "SILENT"}
+    assert result["helpline"] == "1930"
+    assert result["audio_retention"].startswith("not stored")
+    assert "samples" not in result
+
+
+def test_voice_endpoint_rejects_more_than_two_seconds(client):
+    response = client.post(
+        "/api/citizen/screen_voice",
+        json={"samples": [0.0] * 32001, "consent": True},
+    )
+    assert response.status_code == 413
+
+
+def test_voice_endpoint_rejects_non_16khz(client):
+    response = client.post(
+        "/api/citizen/screen_voice",
+        json={"samples": _tone(), "sample_rate": 44100, "consent": True},
+    )
+    assert response.status_code == 422
+
+
+def test_voice_endpoint_requires_sample_list(client):
+    response = client.post(
+        "/api/citizen/screen_voice",
+        json={"samples": "not audio", "consent": True},
+    )
+    assert response.status_code == 422
