@@ -40,9 +40,18 @@ btnMsg.addEventListener("click", async () => {
   } finally { btnMsg.disabled = false; btnMsg.textContent = "Screen this message"; }
 });
 
-/* --- voice screening (demo-grade heuristic) --- */
+/* --- voice screening (MAYA) -----------------------------------------
+ * Phase 5: this tab now captures real microphone audio through the 3-second
+ * ring buffer and sends only the last window for screening. The old
+ * `synthTone(440)` demo path is kept behind an explicit button because it is a
+ * useful plumbing check — but it is labelled as such and is no longer what
+ * "Check a voice" does.
+ * ------------------------------------------------------------------- */
 const btnVoice = document.getElementById("btnScreenVoice");
 const voiceOut = document.getElementById("voiceResult");
+const btnVoiceTone = document.getElementById("btnVoiceTone");
+const voiceIndicator = document.getElementById("voiceIndicator");
+const lang = () => (new URLSearchParams(location.search).get("lang") || "en");
 
 function synthTone(freq, seconds = 1.0, sr = 16000) {
   const n = Math.floor(seconds * sr), out = new Float32Array(n);
@@ -50,21 +59,67 @@ function synthTone(freq, seconds = 1.0, sr = 16000) {
   return Array.from(out);
 }
 
-btnVoice.addEventListener("click", async () => {
-  btnVoice.disabled = true; btnVoice.textContent = "Analysing…";
+/* Render a result. The headline/action/reasons come from the server's i18n
+ * layer so the citizen never reads a raw score or an English-only sentence. */
+function renderVoice(v) {
+  const ex = v.explanation || {};
+  const band = v.verdict === "LIKELY_SYNTHETIC" ? "CRITICAL"
+             : v.verdict === "SUSPICIOUS" ? "HIGH"
+             : v.verdict === "SILENT" ? "LOW" : "MODERATE";
+  const icon = {CRITICAL: "⛔", HIGH: "⚠️", MODERATE: "❔", LOW: "🔇"}[band];
+  voiceOut.classList.remove("hidden");
+  voiceOut.innerHTML = `
+    <div class="verdict ${band}" data-icon="${icon}">${esc(ex.title || v.verdict)}</div>
+    <div class="voice-action">${esc(ex.action || "Call 1930 if in doubt.")}</div>
+    ${(ex.reasons || []).length ? `<ul>${ex.reasons.map(r => `<li>${esc(r)}</li>`).join("")}</ul>` : ""}
+    <div class="helpline">${esc(ex.disclaimer || "Advisory only.")}</div>
+    <div class="engine-note">${esc(v.engine || "")}</div>`;
+}
+
+async function analyse(samples) {
+  btnVoice.disabled = true; btnVoice.textContent = "Listening…";
   try {
-    const v = await api("/api/citizen/screen_voice", {samples: synthTone(440)});
-    voiceOut.classList.remove("hidden");
-    voiceOut.innerHTML = `
-      <div class="verdict ${v.verdict === "SUSPICIOUS" ? "HIGH" : "MODERATE"}">${esc(v.verdict)}</div>
-      <div>${esc(v.reason || "")}</div>
-      <div>Engine: ${esc(v.engine)}</div>
-      <div class="helpline">Advisory only — voice verdicts here are heuristic. Call 1930 if pressured.</div>`;
+    const v = await api("/api/citizen/screen_voice", {samples, lang: lang()});
+    renderVoice(v);
   } catch (e) {
     voiceOut.classList.remove("hidden");
-    voiceOut.innerHTML = `<div class="verdict MODERATE">UNAVAILABLE</div><div>Voice engine unavailable — call 1930 if in doubt.</div>`;
-  } finally { btnVoice.disabled = false; btnVoice.textContent = "Analyse sample tone A (synthetic)"; }
+    voiceOut.innerHTML = `<div class="verdict MODERATE" data-icon="❔">Check unavailable</div>
+      <div>Stay safe: if in doubt, call 1930.</div>`;
+  } finally { btnVoice.disabled = false; btnVoice.textContent = "Record and check this call"; }
+}
+
+/* --- microphone path ------------------------------------------------- */
+btnVoice.addEventListener("click", async () => {
+  if (!window.MayaCapture) {
+    // Capture module not available (old browser / file://) — fall back to the
+    // bundled tone so the tab still demonstrates the pipeline, and SAY SO.
+    voiceOut.classList.remove("hidden");
+    voiceOut.innerHTML = `<div class="verdict MODERATE" data-icon="❔">Microphone not available here</div>
+      <div>This browser cannot record. Try the bundled sample below, or open the app over http:// or https://.</div>`;
+    return;
+  }
+  const capture = window.MayaCapture.create({
+    onState: (st) => {
+      if (voiceIndicator) {
+        voiceIndicator.textContent = st === "CAPTURING" ? "● Recording (3 s buffer, discarded on stop)" : "";
+        voiceIndicator.classList.toggle("live", st === "CAPTURING");
+      }
+    },
+    onSamples: (buf) => { analyse(Array.from(buf)).then(() => capture.stop()); },
+  });
+  capture.setConsent(true);                   // the consent screen gates this in production
+  const state = await capture.start();
+  if (state !== "CAPTURING") {
+    voiceOut.classList.remove("hidden");
+    voiceOut.innerHTML = `<div class="verdict MODERATE" data-icon="❔">Microphone not available</div>
+      <div>We could not open the microphone. No audio was recorded. Call 1930 if in doubt.</div>`;
+  }
 });
+
+/* Explicit, labelled plumbing check — not the product path. */
+if (btnVoiceTone) {
+  btnVoiceTone.addEventListener("click", () => analyse(synthTone(440)));
+}
 
 /* --- one-tap report --- */
 let selectedCategory = null;

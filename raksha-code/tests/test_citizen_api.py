@@ -59,7 +59,8 @@ def test_screen_voice_endpoint(client):
     import math
     samples = [0.6 * math.sin(2 * math.pi * 440 * i / 16000) for i in range(16000)]
     v = client.post("/api/citizen/screen_voice", json={"samples": samples}).json()
-    assert v["verdict"] in {"SUSPICIOUS", "INCONCLUSIVE", "SILENT"}
+    # Phase 3's model may escalate a pure tone to LIKELY_SYNTHETIC.
+    assert v["verdict"] in {"SUSPICIOUS", "INCONCLUSIVE", "SILENT", "LIKELY_SYNTHETIC"}
 
 
 def test_screen_voice_rejects_oversized(client):

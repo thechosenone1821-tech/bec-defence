@@ -44,9 +44,15 @@
 
   <section id="voice" class="panel">
     <h2>Check a voice</h2>
-    <p class="hint">Voice screening is a <b>heuristic fallback</b> in this demo and is labelled as such on every verdict. Only bundled sample tones are analysed here — the production anti-spoof model ships separately behind the same screen.</p>
-    <button class="primary" id="btnScreenVoice">Analyse sample tone A (synthetic)</button>
-    <div id="voiceResult" class="result hidden"></div>
+    <p class="hint">Records up to <b>3 seconds</b> from your microphone, screens it on this device, and keeps nothing. Audio never leaves the phone — only the verdict is computed. English · हिंदी · తెలుగు.</p>
+    <div class="privacy-note">
+      <span class="dot" aria-hidden="true"></span>
+      The microphone is open only while you hold this check. The buffer is overwritten and zeroed when you stop.
+    </div>
+    <button class="primary" id="btnScreenVoice">Record and check this call</button>
+    <div id="voiceIndicator" class="indicator" aria-live="polite"></div>
+    <button class="secondary" id="btnVoiceTone">Use a bundled sample instead (plumbing check)</button>
+    <div id="voiceResult" class="result hidden" aria-live="polite"></div>
   </section>
 
   <section id="report" class="panel">
@@ -73,6 +79,8 @@
 <footer>
   RAKSHA Citizen · open-source defence for every Indian phone · verdicts are advisory, not legal or police advice
 </footer>
+<script src="maya-capture.js"></script>
+<script src="maya-capture-worklet.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

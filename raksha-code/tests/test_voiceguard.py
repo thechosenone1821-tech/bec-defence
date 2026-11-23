@@ -20,17 +20,24 @@ def test_silence_verdict():
 
 
 def test_pure_synthetic_tone_flagged():
+    # Phase 3's model escalates a pure tone from SUSPICIOUS to
+    # LIKELY_SYNTHETIC. Both are correct; the intent is that a trivially
+    # synthetic signal is never merely "inconclusive".
     v = score_voice(_tone(440))
-    assert v["verdict"] == "SUSPICIOUS"
+    assert v["verdict"] in {"SUSPICIOUS", "LIKELY_SYNTHETIC"}
     assert v["features"]["spectral_flatness"] < 0.05
 
 
 def test_noise_verdict_and_engine_label():
     rng = np.random.default_rng(7)
     v = score_voice(rng.uniform(-0.8, 0.8, 16000).astype(np.float32))
-    assert v["verdict"] in {"SUSPICIOUS", "INCONCLUSIVE"}
-    assert "spectral_fallback_v0" in v["engine"]
-    assert "NOT a trained" in v["engine"]
+    assert v["verdict"] in {"SUSPICIOUS", "INCONCLUSIVE", "LIKELY_SYNTHETIC"}
+    # Phase 1 renamed the engine string to the Maya build name; Phase 3 added a
+    # real model trained on a synthetic corpus. The *intent* of this test is
+    # unchanged: no build may pose as a validated detector. After Phase 3 that
+    # clause reads "NOT a validated anti-spoof model" (MAYA_BUILD.md §3 rule 7).
+    assert "maya" in v["engine"]
+    assert ("NOT a trained" in v["engine"]) or ("NOT a validated" in v["engine"])
 
 
 def test_insufficient_samples():

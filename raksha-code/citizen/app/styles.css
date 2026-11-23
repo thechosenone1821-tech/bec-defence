@@ -32,8 +32,52 @@ textarea { width: 100%; background: var(--panel); color: var(--text); border: 1p
 .primary { width: 100%; background: var(--accent); color: #06110c; font-weight: 800; border: 0; border-radius: 8px; padding: 14px; font-size: 1rem; }
 .result { margin-top: 14px; background: var(--panel); border-radius: 10px; padding: 14px; }
 .result.hidden { display: none; }
-.verdict { font-size: 1.4rem; font-weight: 800; }
-.LOW { color: var(--accent); } .MODERATE { color: #ffd166; } .HIGH { color: #ff9f43; } .CRITICAL { color: var(--danger); }
+/* Verdict bands.
+ *
+ * BUG-3 fix: these used to be differentiated by COLOUR ONLY. For the ~8 % of
+ * men with red-green colour deficiency — and for anyone reading a phone screen
+ * in sunlight — "orange text" and "red text" are the same signal. Each band now
+ * carries a shape (left border weight + width), an icon, and a text weight as
+ * well as a hue. Colour is the last cue, not the only one.
+ */
+.verdict {
+  font-size: 1.4rem;
+  font-weight: 800;
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding: 0.55rem 0.7rem;
+  border-left-width: 8px;
+  border-left-style: solid;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.04);
+}
+.verdict::before { content: attr(data-icon); font-size: 1.5rem; line-height: 1; }
+
+.LOW      { color: var(--accent);  border-left-color: var(--accent);  border-left-width: 3px; }
+.MODERATE { color: #ffd166;        border-left-color: #ffd166;        border-left-style: dashed; }
+.HIGH     { color: #ff9f43;        border-left-color: #ff9f43;        border-left-width: 8px; }
+.CRITICAL { color: var(--danger);  border-left-color: var(--danger);  border-left-width: 14px;
+            background: rgba(220, 53, 69, 0.14); text-decoration: underline;
+            text-decoration-thickness: 3px; }
+
+/* Low-confidence must never look like a clean bill of health. */
+.verdict.MODERATE { font-style: italic; }
+
+.voice-action { margin: 0.6rem 0 0.2rem; font-weight: 600; }
+.engine-note { margin-top: 0.6rem; font-size: 0.78rem; opacity: 0.75; }
+.privacy-note {
+  display: flex; gap: 0.5rem; align-items: flex-start;
+  font-size: 0.85rem; opacity: 0.85; margin: 0.4rem 0 0.8rem;
+}
+.privacy-note .dot {
+  width: 0.6rem; height: 0.6rem; border-radius: 50%;
+  background: var(--danger); margin-top: 0.35rem; flex: none;
+}
+.indicator { min-height: 1.2rem; font-size: 0.9rem; color: var(--danger); }
+.indicator.live::before { content: "● "; }
+.result ul { margin: 0.4rem 0 0.2rem 1.1rem; padding: 0; }
+.result li { margin-bottom: 0.25rem; }
 .helpline { margin-top: 10px; font-size: .8rem; color: var(--muted); }
 .report-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
 .chip { background: var(--panel); border: 1px solid #22304f; color: var(--text); border-radius: 10px; padding: 14px 8px; font-size: .85rem; }

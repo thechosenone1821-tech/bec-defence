@@ -1,0 +1,37 @@
+{
+  "bias": -0.11514233427762607,
+  "column_medians": [
+    0.1066,
+    0.066
+  ],
+  "decision_threshold": 0.9412,
+  "feature_keys": [
+    "pause_cv",
+    "f0_cv"
+  ],
+  "feature_version": "maya-features-v1",
+  "input": "robust_scalars",
+  "l2": 1.0,
+  "mean": [
+    0.2112240740740743,
+    0.06683796296296299
+  ],
+  "model_id": "maya-lr-v1",
+  "scale": [
+    0.26096841616420524,
+    0.041483309266527095
+  ],
+  "temperature": 0.25,
+  "training": {
+    "corpus": "SYNTHETIC (procedural) \u2014 see MODEL_CARD.md",
+    "l2": 1.0,
+    "measured_on_real_speech": false,
+    "n_per_class": 60,
+    "params_sha256_16": "423a58f49368e340",
+    "seed": 20260101
+  },
+  "weights": [
+    -0.9630820468472603,
+    -0.8727127513873866
+  ]
+}

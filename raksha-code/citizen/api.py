@@ -29,16 +29,22 @@ import uuid
 from typing import Any, Callable, Dict, Optional
 
 from fastapi import Body, FastAPI, HTTPException
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
 from citizen.messageguard import score_message
+from citizen.voiceguard import i18n as _i18n
 from citizen.voiceguard import score_voice
+from citizen.voiceguard.capture import MAX_SCREEN_SAMPLES, retention_policy
+from citizen.risk import assess as risk_assess
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
 APP_DIR = os.path.join(_HERE, "app")
 
-MAX_SAMPLES = 240_000
+# Phase 2: was 240_000 (15 s) — five times the documented 3 s retention window.
+# The retention ceiling now comes from the capture contract, so there is one
+# number in one place (citizen/voiceguard/capture.py).
+MAX_SAMPLES = MAX_SCREEN_SAMPLES
 CATEGORIES = {"voice": "CITIZEN_REPORT_VOICE", "message": "CITIZEN_REPORT_MESSAGE",
               "financial": "CITIZEN_REPORT_FINANCIAL", "other": "CITIZEN_REPORT_OTHER"}
 
@@ -86,12 +92,26 @@ def build_app(bus_url: Optional[str] = None, poster: Optional[Callable[[Dict[str
                 "bus_configured": bool(bus_url), "reports_today": state["reports_today"],
                 "honesty": "heuristic detectors — not a security guarantee"}
 
+    @app.get("/api/citizen/retention")
+    async def retention():
+        """The retention contract this build actually enforces."""
+        return retention_policy()
+
     @app.post("/api/citizen/screen_message")
     async def screen_message(payload: Dict[str, Any] = Body(...)):
         text = str(payload.get("text") or "")[:4000]
+        # BUG-2 (fixed in Phase 4): `lang` used to be accepted and ignored.
+        # It now selects the explanation language, and is echoed back so a
+        # caller can tell whether a fallback occurred.
+        lang = _i18n.normalise_language(payload.get("lang"))
         result = score_message(text)
         result["helpline"] = "1930"
-        result["disclaimer"] = "Advisory only. If unsure, do not act — call 1930."
+        result["lang"] = lang
+        result["disclaimer"] = {
+            "en": "Advisory only. If unsure, do not act — call 1930.",
+            "hi": "केवल सलाह। संदेह हो तो कोई कदम न उठाएँ — 1930 पर कॉल करें।",
+            "te": "సలహా మాత్రమే. సందేహమైతే ఏమీ చేయవద్దు — 1930కి కాల్ చేయండి.",
+        }[lang]
         return result
 
     @app.post("/api/citizen/screen_voice")
@@ -101,9 +121,49 @@ def build_app(bus_url: Optional[str] = None, poster: Optional[Callable[[Dict[str
             raise HTTPException(422, "samples must be a list of floats")
         if len(samples) > MAX_SAMPLES:
             raise HTTPException(413, f"too many samples (>{MAX_SAMPLES})")
+        # Phase 5 bug: a non-finite sample reached json.dumps and produced a
+        # 500 instead of a verdict. Sanitise at the boundary — the same rule the
+        # scoring layer already follows internally (unknown -> drop, never 0).
+        clean: list = []
+        for x in samples:
+            try:
+                fx = float(x)
+            except (TypeError, ValueError):
+                continue
+            if fx != fx or fx in (float("inf"), float("-inf")):
+                continue
+            clean.append(fx)
+        samples = clean
+        lang = _i18n.normalise_language(payload.get("lang"))
         result = score_voice(samples)
+        # Phase 4: a citizen-facing explanation in their language. Deliberately
+        # separate from the raw payload so the model scores stay available for
+        # diagnostics while the UI only ever shows sentences.
+        result["explanation"] = _i18n.explain(result, lang)
         result["helpline"] = "1930"
         return result
+
+    @app.post("/api/citizen/assess")
+    async def assess(payload: Dict[str, Any] = Body(default={})):
+        """Fuse whatever signals the client has into one citizen verdict.
+
+        Every input is optional; an empty body returns LOW_CONFIDENCE, never a
+        reassuring LOW. See citizen/risk/engine.py for the weighting rules.
+        """
+        lang = _i18n.normalise_language(payload.get("lang"))
+        return risk_assess(
+            voice=payload.get("voice"),
+            message=payload.get("message"),
+            campaign_linked=bool(payload.get("campaign_linked", False)),
+            repeat_contacts=int(payload.get("repeat_contacts") or 0),
+            user_doubt=bool(payload.get("user_doubt", False)),
+            lang=lang,
+        )
+
+    @app.get("/api/citizen/languages")
+    async def languages():
+        return {"languages": list(_i18n.LANGUAGES),
+                "default": _i18n.DEFAULT_LANGUAGE}
 
     @app.post("/api/citizen/report")
     async def report(payload: Dict[str, Any] = Body(...)):
@@ -142,7 +202,14 @@ def build_app(bus_url: Optional[str] = None, poster: Optional[Callable[[Dict[str
 
     @app.get("/")
     async def root():
-        return FileResponse(os.path.join(APP_DIR, "index.html"))
+        # Phase 5 bug found by running the app rather than the tests: this used
+        # to return index.html *at /* while every asset in it is referenced
+        # relatively (styles.css, app.js, maya-capture.js, sw.js). Those
+        # requests resolved to /styles.css, /app.js ... which 404, so the page
+        # rendered unstyled and every script failed to load — including the
+        # microphone path, which then reported "microphone not available" on a
+        # device that has one. Redirect to the mount instead.
+        return RedirectResponse(url="/app/", status_code=307)
 
     return app
 
