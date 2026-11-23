@@ -170,6 +170,23 @@
   human tasks — NOT done, not claimable from this sandbox.
 - Docs frozen for rehearsal at v0.7.0. Tests 67/67.
 
+## [0.8.0] — 2026-11-23 — VoiceGuard build session — Acoustic core, ONNX boundary, consent-gated API
+
+- Replaced the tone-only VoiceGuard stub with bounded two-second, 16 kHz
+  mono input validation and deterministic spectral/LFCC/LPCC descriptors.
+- Preserved the conservative fallback: degenerate signal anomalies may be
+  flagged, but ordinary speech remains INCONCLUSIVE without a supplied model.
+- Added an optional ONNX Runtime adapter with a documented waveform/output
+  contract. No trained weights or performance claims are bundled.
+- Added explicit API consent gating, a strict 32,000-sample cap, sample-rate
+  validation, model-readiness reporting, and request-memory-only audio handling.
+- Focused local suite: 19 VoiceGuard/model/API tests passed. This is not a
+  claim that the repository-wide suite has run in this environment.
+- The browser UI and PWA microphone flow are still pending; browser capture
+  is not an operating-system phone-call interception capability.
+- Added `raksha/features.md` as a transparent source-backed inventory because
+  no pre-existing `features.md` or Maya path was present in `main_final`.
+
 ## Unreleased / parked
 
 - RAAVAN `playbook.yaml` (10 techniques, fixtures, expected defenses)

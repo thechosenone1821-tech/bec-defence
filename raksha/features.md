@@ -9,33 +9,34 @@
 ## Product intent
 
 VoiceGuard is the voice-screening component of RAKSHA Citizen. It provides
-short, advisory screening of user-consented caller/voice audio, with local
-inference where a validated on-device anti-spoof model is installed. It is not
-an identity verifier and never makes a finding of fraud by itself.
+short, advisory screening of user-consented microphone audio. An optional
+local ONNX model can provide anti-spoof scores if separately supplied. It is
+not an identity verifier and never makes a finding of fraud by itself.
 
 ## Source-backed requirements and delivery status
 
 | Requirement | Source in the repository | Build status |
 |---|---|---|
-| Screen a short caller-audio window (target: 2 seconds) | raksha/ARCHITECTURE.md | Implemented for a user-started microphone sample in the PWA; direct phone-call audio is not exposed by the PWA |
-| Spectral descriptors plus LFCC/LPCC lineage | raksha/ARCHITECTURE.md | Spectral, LFCC, and LPCC summaries implemented |
-| On-device anti-spoof model interface | raksha/ARCHITECTURE.md; raksha/BUILD_GUIDE.md M3 | Optional ONNX adapter planned; model weights are not present in this repository |
-| Deterministic fallback when no model is available | raksha/BUILD_GUIDE.md M3; existing voiceguard.py | Implemented; flags only degenerate signal anomalies and leaves ordinary speech inconclusive |
-| No audio transfer without consent | raksha/ARCHITECTURE.md; raksha/BUILD_GUIDE.md safety rule 4 | To be enforced by the API and PWA in later phases |
-| Visible microphone activity; ephemeral ring buffer; discard in under 3 seconds | raksha/BUILD_GUIDE.md safety rule 5 | To be implemented in the PWA |
-| Advisory verdicts and no unsupported clone claims | raksha/CHANGELOG.md v0.4.0 | Preserved and made explicit in analysis output |
-| One-tap Citizen report remains separate from audio screening | raksha/ARCHITECTURE.md; citizen/api.py | Existing signed report rail preserved; no raw audio is attached to reports |
+| Screen a short audio window (target: 2 seconds) | raksha/ARCHITECTURE.md | API enforces 2 seconds; PWA microphone capture is next |
+| Spectral descriptors plus LFCC/LPCC lineage | raksha/ARCHITECTURE.md | Implemented |
+| On-device/local anti-spoof model interface | raksha/ARCHITECTURE.md; raksha/BUILD_GUIDE.md M3 | Optional local ONNX adapter implemented; model weights are not present |
+| Deterministic fallback when no model is available | raksha/BUILD_GUIDE.md M3 | Implemented; real speech remains inconclusive |
+| No audio transfer without consent | raksha/ARCHITECTURE.md; raksha/BUILD_GUIDE.md safety rule 4 | API requires consent=true; visible PWA consent is next |
+| Visible microphone activity; ephemeral buffer; discard in under 3 seconds | raksha/BUILD_GUIDE.md safety rule 5 | PWA capture is next |
+| Advisory verdicts and no unsupported clone claims | raksha/CHANGELOG.md v0.4.0 | Implemented and tested |
+| Citizen incident reporting stays separate from audio | raksha/ARCHITECTURE.md; citizen/api.py | Preserved; audio never enters report payload or spine telemetry |
 
 ## Explicit boundaries
 
-- The browser app cannot intercept the operating system's live phone-call
-  audio. A true incoming-call integration requires a separately permissioned
-  Android CallScreeningService/native application, which is not present here.
+- A browser PWA cannot intercept the operating system's live phone-call audio.
+  The current planned microphone flow analyses an audio sample the user
+  deliberately records; a true incoming-call integration needs a separately
+  permissioned native Android CallScreeningService and platform review.
 - No trained anti-spoof weights or validated benchmark corpus were found in
-  the branch. ONNX inference is therefore an adapter, not a claim that a model
-  ships today.
-- The heuristic fallback must never label normal speech as genuine. Model
-  performance, multilingual/accent performance, and real-world error rates
-  remain unmeasured until a model and representative consented evaluation set
-  are supplied.
-- No audio is written to disk, included in telemetry, or attached to reports.
+  the branch. The ONNX adapter is an integration contract, not a shipped model.
+- The fallback never labels ordinary speech as genuine. Model performance,
+  multilingual/accent performance, and real-world error rates are unmeasured.
+- The API only accepts audio with explicit request consent. Audio is processed
+  in request memory and is not written to disk, telemetry, or reports.
+- The caller should only use a self-hosted/trusted API endpoint. A remote
+  deployment necessarily receives the consented audio for processing.
