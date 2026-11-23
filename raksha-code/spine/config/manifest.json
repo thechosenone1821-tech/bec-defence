@@ -1,0 +1,22 @@
+{
+  "algorithm": "sha256",
+  "files": {
+    "config/company_topology.json": {
+      "bytes": 5500,
+      "sha256": "2f2bb54761b0afa5655ad8fc3458d4c4ebea6a4d244881348aea8c560e3b6981"
+    },
+    "config/policy.yaml": {
+      "bytes": 630,
+      "sha256": "d7fd9d231af4388cf25594c40249dfd1c3ca4b19a5edfd24ea4b56423d48a3d3"
+    },
+    "system_prompt.txt": {
+      "bytes": 1826,
+      "sha256": "3e265da1271b3e12f0179d17f28e8c139a7006b539f3424277dd73c8fefcbcc6"
+    },
+    "tool_schemas.json": {
+      "bytes": 4173,
+      "sha256": "0f741e0eb42f2e3578223afbd29fbd4b3bf05ea12470955320d016d51e1f1c88"
+    }
+  },
+  "version": 1
+}

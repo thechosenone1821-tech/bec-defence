@@ -1,0 +1,20 @@
+services:
+  eigenshield:
+    build: .
+    image: eigenshield-v2:local
+    container_name: eigenshield-v2
+    ports:
+      - "8080:8080"
+    environment:
+      EIGENSHIELD_SALT: "change-me-in-real-deployments"
+      OLLAMA_HOST: "http://host.docker.internal:11434"
+      EIGENSHIELD_MODEL: "qwen3.5:4b"
+    volumes:
+      - ./config:/app/config:ro
+      - eigenshield-ledger:/app/var
+    command: ["python", "-m", "bus.event_server", "--policy", "/app/config/policy.yaml",
+              "--topology", "/app/config/company_topology.json",
+              "--model", "qwen3.5:4b", "--host", "0.0.0.0", "--port", "8080"]
+
+volumes:
+  eigenshield-ledger:
