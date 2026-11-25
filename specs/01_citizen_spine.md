@@ -1,0 +1,155 @@
+# PART 1 — CITIZEN SPINE
+## (shared risk engine, multilingual layer, capture & privacy, report rail)
+
+> **What this is.** The spine of the three-feature Citizen app. It is the thing
+> every citizen feature plugs into, and the thing that guarantees the app is
+> honest, private, and speaks the user's language.
+>
+> **Why it is its own part.** Parts 2 and 3 are detectors. This part decides what
+> a *person* is told, in what language, with what action. Those are different
+> skills, different bugs, and — critically — different failure modes. A detector
+> that is 60% right is a weak detector. A risk engine that reassures someone
+> wrongly is a dangerous product.
+>
+> **Team size.** 2 people. **Depends on:** Part 7 (report rail only).
+
+---
+
+## 1. What this part owns
+
+| Component | Responsibility | Real today? |
+|---|---|---|
+| **Citizen Risk Engine** | Fuses voice + message + campaign link + repeat contact + user doubt into **one** verdict with plain-language reasons | ✅ built |
+| **Multilingual layer** | Every reason code renders a real sentence in en / hi / te; every non-trivial verdict ends with an action | ✅ built |
+| **Capture & privacy** | 3-second ring buffer, consent gate, visible recording indicator, zero retention | ✅ built |
+| **Report rail** | Signed, tokenised, minimal report into the shared graph | ✅ built |
+| **Panic button** | One tap to 1930 with the screen locked behind it | ✅ built |
+| **Family mode** | Stricter defaults and louder warnings for elders | ❌ not built |
+
+---
+
+## 2. The rule that governs everything here
+
+> **"Nothing found" is not "nothing wrong".**
+
+There is **no `SAFE` verdict anywhere in this part.** The lowest band is
+`LOW_CONFIDENCE`, and its copy says so:
+
+> *"Not enough information to judge. Trust your instinct. If they ask for money
+> or OTP, hang up and call 1930."*
+
+A system that says "this is safe" when it merely has no information is worse than
+no system, because it transfers the victim's judgement to software that has not
+earned it. If you contribute here and add a reassuring state, the PR will be
+refused — not because of style, but because that is the exact bug this part exists
+to prevent.
+
+### 2.1 Bounded fusion, declared weights
+
+Signals combine by bounded noisy-OR, so the score can never exceed 1.0 and no
+single signal dominates. The weights are **constants in source**, not learned,
+because a district hospital's IT generalist must be able to read the file and
+disagree with it in a meeting.
+
+| Signal | Weight |
+|---|---|
+| Voice: likely synthetic | 0.65 |
+| Voice: suspicious | 0.40 |
+| Message: critical | 0.60 |
+| Message: high | 0.35 |
+| Campaign link (same pattern reported before) | 0.45 |
+| Repeat contact (≥3 attempts) | 0.20 |
+| User's own doubt | 0.15 |
+
+**Corroboration rule.** A band above `LOW_CONFIDENCE` requires *either* one
+standalone source (voice / message / campaign) *or* at least two contributing
+signals. A single weak nudge — someone's own unease at 0.15 — stays
+`LOW_CONFIDENCE`. This was a real bug: it previously told a nervous person
+"no known fraud warning signs found" on the strength of their own doubt.
+
+### 2.2 Never show a raw score
+
+A citizen cannot act on "0.83". The UI shows a headline, an action, and
+sentences. The score exists for diagnostics and never reaches the screen.
+
+---
+
+## 3. Multilingual is a correctness requirement, not a feature
+
+Three languages: **English, Hindi, Telugu.** Non-negotiable rules:
+
+1. Every reason code has a real translation. A missing string on a scam warning
+   is a real-world failure.
+2. Tests assert the hi/te text is **actually Devanagari / Telugu script**. Pasting
+   English into the Hindi column passes a naive parity test and fails a real
+   citizen.
+3. Unknown language falls back to English — never renders a raw key.
+4. Every verdict's action mentions a concrete step: hang up, call 1930, call the
+   official number on your card.
+
+**Known gap:** the *voice model* has no phonetic model, so it cannot claim
+anything about accented speech. Only the UI is multilingual. Do not conflate
+these in a demo.
+
+---
+
+## 4. Capture and privacy
+
+| Guarantee | How it is enforced |
+|---|---|
+| Consent before any recording | `CaptureSession` raises `RetentionError` without consent |
+| 3-second rolling buffer | `RING_SECONDS = 3.0`; older audio is overwritten, not stored |
+| Visible indicator | `indicatorVisible` is true **only** while state is `CAPTURING` |
+| Buffer zeroed on stop | Worklet zeroes the ring on `"stop"` |
+| Audio never leaves the device | API accepts samples, returns a verdict, echoes nothing back |
+
+The indicator bug is worth reading: it was set from "not idle" rather than
+"capturing", so it stayed lit after a stop. A recording light that is on when
+nothing is recording trains people to ignore the light.
+
+---
+
+## 5. Interfaces
+
+**Exposes (to Parts 2 and 3):**
+```
+assess(voice=…, message=…, campaign_linked=…, repeat_contacts=…, user_doubt=…, lang=…)
+   → { band, score, signals, headline, action, helpline, degraded }
+explain(score_voice_result, lang) → { title, action, reasons[], actionable }
+```
+
+**Consumes from Part 7:** the report rail only.
+
+**Owns these endpoints:** `POST /api/citizen/assess`, `GET /api/citizen/languages`,
+`POST /api/citizen/report`, `GET /api/citizen/retention`.
+
+---
+
+## 6. Build order
+
+1. Reason catalogue + three languages (nothing else can render without it)
+2. `explain()` and the "no reassurance" copy
+3. Risk engine + the corroboration rule
+4. Capture, consent, indicator
+5. Report rail
+6. Family mode *(unbuilt — start here if you have spare capacity)*
+
+---
+
+## 7. Definition of done
+
+- [ ] Empty assessment returns `LOW_CONFIDENCE`, never `LOW`
+- [ ] A single weak signal stays undecided
+- [ ] No `SAFE` band exists in the module
+- [ ] Every reason code renders in three languages, verified by script range
+- [ ] `INCONCLUSIVE` copy tells the user to hang up if money is mentioned
+- [ ] Recording is impossible without consent; the indicator is off when stopped
+- [ ] Audio is never echoed in any response
+
+---
+
+## 8. What this part does not do
+
+- It does not detect voices (Part 2) or scam text (Part 3).
+- It does not claim any accuracy — it has none of its own to claim.
+- It does not store, upload, or retain audio under any configuration.
