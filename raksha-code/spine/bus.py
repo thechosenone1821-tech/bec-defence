@@ -35,6 +35,7 @@ from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.concurrency import run_in_threadpool
 
+from spine.fleet import OrganFleet
 from spine.sanitizer import sanitize_event, sanitize_batch
 from sentinel.shields.base_organ import sign_rpc
 from spine.entity_graph import EntityGraph
@@ -106,6 +107,13 @@ def _try_organ_executor():
         "execute_percolation_cut": percol,
         "deploy_muts_ebpf_shield": muts,
     }
+    # Part 4 Phase 7: the fleet becomes a named object rather than a local dict.
+    # Before this, `owned` was the only record the eight organs existed — nothing
+    # could ask whether one was alive, and an organ that stopped emitting looked
+    # identical to one with nothing to report.
+    fleet = OrganFleet()
+    fleet.register_fleet(list(owned.values()), tool_owner=owned)
+
     local = {
         "set_service_readonly": lambda a: {"status": "SERVICE_READONLY_SET", "service_id": a.get("service_id"), "ttl_seconds": a.get("ttl_seconds"), "dry_run": True},
         "escalate_human_stepup": lambda a: {"status": "HUMAN_STEPUP_REQUESTED", "incident_id": a.get("incident_id"), "severity": a.get("severity"), "summary": str(a.get("summary", ""))[:280]},
@@ -115,7 +123,16 @@ def _try_organ_executor():
         org = owned.get(tool)
         if org is not None:
             envelope = sign_rpc(tool, dict(args or {}))
+            # Phase 7: a halted organ must refuse work rather than quietly do it.
+            if fleet.is_halted(getattr(org, "organ", "")):
+                rec = fleet.health(getattr(org, "organ", ""))
+                return {"status": "ORGAN_HALTED", "tool": tool,
+                        "reason": rec.get("reason", "kill switch pulled"),
+                        "organ": getattr(org, "organ", None)}
             reply = org.handle_rpc(envelope)
+            fleet.note_call(getattr(org, "organ", ""),
+                            ok=reply.get("status") == "OK",
+                            error=reply.get("reason"))
             if reply.get("status") != "OK":
                 # A refused RPC is a refusal, not a silent success. Returning
                 # the rejected envelope keeps the Governor's audit trail honest.
@@ -134,6 +151,13 @@ def _try_organ_executor():
         out["dispatch"] = "platform_local"
         return out
 
+    execute.fleet = fleet      # type: ignore[attr-defined]
+    # Keyed by ORGAN NAME, not by tool: every caller that wants the object
+    # (the canary runner, an operator console) asks for an organ. `owned` is
+    # keyed by tool, and passing it directly silently produced an empty lookup
+    # that reported "canary unavailable" instead of failing loudly.
+    execute.fleet_organs = {name: org for org in owned.values()
+                            for name in [getattr(org, "organ", None)] if name}  # type: ignore[attr-defined]
     return execute, "organ"
 
 
@@ -354,6 +378,111 @@ def create_app(policy_path: Optional[str] = None,
             "orchestration_count": state["orchestration_count"],
             "recent_events": list(buffer)[-20:],
         }
+
+    # ---------------------------------------------------------------- #
+    # Part 4 Phase 7 — organ fleet operations
+    # ---------------------------------------------------------------- #
+    def _fleet():
+        return getattr(executor, "fleet", None)
+
+    def _fleet_payload(include_canary: bool = False) -> Dict[str, Any]:
+        fl = _fleet()
+        if fl is None:
+            return {"available": False,
+                    "reason": "no organ fleet in this executor mode "
+                              f"({executor_mode}); the dry-run table has no organs to watch"}
+        snap = fl.snapshot()
+        snap["available"] = True
+        snap["executor_mode"] = executor_mode
+        if include_canary:
+            from spine.organ_canary import run_all
+            registry = getattr(executor, "fleet_organs", {})
+            organs = {n: registry[n] for n in fl.names() if n in registry}
+            missing = sorted(set(fl.names()) - set(organs) - set(snap["halted"]))
+            if missing:
+                # Never silently run a partial canary sweep: an organ that is
+                # absent from the sweep would read as healthy.
+                snap["canary"] = {"available": False,
+                                  "reason": f"organ objects unavailable for {missing}",
+                                  "missing": missing}
+            else:
+                snap["canary"] = run_all(organs, halted=set(snap["halted"]))
+        return snap
+
+    @app.get("/api/fleet")
+    async def api_fleet():
+        """Liveness of all eight organs. `all_healthy` is False while anything
+        is UNKNOWN: an unobserved fleet is not a healthy one."""
+        return _fleet_payload()
+
+    @app.get("/api/fleet/canary")
+    async def api_fleet_canary():
+        """Positive controls. This is the only endpoint that can distinguish a
+        quiet organ from a blind one, so it is separate and explicitly run."""
+        return _fleet_payload(include_canary=True)
+
+    @app.post("/api/fleet/{organ}/halt")
+    async def api_fleet_halt(organ: str, body: Dict[str, Any] = Body(default_factory=dict)):
+        fl = _fleet()
+        if fl is None:
+            return JSONResponse({"status": "HALT_REFUSED",
+                                 "reason": f"no organ fleet in executor mode {executor_mode}"},
+                                status_code=409)
+        reason = str(body.get("reason", ""))
+        token = body.get("approval")
+        # The Governor must authorise this, and by design it **cannot**: the
+        # 10-tool schema lock exists so the AI path cannot reach an actuator
+        # that disables a detector. A kill switch the AI can pull is a kill
+        # switch an attacker can pull, and the first thing a compromised
+        # Commander would do is turn off the organs.
+        #
+        # So the halt requires an approval token minted by an operator holding
+        # the Governor's approval key — a human, out of band. The endpoint
+        # reports the Governor's verdict either way, so an operator can see
+        # *why* the AI path was refused rather than guessing.
+        governor_verdict = None
+        if governor is not None:
+            governor_verdict = governor.evaluate(
+                {"tool": "disable_organ", "args": {"organ": organ}})
+            if str(governor_verdict.get("decision", "")).upper() != "APPROVED" and token is None:
+                return JSONResponse(
+                    {"status": "HALT_REFUSED", "governor": governor_verdict,
+                     "reason": ("the AI path cannot disable a detector (tool not in the "
+                                "10-tool allowlist); a human operator must supply an "
+                                "approval token minted with the Governor approval key")},
+                    status_code=403)
+        result = fl.halt(organ, reason, approval=token)
+        code = 200 if result["status"] == "HALTED" else 403
+        return JSONResponse(result, status_code=code)
+
+    @app.post("/api/fleet/{organ}/resume")
+    async def api_fleet_resume(organ: str, body: Dict[str, Any] = Body(default_factory=dict)):
+        fl = _fleet()
+        if fl is None:
+            return JSONResponse({"status": "RESUME_REFUSED",
+                                 "reason": f"no organ fleet in executor mode {executor_mode}"},
+                                status_code=409)
+        token = body.get("approval")
+        governor_verdict = None
+        if governor is not None:
+            governor_verdict = governor.evaluate(
+                {"tool": "enable_organ", "args": {"organ": organ}})
+            if str(governor_verdict.get("decision", "")).upper() != "APPROVED" and token is None:
+                return JSONResponse(
+                    {"status": "RESUME_REFUSED", "governor": governor_verdict,
+                     "reason": ("re-enabling a detector puts it back in the path and is "
+                                "an operator action; supply an approval token")},
+                    status_code=403)
+        result = fl.resume(organ, str(body.get("reason", "")), approval=token)
+        code = 200 if result["status"] == "RESUMED" else 403
+        return JSONResponse(result, status_code=code)
+
+    @app.get("/api/fleet/history")
+    async def api_fleet_history():
+        fl = _fleet()
+        if fl is None:
+            return {"available": False, "history": []}
+        return {"available": True, "history": fl.history()}
 
     @app.post("/api/ingest")
     async def ingest(payload: Any = Body(...)):

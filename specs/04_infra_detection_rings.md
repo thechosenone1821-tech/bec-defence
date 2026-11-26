@@ -140,6 +140,7 @@ now names the test that earns it, or the phase that will.
 | [x] | Every organ **fails closed** on malformed input | ✅ **true as of Phase 1** | `test_emit_never_raises_on_a_bad_severity` (×8). Before Phase 1, `emit(nan)` became severity **1.0** and `emit(None)` raised. |
 | [ ] | Each organ has a fixture corpus and a published detection rate | ⚠️ **partially earned, Phase 4** | `test_phase4_corpus.py` (21). Corpora exist for all 5 measurable organs and rates are published in §4 — but every case is synthetic and self-authored, so the rates describe the corpus, not the world. |
 | [ ] | Each organ's threshold is calibrated against real traffic | ❌ **NOT earned** | **0 of 7 thresholds calibrated.** `test_phase5_calibration.py` proves the *procedure* refuses to invent a value: `test_benign_only_is_insufficient`, `test_calibration_never_returns_a_value_for_insufficient_data`, `test_with_no_capture_every_threshold_is_insufficient`, `test_a_bad_line_among_good_ones_is_refused`. There is no capture file and none could be obtained, so the box stays open with that wording rather than being ticked on synthetic data. |
+| [ ] | The organ fleet has liveness, silence detection, and a Governor-pulled kill switch | ⚠️ **earned with two stated gaps** | `test_phase7_fleet_ops.py` (41). Liveness states, fresh-fleet honesty, 8/8 canaries, signed single-use approval tokens, kill switch, live endpoints. **Gaps:** `verify_file`/`verify_all` detect tampering and emit nothing (§7.3), and the kill switch covers the RPC path but not direct calls (§7.5). |
 | [ ] | False-positive behaviour under normal load is characterised | ⚠️ **numbers exist, budget is an assumption** | `test_phase6_load_fatigue.py` (19). Measured: fleet fires **9.0** times per shift on benign input; Bragg fires on **75 %** of its benign families (§6.2). But the 12-per-shift budget is a stated assumption, not a measurement, and the corpus weights families equally rather than by traffic. `test_the_fleet_stays_under_the_shift_budget` earns the number; nothing earns the budget. |
 
 **The honest summary of §4 needs no apology but does need one correction.** It
@@ -198,6 +199,11 @@ hackathon demo survives and a pilot does not.
 | **5** | **Calibration against captured traffic** | Real traffic, not fixtures. Thresholds (0.72, 2300, 0.90) either earn their values or are replaced. | §5 step 5. Post-hackathon; needs data that does not exist yet. |
 | **6** | **Load, fatigue and drift** | False-positive behaviour under normal load, alert fatigue budget, threshold drift over time, and what happens when an organ is fed garbage for an hour. | §6's third unchecked box. A detector nobody can live with is a detector that gets switched off. |
 | **7** | **Organ fleet operations** | Health of the organ fleet itself: liveness, event-rate anomalies per organ, an organ that has gone silent, and a kill switch per organ that the Governor can pull. | Eight organs are eight things that can quietly die. Silence must not look like safety. |
+
+**All seven phases have been executed.** Their logs are §1–§7 of the execution
+log below. The part's Definition of done (§6) is the place to look for what that
+does and does not mean — three boxes remain unearned or partially earned, and
+the reasons are stated there rather than here.
 
 ## The invariant that spans all seven
 
@@ -1449,3 +1455,264 @@ arbitrary ones.
 * **The garbage soak is 600 rounds of simulated junk, not one hour of wall
   clock.** It finds crashes and silence; it cannot find slow leaks, because
   nothing here runs long enough to leak.
+
+---
+
+# Phase 7 execution log — organ fleet operations
+
+**Status: complete.** This closes the last phase in the part. It produced three
+new modules, one genuine detection defect, and one design decision that reads
+like a limitation and is not.
+
+## 7.1 The fleet had no name
+
+`bus._try_organ_executor()` built eight organs into a local dict and that dict
+was the only record they existed. Nothing could ask whether an organ was alive.
+Nothing noticed when one stopped emitting. Nothing could switch one off.
+
+`spine/fleet.py` registers the eight as a named fleet, tracks calls, errors and
+observations per organ, and reports a state. The important behaviour is in the
+**default**: a freshly built fleet reports all eight `UNKNOWN` and
+`all_healthy: False`.
+
+    $ python3 -c "...fleet of 8 fresh organs..."
+    counts: {'UNKNOWN': 8}
+    all_healthy: False
+
+An `UNKNOWN` organ has a reason that says so: *"organ has never been observed;
+this is not a health claim."* A monitor that starts green is a monitor that
+cannot report the one thing it exists to report.
+
+## 7.2 Silence was the whole problem, and counting events cannot solve it
+
+Phase 6 left this as Phase 7's direct input: under 600 rounds of junk, Bragg,
+Lyapunov and Landauer emitted **nothing**, and that was correct. So did an organ
+that was never fed anything. So would a deleted detector.
+
+From the outside these are the same observation:
+
+| Situation | Events | Calls | Looks like |
+|---|---|---|---|
+| Organ never fed input | 0 | 0 | quiet |
+| Organ fed junk, correctly silent | 0 | 600 | quiet |
+| Organ fed junk with threshold set to 99 | 0 | 600 | quiet |
+
+The third one is a broken detector. I verified it: setting
+`BEC_SPECTRAL_PROJECTOR.rank1_threshold = 99.0` and feeding it a genuine rank-1
+condensate produces **zero events and zero errors** — every counter a fleet
+monitor would watch says healthy.
+
+**The only way to distinguish them is a known-positive input.** So each organ
+gets a canary in `spine/organ_canary.py`: an input that is unambiguously an
+attack in *that organ's own feature space*, driven through the organ's real
+detection path.
+
+| Organ | Canary input | Fires |
+|---|---|---|
+| `BEC_SPECTRAL_PROJECTOR` | a rank-1 session matrix (ratio 1.0 vs 0.72) | 1 |
+| `COOKIE_FLUID_TURBULENCE` | Re far above critical | 1 |
+| `BRAGG_FFT_FIREWALL` | a periodic injected-instruction document | 1 |
+| `HESSIAN_LYAPUNOV_GUARD` | a sustained oscillation (max \|κ\| = 6.91) | 3 |
+| `LANDAUER_THERMAL_AUDITOR` | 5 sustained residuals at 10× threshold | 1 |
+| `HASHIMOTO_PERCOLATION` | a supercritical complete graph | 1 |
+| `MUTS_EBPF_REPAIR` | an invariant mismatch on a registered service | 1 |
+| `ENDPOINT_PAGE_CURVE` | a write to a honey block that breaks its parity | 1 |
+
+**8 of 8 fire.** And with one organ sabotaged, the canary catches it:
+
+    all_detecting: False   blind: ['BEC_SPECTRAL_PROJECTOR']
+    reason: organ emitted nothing for its canary input (a rank-1 session matrix
+            (ratio 1.0 vs 0.72)); it cannot detect and no counter will show that
+
+### Four canaries were wrong before they were right
+
+I wrote them from the method signatures and got four wrong, which is why they
+were run before being trusted:
+
+* **Lyapunov** — my first canary used a 3-point reversal and got κ = +2.0,
+  under the 2.5 cliff. The reason is a real property of the statistic:
+  κ = ⟨v_t − v_prev, v_t⟩/|v_t|² is **bounded near +2** for a 3-point path with
+  anti-parallel steps. Values beyond that come from the step *length* changing,
+  not the direction — the 0 → 0.99 → 1.0 trajectory gives κ = −98 by
+  *decelerating*, which is not a reversal at all. A canary built on that would
+  have passed while testing the wrong thing. A sustained oscillation does cross
+  it, reproducibly: max \|κ\| = 6.91 across 5 runs.
+* **Landauer** — fed 8 calibration samples to a routine requiring 10. It raised,
+  and a harness that shrugged at a raise would have reported "healthy,
+  inconclusive" for an organ that cannot detect.
+* **Hashimoto** — passed node ids as strings; `_edge_tuple` casts to `int`.
+* **MUTS** — invented a patch profile id. Profiles are a closed set.
+
+## 7.3 Defect: the scan path detects tampering and tells nobody
+
+Writing the page-curve canary surfaced a real defect.
+
+`PageCurveTrap.verify_file()` correctly identifies a corrupted honey block —
+measured `intact: False`, `flipped_bits: 8` — and **emits nothing**. Neither
+does `verify_all()`. Only `on_write()` emits.
+
+| Method | Detects | Emits |
+|---|---|---|
+| `on_write` | yes | **yes** |
+| `verify_file` | yes | **no** |
+| `verify_all` | yes | **no** |
+
+The consequence: the organ catches tampering only when it *sees* the write. The
+periodic scan is the path that catches corruption by a process the organ did not
+observe, and on that path detection reaches a return value nobody reads. An
+attacker who corrupts a honey block out-of-band is detected and reported to no
+one.
+
+**Not fixed in this phase.** Fixing it means deciding what event a scan-path
+detection should emit and whether it shares `PARITY_ENTROPY_COLLAPSE` with the
+write path — a detection-design decision, not a fleet-ops one, and Phase 6's
+rule is that a phase measures its own subject without quietly changing the
+organs it measures. Recorded here; the canary deliberately exercises `on_write`
+so it tests the reporting path rather than hiding the gap behind an assertion on
+a return value.
+
+## 7.4 The kill switch cannot be pulled by the AI, and that is the design
+
+The first version of `halt()` took an `approved_by` string and checked it was
+non-empty. That verifies the caller wrote *something*. It is the
+self-reported-provenance defect this codebase has recorded and fixed before, and
+I wrote it anyway.
+
+Authority is now a signed token (`spine/approval_token.py`):
+
+* minted by the Governor path, using a **different key** from the organ-RPC
+  secret — an entity that can mint organ RPCs must not thereby be able to mint
+  kill-switch approvals;
+* bound to one action and one organ, so a token for `halt:BRAGG` cannot be
+  replayed as `halt:COOKIE` or as `resume`;
+* expiring, so yesterday's approval is not today's;
+* **single-use**, so one emergency approval does not walk the fleet.
+
+Every rejection names what was wrong:
+
+| Attempt | Result |
+|---|---|
+| no token | `no approval token supplied` |
+| forged signature | `approval token signature does not verify` |
+| wrong organ | `approval names organ 'COOKIE_FLUID_TURBULENCE', not 'BRAGG_FFT_FIREWALL'` |
+| wrong verb | `approval is for 'halt', not 'resume'` |
+| reused | `approval token apr_… has already been used` |
+| expired | `approval expired 879s ago` |
+| Governor said BLOCKED | `cannot mint an approval for a BLOCKED decision` |
+
+**The Governor blocks `disable_organ` outright**, because it is not in the
+10-tool allowlist:
+
+    disable_organ -> BLOCKED | ['tool not in 10-tool allowlist: disable_organ']
+
+That is not an obstacle to be worked around. A kill switch the AI can pull is a
+kill switch an attacker can pull, and the first thing a compromised Commander
+would do is turn off the organs that were going to catch it. So the AI path is
+refused and the HTTP endpoint says why:
+
+    HTTP 403  {"status":"HALT_REFUSED",
+               "reason":"the AI path cannot disable a detector (tool not in the
+                         10-tool allowlist); a human operator must supply an
+                         approval token minted with the Governor approval key"}
+
+An operator holding the approval key can halt:
+
+    {"status":"HALTED","organ":"BRAGG_FFT_FIREWALL",
+     "reason":"Bragg fires on 75% of benign families","approval_id":"apr_08c1…"}
+
+## 7.5 What the kill switch actually stops, which is less than it sounds
+
+A halted organ refuses work on the **RPC path** — the path real traffic uses:
+
+    before halt:  {"status": "DOCUMENT_QUARANTINED", "organ": "BRAGG_FFT_FIREWALL"}
+    after  halt:  {"status": "ORGAN_HALTED", "reason": "kill switch pulled: test"}
+
+It does **not** stop a direct `organ.screen()` call. The canary still fires on a
+halted organ, and the report says so rather than hiding it behind "excused":
+
+    halted_but_active: ['BRAGG_FFT_FIREWALL']
+
+That field exists because the alternative — marking a halted organ "excused" and
+moving on — would report a halt that does not cover the path the canary used.
+Whether a kill switch should also disable direct calls is a real question
+(mutating the object is more invasive and can break in-flight work), and it is
+left open rather than answered by accident.
+
+## 7.6 Live verification
+
+Not a unit test — a running server, `RAKSHA_EXECUTOR=organ`, real HTTP.
+
+    GET  /api/fleet          -> available: True, mode: organ
+                                counts: {'UNKNOWN': 8}, all_healthy: False
+    GET  /api/fleet/canary   -> all_detecting: True, blind: []
+                                all 8 organs fire, 0.1-9.9 ms each
+    POST /api/fleet/BRAGG_FFT_FIREWALL/halt  (no token)
+                             -> HTTP 403, Governor verdict BLOCKED included
+    POST .../halt  (operator token)
+                             -> HTTP 200, HALTED, approval_id recorded
+    GET  /api/fleet          -> halted: ['BRAGG_FFT_FIREWALL']
+    GET  /api/fleet/canary   -> excused: ['BRAGG_FFT_FIREWALL']
+                                halted_but_active: ['BRAGG_FFT_FIREWALL']
+
+The canary endpoint's first live run returned nothing at all. The cause was real:
+`execute.fleet_organs` was keyed by **tool**, and the endpoint looked up by
+**organ name**, so every lookup missed and the code fell back to
+`{"available": False}`. A silent empty fallback hid a broken lookup. It is now
+keyed by organ name, and a partial sweep **refuses** instead of sweeping a
+subset:
+
+    {"available": False, "reason": "organ objects unavailable for [...]", "missing": [...]}
+
+## 7.7 Tests and mutation
+
+| Suite | Tests | Covers |
+|---|---|---|
+| `test_phase7_fleet_ops.py` | 41 | liveness states, fresh-fleet honesty, silence, canaries, token forgery/replay/expiry/reuse, kill switch, bus wiring, endpoint presence |
+
+Mutation: **13 mutants, 13 killed.**
+
+One survived the first run: *"a raising canary is excused"*. My test asserted on
+an organ with **no canary defined**, which never reaches the exception path — so
+the mutant had nothing to break. The fix drives the real raise (a `calibrate`
+that fails), and the assertion is now that a raise reports `fired: False` with
+the exception named.
+
+**A second problem found here is worth more than the 13 mutants.** The mutation
+harness rewrites a source file and restores it within the same filesystem second,
+often at the same byte length — exactly the case where CPython reuses a stale
+`.pyc` keyed on (mtime, size). One mutant appeared to be killed when the run had
+never loaded it. The harness now clears `__pycache__` before each run and asserts
+the mutant text is on disk. Re-running **Phases 5 and 6 under the corrected
+harness** also exposed two *bad mutants of my own* — one replaced a phrase that
+still left the guarded words present, one replaced a status string in a docstring
+— both replaced with mutants that target what the tests actually check, and both
+then killed.
+
+Corrected totals: **Phase 5/6: 7 of 7 killed. Phase 7: 13 of 13 killed.**
+
+## 7.8 Full-suite state
+
+| Check | Result |
+|---|---|
+| `pytest tests/` | **1179 passed, 1 skipped, 1 xfailed** |
+| `pytest tests/ --collect-only` | **1181 collected** |
+| `test_phase7_fleet_ops.py` | 41 passed |
+| `node --test tests/*.test.js` | **90 pass, 0 fail** |
+| `boot_manifest --check` | **INTEGRITY OK — 4 files** |
+
+1138 + 41 = 1179 and 1140 + 41 = 1181. Both reconcile with Phase 6.
+
+## 7.9 What Phase 7 leaves open
+
+* **`verify_file` / `verify_all` detect and do not emit** (§7.3). The scan path
+  is silent on tampering. Not fixed; recorded.
+* **The kill switch does not cover direct method calls** (§7.5). Only the RPC
+  path. `halted_but_active` surfaces it rather than hiding it.
+* **Canaries are run on demand, not on a schedule.** A blind organ is found when
+  someone calls `/api/fleet/canary`, not automatically. A production deployment
+  would run the sweep on a timer; nothing here does.
+* **`observed` means "recently seen", not "correct".** The canary is what
+  distinguishes those, and it is a separate, explicit call for that reason.
+* **The fatigue budget from Phase 6 is still an assumption**, and the thresholds
+  are still uncalibrated. Phase 7 made the fleet *visible*; it did not make the
+  detectors *right*.
