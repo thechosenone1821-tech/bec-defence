@@ -26,6 +26,7 @@ from typing import Any, Dict, Optional
 DEFAULT_SALT = "eigenshield-dev-salt-change-me"
 
 _SIGNAL_RE = re.compile(r"^[A-Z0-9_]{3,64}$")
+_PRINTABLE_RE = re.compile(r"[^ -~]")
 _RING_RE = re.compile(r"^RING_[1-4]_[A-Z_]{3,48}$")
 
 _ENTITY_PREFIX = {
@@ -61,6 +62,32 @@ def _clamp01(value: Any, default: float = 0.0) -> float:
     except (TypeError, ValueError):
         return default
     return max(0.0, min(1.0, v))
+
+
+_REASON_MAX = 240
+
+
+def _clean_reason(value: Any) -> str:
+    """Sanitise an organ's stated reason without destroying it.
+
+    Part 4 Phase 1.3. `sanitize_event` whitelists its output, so every field not
+    named in it is **deleted** — and `reason` was not named. The contract in
+    specs/04 §3 requires "a reason, never only a score"; by the time an event
+    reached the Commander the reason was gone.
+
+    A reason cannot simply be routed through `_clean_metrics`, because that
+    function digests every string ("zero raw strings") and a digested reason is
+    unreadable. It also must not pass through untouched: an organ reading
+    untrusted input could carry attacker-influenced text into the SOC feed.
+
+    So: printable ASCII only, control characters and newlines collapsed, length
+    bounded, and a comment. Reasons are written by the organ, not by the
+    attacker; the shape constraint is the boundary.
+    """
+    text = str(value or "")
+    text = _PRINTABLE_RE.sub(" ", text)
+    text = " ".join(text.split())
+    return text[:_REASON_MAX]
 
 
 def _clean_entities(raw_entities: Any, salt: bytes) -> Dict[str, str]:
@@ -138,6 +165,9 @@ def sanitize_event(raw: Dict[str, Any], salt: Optional[bytes] = None) -> Dict[st
         "organ": organ,
         "signal_type": signal,
         "severity": _clamp01(raw.get("severity"), default=0.0),
+        # Part 4 Phase 1.3: these two were being silently deleted here.
+        "reason": _clean_reason(raw.get("reason")),
+        "severity_source": _clean_reason(raw.get("severity_source"))[:24],
         "entities": _clean_entities(raw.get("entities"), salt),
         "metrics": _clean_metrics(raw.get("metrics")),
     }

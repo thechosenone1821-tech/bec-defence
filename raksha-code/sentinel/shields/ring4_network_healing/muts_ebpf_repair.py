@@ -61,9 +61,47 @@ class MutsEbpfRepair(BaseOrgan):
 
         frozen_at = time.perf_counter()
         profile = inv["profile"]
+
+        # Part 4 Phase 1, defect 1: "a repeated exploit is repaired so the second
+        # attempt fails" is this organ's whole thesis, and the code could not
+        # tell a first attempt from a second: `second_attempt_blocked` was
+        # hard-coded True on *every* call, so the first mismatch and the repeat
+        # were indistinguishable. A repeat now has its own status.
+        repaired = bool(inv.get("repaired"))
+        if repaired:
+            record = {
+                "status": "ALREADY_REPAIRED",
+                "service_id": service_id,
+                "invariant_id": inv["invariant_id"],
+                "patch_profile_id": inv["profile_id"],
+                "first_repaired_at": inv.get("repaired_at"),
+                "detail": detail,
+                "second_attempt_blocked": True,
+                "within_budget": True,
+            }
+            self._splices.append(record)
+            self.emit(
+                "MISMATCH_REPEAT_BLOCKED",
+                severity=0.7,
+                entities={"host_id": "HOST_APP_SRV_07", "vlan_id": "VLAN_CORP_IT",
+                          "service_id": service_id},
+                metrics={"repeat": True},
+                reason=(f"{service_id} matched a signature already repaired at "
+                        f"{inv.get('repaired_at')}; the repeat exploit did not run"),
+            )
+            return record
+
+        inv["repaired"] = True
+        inv["repaired_at"] = time.time()
+
         # Simulated verification + splice of the pre-compiled fallback path.
         splice_ms = round((time.perf_counter() - t0) * 1e3 + 0.012, 3)  # +12us modeled work
-        splice_ms = min(splice_ms, self.splice_budget_ms)
+        # Part 4 Phase 1, defect 2: this used to clamp `splice_ms` to the budget
+        # *before* comparing it with the budget, so `within_budget` was True for
+        # every possible input — including a zero budget. A measurement that
+        # cannot fail is not a measurement. The raw value is now reported and
+        # compared honestly; the clamp target is visible in the record.
+        within = bool(splice_ms <= self.splice_budget_ms)
 
         record = {
             "status": "SHIELD_SPLICED",
@@ -72,9 +110,10 @@ class MutsEbpfRepair(BaseOrgan):
             "patch_profile_id": inv["profile_id"],
             "freeze_ms": round((frozen_at - t0) * 1e3, 3),
             "splice_ms": splice_ms,
-            "within_budget": bool(splice_ms <= self.splice_budget_ms),
+            "splice_budget_ms": self.splice_budget_ms,
+            "within_budget": within,
             "detail": detail,
-            "second_attempt_blocked": True,
+            "second_attempt_blocked": False,
         }
         self._splices.append(record)
         self.emit(
