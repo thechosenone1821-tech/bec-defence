@@ -8,6 +8,9 @@
 > `PROBLEM_STATEMENT.md`, `CONTEXT.md`, `BUILD_GUIDE.md`, `README.md` (the 8-organ
 > ring definition), and the actual code in `raksha-code/`.
 >
+> **Start here for current state:** [`../BUILD_STATE.md`](../BUILD_STATE.md)
+> — one page, every figure produced by running the code today.
+>
 > **`features.md` has still never been supplied**, so this taxonomy is derived from
 > the docs above. When it arrives, reconcile — do not rebuild.
 
@@ -56,7 +59,7 @@ ledger and Governor that both apps depend on).
 
 | Part | Built | Honest verdict |
 |---|---|---|
-| 1 · Citizen spine | **100%** | All 3 phases done (+236 tests, 626 total). |
+| 1 · Citizen spine | **100%** | All 3 phases done (+257 tests, 626 total). |
 | 2 · VoiceGuard | **65%** | Real pipeline, real measurements — on fake data. |
 | 3 · MessageGuard | **55%** | Rules work; corpus far too small to claim accuracy. |
 | 4 · Detection rings | **70%** | 8/8 organs coded; none seen real traffic. |
