@@ -24,7 +24,7 @@
 | **Capture & privacy** | 3-second ring buffer, consent gate, visible recording indicator, zero retention | ✅ built |
 | **Report rail** | Signed, tokenised, minimal report into the shared graph | ✅ built |
 | **Panic button** | Lock the screen → stop capture → dial 1930 | ✅ built (Phase 2) |
-| **Family mode** | Stricter defaults and louder warnings for elders | ❌ not built |
+| **Family mode** | Stricter defaults and louder warnings for elders | ✅ built (Phase 2) |
 
 **Correction (Phase 1), now resolved (Phase 2).** This table previously marked the
 panic button ✅ and described it as *"one tap to 1930 with the screen locked behind
@@ -145,7 +145,7 @@ explain(score_voice_result, lang) → { title, action, reasons[], actionable }
 3. Risk engine + the corroboration rule
 4. Capture, consent, indicator
 5. Report rail
-6. Family mode *(unbuilt — start here if you have spare capacity)*
+6. Family mode — **built in Phase 2** (`citizen/app/family.js`, 123 lines, 15 assertions in `panic_family.test.js`)
 
 ---
 

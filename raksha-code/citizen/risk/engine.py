@@ -32,8 +32,10 @@ from __future__ import annotations
 
 from typing import Any, Dict, List, Optional
 
+from citizen.risk import fusion
 from citizen.voiceguard import contract as VC
 from citizen.voiceguard import i18n
+from citizen.voiceguard.i18n import render_source as fusion_reason
 
 # --------------------------------------------------------------------------- #
 # Signal weights. Independent evidence contributions in [0, 1).
@@ -178,77 +180,48 @@ def assess(voice: Optional[Dict[str, Any]] = None,
            lang: str = "en") -> Dict[str, Any]:
     """Fuse whatever signals are available into one citizen-facing verdict.
 
-    Every input is optional. Passing nothing returns ``LOW_CONFIDENCE`` — never
-    a reassuring ``LOW`` — because an empty assessment is not an acquittal.
+    Part One of the four-part split moved all scoring arithmetic into
+    ``citizen/risk/fusion.py``. This function is now a thin presentation adapter:
+    it calls the pure fusion core, then attaches the sentences a person reads.
+    Keeping it as the public entry point means every existing caller and test
+    continues to work unchanged.
+
+    Every input is optional. Passing nothing returns ``LOW_CONFIDENCE`` — never a
+    reassuring ``LOW`` — because an empty assessment is not an acquittal.
     """
     lang = i18n.normalise_language(lang)
-    weights: List[float] = []
-    signals: List[Dict[str, Any]] = []
+    core = fusion.evaluate(
+        voice=voice,
+        message=message,
+        campaign_linked=campaign_linked,
+        repeat_contacts=repeat_contacts,
+        user_doubt=user_doubt,
+    )
 
-    # --- voice ----------------------------------------------------------- #
-    if voice and isinstance(voice, dict):
-        vv = voice.get("verdict")
-        if vv == VC.LIKELY_SYNTHETIC:
-            weights.append(W_VOICE_LIKELY_SYNTHETIC)
-            signals.append({"source": "voice", "weight": W_VOICE_LIKELY_SYNTHETIC,
-                            "detail": vv})
-        elif vv == VC.SUSPICIOUS:
-            weights.append(W_VOICE_SUSPICIOUS)
-            signals.append({"source": "voice", "weight": W_VOICE_SUSPICIOUS,
-                            "detail": vv})
-        # INCONCLUSIVE / SILENT contribute nothing: they are an absence of
-        # evidence and must never be treated as evidence of absence.
-
-    # --- message --------------------------------------------------------- #
-    if message and isinstance(message, dict):
-        mv = str(message.get("verdict", "")).upper()
-        if mv == "CRITICAL":
-            weights.append(W_MESSAGE_CRITICAL)
-            signals.append({"source": "message", "weight": W_MESSAGE_CRITICAL,
-                            "detail": mv})
-        elif mv == "HIGH":
-            weights.append(W_MESSAGE_HIGH)
-            signals.append({"source": "message", "weight": W_MESSAGE_HIGH,
-                            "detail": mv})
-
-    # --- campaign linkage ------------------------------------------------- #
-    if _safe_bool(campaign_linked):
-        weights.append(W_CAMPAIGN_LINK)
-        signals.append({"source": "campaign", "weight": W_CAMPAIGN_LINK,
-                        "detail": "same pattern already reported"})
-
-    # --- repeat contact ---------------------------------------------------- #
-    repeat_n = _safe_int(repeat_contacts)
-    if repeat_n >= 3:
-        weights.append(W_REPEAT_CONTACT)
-        signals.append({"source": "repeat_contact", "weight": W_REPEAT_CONTACT,
-                        "detail": f"{repeat_n} attempts"})
-
-    # --- the person's own doubt --------------------------------------------- #
-    if _safe_bool(user_doubt):
-        weights.append(W_USER_DOUBT)
-        signals.append({"source": "user_doubt", "weight": W_USER_DOUBT,
-                        "detail": "user reported unease"})
-
-    score = round(noisy_or(weights), 4)
-    band = band_for(score, len(weights), [s["source"] for s in signals])
-
+    band = core["band"]
     headline, action = _band_copy(band, lang)
-    reasons = [s["detail"] for s in signals]
-    if not signals:
+
+    # Part One deliberately returns *internal* source/detail values. Turning them
+    # into sentences is Part Two's job, and doing it here would put English in
+    # the scoring path. The pre-rendered `reasons` list is kept for the existing
+    # UI, but it is built from Part Two's catalogue, never from raw codes.
+    reasons = [fusion_reason(s, lang) for s in core["signals"]]
+    if not reasons:
         reasons = [i18n.render_reason(VC.R_LOW_CONFIDENCE, lang)]
 
     return {
         "band": band,
-        "score": score,
-        "signals": signals,
-        "weights_used": [round(w, 3) for w in weights],
+        "band_reason": core["band_reason"],
+        "score": core["score"],
+        "signals": core["signals"],
+        "skipped": core["skipped"],
+        "weights_used": core["weights_used"],
         "headline": headline,
         "action": action,
         "reasons": reasons,
         "helpline": i18n.HELPLINE,
         "lang": lang,
-        "degraded": band == BAND_LOW_CONFIDENCE,
+        "degraded": core["degraded"],
         "advisory": ("Judgement-based weighting, not calibrated against real "
                      "fraud outcomes — an aid to your decision, not a verdict."),
     }

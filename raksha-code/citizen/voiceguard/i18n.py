@@ -319,6 +319,73 @@ def render_family(family: str, lang: str = DEFAULT_LANGUAGE) -> str:
     return entry.get(lang) or entry[DEFAULT_LANGUAGE]
 
 
+# --------------------------------------------------------------------------- #
+# Part One emits *sources* (voice / message / campaign / repeat / doubt) and
+# internal detail values. Part Two turns those into sentences.
+#
+# Phase 1 fixed this for the message tab but left the risk engine still returning
+# raw codes like "LIKELY_SYNTHETIC" and "same pattern already reported" straight
+# into a citizen-facing `reasons` list. That is the same bug on a different
+# surface, so the mapping lives here once.
+# --------------------------------------------------------------------------- #
+_SOURCE_SENTENCES: Dict[str, Dict[str, str]] = {
+    "voice:LIKELY_SYNTHETIC": {
+        "en": "The voice on this call shows strong signs of being machine-generated.",
+        "hi": "इस कॉल की आवाज़ में मशीन से बने होने के स्पष्ट संकेत हैं।",
+        "te": "ఈ కాల్‌లోని స్వరంలో యంత్రంతో తయారైనట్టు స్పష్టమైన సంకేతాలున్నాయి.",
+    },
+    "voice:SUSPICIOUS": {
+        "en": "The voice on this call has some machine-like characteristics.",
+        "hi": "इस कॉल की आवाज़ में कुछ मशीन जैसी विशेषताएँ हैं।",
+        "te": "ఈ కాల్‌లోని స్వరంలో కొన్ని యంత్రంలాంటి లక్షణాలున్నాయి.",
+    },
+    "message:CRITICAL": {
+        "en": "The message uses words and demands seen in confirmed fraud.",
+        "hi": "संदेश में पुष्ट धोखाधड़ी में देखे गए शब्द और माँगें हैं।",
+        "te": "సందేశంలో నిర్ధారిత మోసాల్లో కనిపించే పదాలు, డిమాండ్లు ఉన్నాయి.",
+    },
+    "message:HIGH": {
+        "en": "The message matches a known scam pattern.",
+        "hi": "संदेश एक ज्ञात धोखाधड़ी पैटर्न से मेल खाता है।",
+        "te": "సందేశం తెలిసిన మోసం నమూనాతో సరిపోతుంది.",
+    },
+    "campaign": {
+        "en": "Other people have already reported this exact pattern.",
+        "hi": "अन्य लोग इसी पैटर्न की शिकायत पहले ही कर चुके हैं।",
+        "te": "ఇతరులు ఇదే నమూనాను ఇప్పటికే నివేదించారు.",
+    },
+    "repeat_contact": {
+        "en": "They have contacted you several times in a short period.",
+        "hi": "उन्होंने थोड़े समय में आपसे कई बार संपर्क किया है।",
+        "te": "వారు కొద్ది సమయంలో మీతో పలుమార్లు సంప్రదించారు.",
+    },
+    "user_doubt": {
+        "en": "You felt something was wrong about this contact.",
+        "hi": "आपको इस संपर्क में कुछ गड़बड़ लगी।",
+        "te": "ఈ సంపర్కంలో ఏదో తప్పు ఉందని మీరు భావించారు.",
+    },
+}
+
+
+def render_source(signal: Dict[str, Any], lang: str = DEFAULT_LANGUAGE) -> str:
+    """One fused signal -> one sentence a person can read.
+
+    Never returns an internal code. The detail value is used only to pick the
+    sentence; if no sentence exists for it, the generic sentence for that source
+    is used rather than leaking the code to the screen.
+    """
+    lang = normalise_language(lang)
+    if not isinstance(signal, dict):
+        return _SOURCE_SENTENCES["user_doubt"][lang]
+    source = str(signal.get("source") or "")
+    detail = str(signal.get("detail") or "")
+
+    entry = _SOURCE_SENTENCES.get(f"{source}:{detail}") or _SOURCE_SENTENCES.get(source)
+    if entry is None:
+        return _SOURCE_SENTENCES["user_doubt"][lang]
+    return entry.get(lang) or entry[DEFAULT_LANGUAGE]
+
+
 def explain_message(result: Dict[str, Any], lang: str = DEFAULT_LANGUAGE) -> Dict[str, Any]:
     """Turn a ``score_message`` payload into a citizen-facing explanation.
 
