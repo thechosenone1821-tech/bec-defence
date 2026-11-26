@@ -55,19 +55,75 @@ class PolicyEngine:
         self.ledger = ledger
         self.tier0_vlans = set(self.policy.get("tier_0_protected", {}).get("vlans", []))
         self.tier0_hosts = set(self.policy.get("tier_0_protected", {}).get("hosts", []))
+        # Part 7 §5 box 4. The crown-jewel lock matched Tier-0 VLAN and HOST ids
+        # only, so naming the *service* that runs on a Tier-0 host walked
+        # straight through it: `set_service_readonly(SVC_COLDCHAIN)` was
+        # APPROVED while `set_service_readonly(HOST_BLOODBANK_CTRL_01)` was
+        # BLOCKED, and SVC_COLDCHAIN runs on that host. A lock an attacker
+        # evades by renaming the target is not a lock.
+        self.tier0_services = set(self.policy.get("tier_0_protected", {}).get("services", []))
+        # service_id -> host it runs on, from the topology the rest of the system
+        # already uses. Read, not hardcoded: a topology edit must not require a
+        # Governor edit, and a hardcoded map would silently rot.
+        self._service_owner: Dict[str, str] = self._load_service_owners()
         self.limits = self.policy.get("blast_radius_limits", {})
         self.min_uptime = float(self.limits.get("min_preserved_graph_uptime_pct", 90.0))
         self._budget_window: Dict[str, Deque[float]] = {k: deque() for k in _BUDGET_CATEGORY.values()}
         self._frozen_until: Dict[str, float] = {}
 
+    def _load_service_owners(self) -> Dict[str, str]:
+        """Map every service id in the topology to the host it runs on."""
+        topo_path = self.policy.get("topology_path")
+        candidates = []
+        if topo_path:
+            candidates.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), topo_path))
+            candidates.append(topo_path)
+        candidates.append(os.path.join(_HERE, "config", "company_topology.json"))
+        for path in candidates:
+            try:
+                with open(path) as f:
+                    topo = json.load(f)
+            except (OSError, ValueError):
+                continue
+            owners = {}
+            for svc in topo.get("services", []) or []:
+                sid, host = svc.get("id"), svc.get("host")
+                if isinstance(sid, str) and isinstance(host, str):
+                    owners[sid] = host
+            return owners
+        # No topology readable: an empty map means service ids are NOT resolved,
+        # so an unmapped service is treated as unverified rather than safe.
+        return {}
+
     # ------------------------------------------------------------------ #
     def _tier0_targets_in_args(self, args: Any) -> List[str]:
+        """Every Tier-0 asset named anywhere in the action's arguments.
+
+        Matches three id spaces, because a disruptive action can name its target
+        as any of them and a lock that covers two is a lock with a hole:
+
+        * **VLAN ids** (``VLAN_ICU_CLINICAL``)
+        * **host ids** (``HOST_BLOODBANK_CTRL_01``)
+        * **service ids** (``SVC_COLDCHAIN``) — resolved through the topology to
+          the host they run on, since isolating a Tier-0 host's service is
+          isolating the Tier-0 host.
+
+        When a service cannot be resolved to a host, it still counts as a hit:
+        an unknown service is not a safe service, and failing closed is the
+        rule for the whole decision path (§2.4).
+        """
         hits: List[str] = []
+        protected = self.tier0_vlans | self.tier0_hosts | self.tier0_services
 
         def walk(value: Any) -> None:
             if isinstance(value, str):
-                if value in self.tier0_vlans or value in self.tier0_hosts:
+                if value in protected:
                     hits.append(value)
+                elif value in self._service_owner:
+                    # The service is not itself Tier-0, but its host may be.
+                    owner = self._service_owner[value]
+                    if owner in self.tier0_hosts:
+                        hits.append(f"{value} (on tier-0 host {owner})")
             elif isinstance(value, dict):
                 for v in value.values():
                     walk(v)
@@ -167,9 +223,11 @@ class PolicyEngine:
             from spine import tcb_core, tcb_mirror
             human_ok = str(context.get("human_stepup", "")).upper() in {"VERIFIED", "TRUE", "APPROVED"}
             core = tcb_core.decide(tool or "", args if isinstance(args, dict) else {},
-                                   self.tier0_vlans, self.tier0_hosts, human_ok=human_ok)
+                                   self.tier0_vlans, self.tier0_hosts, human_ok=human_ok,
+                                   service_owner=self._service_owner)
             mirror = tcb_mirror.decide(tool or "", args if isinstance(args, dict) else {},
-                                       self.tier0_vlans, self.tier0_hosts, human_ok=human_ok)
+                                       self.tier0_vlans, self.tier0_hosts, human_ok=human_ok,
+                                       service_owner=self._service_owner)
             if core["decision"] != mirror["decision"]:
                 reasons.append(f"FORTRESS TCB disagreement (core={core['decision']} mirror={mirror['decision']}) — fail closed")
                 decision = "BLOCKED"

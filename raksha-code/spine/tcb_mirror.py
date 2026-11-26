@@ -78,17 +78,30 @@ def _depth_nodes(value):
     return visit(value, 0), counter[0]
 
 
-def _hits_tier0(value, protected):
+def _hits_tier0(value, protected, service_owner=None):
+    """Every Tier-0 asset named in `value`.
+
+    Written independently of `tcb_core` on purpose — the twins exist to disagree
+    when one of them is wrong. Both had the same hole: a Service id was not a
+    protected id, even when that service runs on a Tier-0 host. The mirror
+    resolves it here rather than sharing core's walker, so a future edit to one
+    twin still cannot silently change the other.
+    """
     if isinstance(value, str):
-        return [value] if value in protected else []
+        if value in protected:
+            return [value]
+        owner = (service_owner or {}).get(value)
+        if owner is not None and owner in protected:
+            return [value]
+        return []
     found = []
     if isinstance(value, dict):
         for k, v in value.items():
-            found += _hits_tier0(k, protected)
-            found += _hits_tier0(v, protected)
+            found += _hits_tier0(k, protected, service_owner)
+            found += _hits_tier0(v, protected, service_owner)
     elif isinstance(value, (list, tuple)):
         for v in value:
-            found += _hits_tier0(v, protected)
+            found += _hits_tier0(v, protected, service_owner)
     return found
 
 
@@ -111,7 +124,7 @@ def _ok_types(args):
     return None
 
 
-def decide(tool, args, tier0_vlans, tier0_hosts, human_ok=False):
+def decide(tool, args, tier0_vlans, tier0_hosts, human_ok=False, service_owner=None):
     """Fold a fixed checklist. Returns the same shape as tcb_core.decide."""
     if not isinstance(tool, str) or tool not in _TOOLS:
         return {"decision": "BLOCKED", "reasons": [f"tool not in 10-tool allowlist: {tool}"]}
@@ -133,7 +146,7 @@ def decide(tool, args, tier0_vlans, tier0_hosts, human_ok=False):
     check("tier0-flag",
           not (tool == "execute_percolation_cut" and args.get("preserve_tier0_vlans") is not True))
     protected = set(tier0_vlans or ()) | set(tier0_hosts or ())
-    hits = sorted(set(_hits_tier0(args, protected)))
+    hits = sorted(set(_hits_tier0(args, protected, service_owner)))
     check("crown-jewel-lock", human_ok or not hits)
 
     failed = [name for name, ok in checks if not ok]

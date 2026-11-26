@@ -156,7 +156,7 @@ def _type_errors(tool, args):
     return errors
 
 
-def decide(tool, args, tier0_vlans, tier0_hosts, human_ok=False):
+def decide(tool, args, tier0_vlans, tier0_hosts, human_ok=False, service_owner=None):
     """Decide the stateless invariants for one action.
 
     Returns {"decision": "APPROVED"|"BLOCKED", "reasons": [str, ...]}.
@@ -185,8 +185,14 @@ def decide(tool, args, tier0_vlans, tier0_hosts, human_ok=False):
                 reasons.append(f"missing required arg: {req}")
         reasons.extend(_type_errors(tool, args))
 
+    # Part 7 §5 box 4: a service that runs on a Tier-0 host is a Tier-0 target.
+    # Both twins previously matched VLAN and host ids only, so naming the service
+    # walked through the crown-jewel lock. `service_owner` is passed in rather
+    # than read here, so the twins stay pure functions of their arguments and
+    # cannot disagree because they resolved the topology differently.
     hits = sorted({s for s in _strings(args)
-                   if s in tier0_vlans or s in tier0_hosts})
+                   if s in tier0_vlans or s in tier0_hosts
+                   or (s in (service_owner or {}) and service_owner[s] in tier0_hosts)})
     if hits and not human_ok:
         reasons.append(f"tier-0 protected asset(s) referenced: {hits}")
 
