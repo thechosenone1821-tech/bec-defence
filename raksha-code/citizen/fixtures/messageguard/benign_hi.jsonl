@@ -1,0 +1,40 @@
+{"id": "BN-HI-001", "lang": "hi", "label": "benign", "kind": "otp_delivery", "text": "आपका एसबीआई नेट बैंकिंग ओटीपी 483920 है। किसी को नहीं बताएं। -SBIBNK"}
+{"id": "BN-HI-002", "lang": "hi", "label": "benign", "kind": "otp_delivery", "text": "एचडीएफसी बैंक: कार्ड लेनदेन ₹1,250 का ओटीपी 773412। कभी भी शेयर न करें। -HDFCBK"}
+{"id": "BN-HI-003", "lang": "hi", "label": "benign", "kind": "otp_delivery", "text": "आईसीआईसीआई: आपका वन टाइम पासवर्ड 993044 है। आईसीआईसीआई बैंक कभी ओटीपी नहीं मांगता। -ICICIB"}
+{"id": "BN-HI-004", "lang": "hi", "label": "benign", "kind": "otp_delivery", "text": "आधार ओटीपी 554033 ई-केवाईसी के लिए। इसे किसी से साझा न करें। -UIDAI"}
+{"id": "BN-HI-005", "lang": "hi", "label": "benign", "kind": "otp_delivery", "text": "123456 आपका अमेज़न ओटीपी है। इसे किसी को नहीं बताएं।"}
+{"id": "BN-HI-006", "lang": "hi", "label": "benign", "kind": "otp_delivery", "text": "फ्लिपकार्ट: लॉगिन के लिए ओटीपी 884213। डिलीवरी स्टाफ समेत किसी को न बताएं।"}
+{"id": "BN-HI-007", "lang": "hi", "label": "benign", "kind": "transaction_alert", "text": "खाता XX1234 से 26-11-26 को UPI/OKICICI से ₹2,500 डेबिट हुए। आपके अलावा किसी और ने किया? 1800208 पर कॉल करें। -SBIBNK"}
+{"id": "BN-HI-008", "lang": "hi", "label": "benign", "kind": "transaction_alert", "text": "खाता XX8821 में REFUND TAX DEPT से ₹15,000 जमा हुए 25-11-26। -HDFCBK"}
+{"id": "BN-HI-009", "lang": "hi", "label": "benign", "kind": "transaction_alert", "text": "आपका कार्ड 4567 25-11-26 को बिग बाजार में ₹1,200 के लिए इस्तेमाल हुआ। -AXISBK"}
+{"id": "BN-HI-010", "lang": "hi", "label": "benign", "kind": "emi_due", "text": "कार लोन की ₹5,430 ईएमआई 05-12-26 को देय है। यूपीआई या ब्रांच से भुगतान करें। -ICICIB"}
+{"id": "BN-HI-011", "lang": "hi", "label": "benign", "kind": "recharge_success", "text": "आपका जियो रीचार्ज ₹239 सफल। 26-12-26 तक मान्य। -JIO"}
+{"id": "BN-HI-012", "lang": "hi", "label": "benign", "kind": "recharge_success", "text": "एयरटेल: ₹299 प्लान एक्टिवेट। रोज़ 2GB डेटा। -AIRTEL"}
+{"id": "BN-HI-013", "lang": "hi", "label": "benign", "kind": "delivery_genuine", "text": "आपका आईआरसीटीसी टिकट PNR 8421593 कन्फर्म: सीट 42/AC2। -IRCTC"}
+{"id": "BN-HI-014", "lang": "hi", "label": "benign", "kind": "delivery_genuine", "text": "ब्लू डार्ट: आपका पार्सल BD8829121 आज 2-5 बजे डिलीवर होगा। bluedart.com पर ट्रैक करें।"}
+{"id": "BN-HI-015", "lang": "hi", "label": "benign", "kind": "balance_info", "text": "आपके एसबीआई खाते XX1234 का बैलेंस 26-11-26 को ₹24,880 है। -SBIBNK"}
+{"id": "BN-HI-016", "lang": "hi", "label": "benign", "kind": "balance_info", "text": "प्रिय ग्राहक, आपका मासिक अकाउंट स्टेटमेंट तैयार है। ऑफिसियल ऐप पर देखें। -HDFCBK"}
+{"id": "BN-HI-017", "lang": "hi", "label": "benign", "kind": "delivery_genuine", "text": "आपका ज़ोमाटो ऑर्डर 8812 डिलीवर हुआ। रेटिंग दें।"}
+{"id": "BN-HI-018", "lang": "hi", "label": "benign", "kind": "utility_bill", "text": "एपीडीसीएल: नवंबर का बिजली बिल ₹1,240 28/11 को देय। ऑनलाइन भुगतान करें, लेट फीस से बचें।"}
+{"id": "BN-HI-019", "lang": "hi", "label": "benign", "kind": "utility_bill", "text": "एमएसईबी: ₹880 का बिल जनरेट। अंतिम तिथि 30/11/26। देय तिथि से पहले भुगतान करें।"}
+{"id": "BN-HI-020", "lang": "hi", "label": "benign", "kind": "utility_bill", "text": "बेसकॉम: ₹640 का बिल भुगतान मिला। धन्यवाद।"}
+{"id": "BN-HI-021", "lang": "hi", "label": "benign", "kind": "fraud_advisory", "text": "धोखाधड़ी से सावधान: एसबीआई कभी कॉल या एसएमएस से ओटीपी, सीवीवी या पिन नहीं मांगता। -SBIBNK"}
+{"id": "BN-HI-022", "lang": "hi", "label": "benign", "kind": "fraud_advisory", "text": "आरबीआई सलाह: बैंक कभी फोन पर ओटीपी या सीवीवी शेयर नहीं करते। फ्रॉड rbi.org.in पर रिपोर्ट करें।"}
+{"id": "BN-HI-023", "lang": "hi", "label": "benign", "kind": "fraud_advisory", "text": "साइबराबाद ट्रैफिक पुलिस सलाह: अजनबियों को ओटीपी या यूपीआई पिन कभी न दें। -CPTEL"}
+{"id": "BN-HI-024", "lang": "hi", "label": "benign", "kind": "genuine_bank_kyc_alert", "text": "एचडीएफसी बैंक केवाईसी अलर्ट: खाता डी-एक्टिवेशन से बचने के लिए तुरंत केवाईसी अपडेट करें। hdfcbank.com/kyc पर जाएं।"}
+{"id": "BN-HI-025", "lang": "hi", "label": "benign", "kind": "genuine_bank_kyc_alert", "text": "एसबीआई: खाता एक्टिव रखने के लिए अभी bit.ly/sbi-kyc पर केवाईसी अपडेट करें।"}
+{"id": "BN-HI-026", "lang": "hi", "label": "benign", "kind": "genuine_bank_kyc_alert", "text": "आईसीआईसीआई बैंक: केवाईसी अपडेट लंबित। icicibank.com/kyc-update पर पैन कार्ड विवरण तुरंत अपडेट करें, अन्यथा कार्ड निलंबित।"}
+{"id": "BN-HI-027", "lang": "hi", "label": "benign", "kind": "fastag_genuine", "text": "आपका फास्टैग बैलेंस कम है। रीचार्ज करें। -FASTNET"}
+{"id": "BN-HI-028", "lang": "hi", "label": "benign", "kind": "toll_challan", "text": "ई-चालान: KA-01-AB-1234 का ₹500 चालान बाकी। 7 दिन के अंदर parivahan.gov.in पर चुकाएं।"}
+{"id": "BN-HI-029", "lang": "hi", "label": "benign", "kind": "toll_challan", "text": "टोल सूचना: वाहन TN-09-CD-4321 बिना फास्टैग टोल पार। ₹60 किमी टोल पर चुकाएं।"}
+{"id": "BN-HI-030", "lang": "hi", "label": "benign", "kind": "marketing_offer", "text": "एचडीएफसी: इस सप्ताहांत किराने की खरीद पर आपके कार्ड से 10% छूट। नियम लागू।"}
+{"id": "BN-HI-031", "lang": "hi", "label": "benign", "kind": "marketing_offer", "text": "पेटीएम के साथ इस दिवाली शानदार कूपन जीतें! ऐप में लकी ड्रॉ खेलें।"}
+{"id": "BN-HI-032", "lang": "hi", "label": "benign", "kind": "loan_promo", "text": "आपका ₹3,00,000 पर्सनल लोन प्री-अप्रूव्ड। ऑफिसियल ऐप पर अप्लाई करें। न्यूनतम आय ₹25,000।"}
+{"id": "BN-HI-033", "lang": "hi", "label": "benign", "kind": "broker_market_info", "text": "एंजेल वन: आपका डीमैट खाता सक्रिय है। बाजार आज सुबह 9:15 बजे खुलेगा।"}
+{"id": "BN-HI-034", "lang": "hi", "label": "benign", "kind": "delivery_genuine", "text": "इंडिया पोस्ट: आपका पार्सल IP8812345 बुक। 3 दिन में डिलीवरी।"}
+{"id": "BN-HI-035", "lang": "hi", "label": "benign", "kind": "utility_bill", "text": "₹640 का बिजली बिल भुगतान हो गया। रसीद EP-8812। -BESCOM"}
+{"id": "BN-HI-036", "lang": "hi", "label": "benign", "kind": "balance_info", "text": "यूनियन बैंक: आपकी ₹1,00,000 एफडी 05-01-27 को मैच्योर। ब्रांच या नेट बैंकिंग पर रिन्यू करें।"}
+{"id": "BN-HI-037", "lang": "hi", "label": "benign", "kind": "account_security", "text": "व्हाट्सएप: आपका अकाउंट नए एंड्रॉइड डिवाइस से लॉगिन हुआ। यह आप नहीं हैं तो लॉग आउट करें।"}
+{"id": "BN-HI-038", "lang": "hi", "label": "benign", "kind": "dth_renewal", "text": "टाटा स्काई: आपका डीटीएच पैक कल रिन्यू। ₹250 वॉलेट से कटेंगे।"}
+{"id": "BN-HI-039", "lang": "hi", "label": "benign", "kind": "transaction_alert", "text": "रमेश कुमार को ₹150 का यूपीआई भुगतान सफल। -OKSBIN"}
+{"id": "BN-HI-040", "lang": "hi", "label": "benign", "kind": "property_tax", "text": "जीएचएमसी प्रॉपर्टी टैक्स ₹3,200 देय। 31 दिसंबर तक ghmc.gov.in पर चुकाएं, 5% छूट।"}

@@ -1,6 +1,6 @@
 # RAKSHA — Architecture
 
-> **Last updated:** 2026-11-20 · **Status:** target architecture (pre-code).
+> **Last updated:** 2026-11-26 · **Status:** target architecture; implemented modules are noted in §3.
 > Anything marked *(ports eigenshield-v2)* already exists in working form
 > under `../eigenshield-v2/` and is listed with paths in `CONTEXT.md §3`.
 
@@ -14,7 +14,7 @@
    │  RAKSHA Citizen (app)        │      │  RAKSHA Sentinel (app)            │
    │  ┌─────────┐ ┌─────────────┐ │      │  ┌──────────┐ ┌────────────────┐  │
    │  │VoiceGun.│ │MessageGuard │ │      │  │Endpoint  │ │ Identity       │  │
-   │  │(clone)  │ │(scam scr.)  │ │      │  │ Shield   │ │ Shield         │  │
+   │  │(synthetic)│ │(scam scr.) │ │      │  │  Shield   │ │ Shield         │  │
    │  └────┬────┘ └──────┬──────┘ │      │  └────┬─────┘ └───────┬────────┘  │
    │  ┌────▼─────────┐   │        │      │  ┌────▼─────────┐ ┌───▼─────────┐  │
    │  │ Citizen risk │   │        │      │  │ Cloud/Data   │ │ AI-Agent    │  │
@@ -67,8 +67,8 @@ it exists to *attack* the sandboxed copies so the defence can be measured.
 
 | Module | Function |
 | --- | --- |
-| **VoiceGuard** | 2-second screening of caller audio streams: spectral + anti-spoof features (LFCC/LPCC lineage), flag synthetic speech. Powered by an on-device distilled model; never uploads audio without consent |
-| **MessageGuard** | Multilingual (hi/te/en) scam-script detection — UPI collect-requests, KYC/digital-arrest scripts, phishing URLs. Embedding + spectral gates (`reflexes/ring2_ai_defense/bragg_fft_firewall.py` lineage) |
+| **VoiceGuard** | 2-second screening of caller audio streams: MAYA synthetic-speech features and an explicitly labelled synthetic-corpus model. Never uploads audio without consent; `may_claim_clone_detection()` is `False` |
+| **MessageGuard** | Implemented v1: deterministic, offline, explainable hi/te/en scam-script detection — UPI collect-requests, KYC/digital-arrest scripts, phishing URLs. Six weighted rule families, `MSG-*` reason codes, 492 hand-authored measurement fixtures; real-world accuracy UNMEASURED. No trained classifier |
 | **Citizen Risk Engine** | Combines voice + message + (optional) SMS/UPI-notify signals into one risk verdict with plain-language reasons ("This caller is likely a synthetic voice speaking like a DSP rank officer") |
 | **One-tap Report** | Signed, minimal report: verdict, category, redacted entities (tokens only). No raw audio/SMS persisted without explicit consent |
 | **Panic button** | Lock the screen, kill known-scam sessions, call 1930/chosen helpline |

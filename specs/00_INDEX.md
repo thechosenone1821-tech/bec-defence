@@ -45,7 +45,7 @@ ledger and Governor that both apps depend on).
 |---|---|---|---|
 | 1 | [`01_citizen_spine.md`](01_citizen_spine.md) · [roadmap](01a_citizen_spine_roadmap.md) · [phase 3](01b_citizen_spine_phase3.md) | Risk fusion, three languages, privacy, report rail | 2 |
 | 2 | [`02_citizen_voiceguard.md`](02_citizen_voiceguard.md) | Maya — the voice model | 2 |
-| 3 | [`03_citizen_messageguard.md`](03_citizen_messageguard.md) | Scam-text scorer | 2 |
+| 3 | [`03_citizen_messageguard.md`](03_citizen_messageguard.md) | Scam-text scorer · reason codes · measured fixture corpus | 2 |
 | 4 | [`04_infra_detection_rings.md`](04_infra_detection_rings.md) | The 8 organs | 4 |
 | 5 | [`05_infra_response_governance.md`](05_infra_response_governance.md) | Planner, Governor, commander | 3 |
 | 6 | [`06_infra_console_redteam.md`](06_infra_console_redteam.md) | Console, RAAVAN, measurement | 3 |
@@ -61,12 +61,12 @@ ledger and Governor that both apps depend on).
 |---|---|---|
 | 1 · Citizen spine | **100% + rebuilt** | 3 phases done, then rebuilt in 4 parts (fusion · explanation · capture · delivery). **+196 tests over 626, 822 total.** |
 | 2 · VoiceGuard | **65%** | Real pipeline, real measurements — on fake data. |
-| 3 · MessageGuard | **55%** | Rules work; corpus far too small to claim accuracy. |
+| 3 · MessageGuard | **100% (spec DoD)** | v1 integrated; 492 hand-authored fixtures, measured FPR and accuracy, shared `MSG-*` i18n. Real-world field performance still UNMEASURED. |
 | 4 · Detection rings | **70%** | 8/8 organs coded; none seen real traffic. |
 | 5 · Response & governance | **75%** | The strongest part. No live model; dry-run executor. |
 | 6 · Console & red-team | **30%** | **No UI at all.** RAAVAN works. |
 | 7 · Spine | **85%** | Solid. Campaign fusion is the weak seam. |
-| **Overall** | **~67%** | Engine far ahead of presentation. |
+| **Overall** | **~72%** | Engine far ahead of presentation; Part 3 no longer the measurement gap. |
 
 ---
 
@@ -75,7 +75,7 @@ ledger and Governor that both apps depend on).
 | Thing | Part | Blocking what |
 |---|---|---|
 | **Voice model on real speech + real clones** | 2 | Any accuracy claim; the word "clone" |
-| **Message classifier on a real corpus** | 3 | Accuracy claims beyond "we recognise our own fixtures" |
+| **Message evaluation on a consent-cleared real corpus** | 3 | Any field accuracy / FPR claim beyond the hand-authored fixture measurement |
 | **On-device quantisation** | 2 | Shipping to a phone |
 
 Everything in Parts 4, 5, 6 and 7 is **deterministic mathematics by design**. That

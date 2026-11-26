@@ -8,10 +8,11 @@ Baselines (all honest, all fixture-bound):
 RAKSHA (full): organ-signed pipeline + union-find campaign fusion +
 containment planner + Governor (90% preserved-uptime floor, TCB re-derivation).
 
-Labels: fixtures are synthetic; the campus graph is synthetic; MessageGuard is
-a heuristic validated on a synthetic corpus (real-world unmeasured). Latency
-is sandbox wall-clock on this machine, not an SLA. Nothing here is derived
-from PIB/CERT-In/AIIMS or any external source.
+Labels: fixtures are hand-authored; the campus graph is synthetic;
+MessageGuard v1 is measured on 492 hand-authored en/hi/te fixtures, with
+real-world recall and FPR unmeasured. Latency is sandbox wall-clock on this
+machine, not an SLA. Nothing here is derived from PIB/CERT-In/AIIMS or any
+external source.
 """
 
 import json
@@ -32,10 +33,12 @@ from spine.telemetry_mac import sign_event
 from spine import containment, governor
 from raavan.killchain import build_campaign
 from citizen.messageguard import evaluate_fixtures
+from evals.messageguard.run_evals import compute_results as messageguard_results
 
 POLICY_SRC = os.path.join(CODE, "spine", "config", "policy.yaml")
 TOPOLOGY = os.path.join(CODE, "spine", "config", "company_topology.json")
 MSG_FIXTURES = os.path.join(CODE, "citizen", "fixtures", "message_fixtures.json")
+MSG_V1_FIXTURES = os.path.join(CODE, "citizen", "fixtures", "messageguard")
 INGRESS = ["VLAN_GUEST_WIFI", "VLAN_MAINT_03", "VLAN_LAB_DEV"]
 
 KNOWN_BAD = {"sha256:mockinv0123", "SESS_9A8B7C", "HOST_AB12CD"}  # signature list = what a static blocklist would know
@@ -123,13 +126,30 @@ def main():
                      "0/5 (semantic steps invisible)", f"**{sig_hits}/5** (known-bad fixtures only)", "n/a",
                      "**5/5** — one campaign, human step-up at impact"))
 
-        # ---- MessageGuard synthetic corpus ----------------------------------
+        # ---- MessageGuard: legacy smoke corpus + measured v1 corpus ---------
         report = evaluate_fixtures(MSG_FIXTURES)
         acc = report.get("accuracy")
         n = report.get("total", report.get("n", "?"))
         hit = report.get("passed", report.get("correct", "?"))
-        rows.append(("MessageGuard synthetic corpus accuracy (NOT real-world)",
+        rows.append(("MessageGuard 20-item M3 smoke corpus (NOT a measurement)",
                      "n/a", "n/a", "n/a", f"**{hit}/{n} = {acc}**"))
+
+        report_v1 = evaluate_fixtures(MSG_V1_FIXTURES)
+        measured = messageguard_results()
+        overall = measured["overall"]
+        corpus = measured["corpus"]
+        rows.append((
+            "MessageGuard v1 hand-authored corpus accuracy (≥MODERATE; NOT real-world)",
+            "n/a", "n/a", "n/a",
+            f"**{report_v1['passed']}/{report_v1['total']} = {report_v1['accuracy']}**",
+        ))
+        rows.append((
+            "MessageGuard v1 measured false-positive rate on genuine-alert fixtures",
+            "n/a", "n/a", "n/a",
+            f"**{overall['fpr_moderate']:.1%}** "
+            f"({overall['fp_moderate']}/{corpus['benign_total']}); all cases listed in "
+            "`raksha/MESSAGEGUARD_EVALS.md`",
+        ))
 
     hdr = ("Metric", "B1 threshold-alert", "B2 signature list", "B3 full isolation", "RAKSHA (this build)")
     print("| " + " | ".join(hdr) + " |")
@@ -138,7 +158,7 @@ def main():
         print("| " + " | ".join(str(x) for x in r) + " |")
     print()
     print("All rows measured in this run against the synthetic campus graph and synthetic RAAVAN fixtures.")
-    print("MessageGuard: synthetic corpus only — real-world recall UNMEASURED. Latency: sandbox wall-clock.")
+    print("MessageGuard: 492 hand-authored fixtures only — real-world recall and FPR UNMEASURED. Latency: sandbox wall-clock.")
 
 
 if __name__ == "__main__":

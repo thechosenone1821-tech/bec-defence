@@ -1,9 +1,17 @@
 # RAKSHA Citizen — what is built, what to build, how to build it
 
-> **Last updated:** 2026-11-23 · **Owner of record:** repo maintainer (human)
-> **Evidence base:** `raksha-code/citizen/`, `raksha-code/tests/`, `raksha/*.md`,
-> and a full read-through + test run of the working tree on 2026-11-23
-> (`pytest -q` → **67 passed**; `python evals/run_evals.py` → table reproduced).
+> **Historical snapshot:** last substantively updated 2026-11-23. The current
+> verified state is [`BUILD_STATE.md`](BUILD_STATE.md) (2026-11-26: **1252
+> pytest + 90 Node checks**) and the generated
+> [`raksha/MESSAGEGUARD_EVALS.md`](raksha/MESSAGEGUARD_EVALS.md). Several
+> capabilities marked `ABSENT` below were built in later sessions; this file is
+> retained as the build log, not as the status board.
+>
+> **Last updated:** 2026-11-26 · **Owner of record:** repo maintainer (human)
+> **Evidence base at snapshot time:** `raksha-code/citizen/`,
+> `raksha-code/tests/`, `raksha/*.md`, and a full read-through + test run of the
+> working tree on 2026-11-23 (`pytest -q` → **67 passed** then;
+> `python evals/run_evals.py` → table reproduced).
 > **Companion docs:** `MAYA_BUILD.md` (the VoiceGuard deep spec) ·
 > `INFRA_BUILD.md` (Sentinel side) · `raksha/ARCHITECTURE.md §3` ·
 > `raksha/BUILD_GUIDE.md` (M3).
@@ -48,14 +56,14 @@ Run it before reading further:
 ```bash
 cd raksha-code
 pip install -r requirements.txt
-pytest -q                              # 67 passed
+pytest -q                              # 67 passed at snapshot time; see BUILD_STATE.md now
 python -m citizen.api --port 8095      # PWA + API on :8095
 ```
 
 | # | Capability | Status | Evidence (path · test) | Honest limit |
 |---|---|---|---|---|
 | C-01 | PWA shell, 4 tabs (home / message / voice / report), installable manifest, offline service-worker shell | BUILT | `citizen/app/{index.html,app.js,styles.css,sw.js,manifest.json}`; `tests/test_citizen_api.py` | English UI only; no hi/te UI strings |
-| C-02 | MessageGuard v0 — deterministic signal-family scorer, en/hi/te | BUILT | `citizen/messageguard/scorer.py` (144 LOC); `tests/test_messageguard.py` (5) | **20/20 = 1.00 on a synthetic hand-authored corpus only.** Rules, not a classifier. Will miss novel scripts; will false-positive on genuine urgent bank alerts |
+| C-02 | MessageGuard v1 — deterministic signal-family scorer, en/hi/te | BUILT, superseded by integration | `raksha-code/citizen/messageguard/`; `tests/test_messageguard*.py` (39) | **492 hand-authored fixtures: 99.2% detection, 11.7% FPR, 96.5% accuracy at ≥MODERATE.** Rules, not a classifier; real-world recall/FPR UNMEASURED. The old 20/20 v0 figure was a smoke corpus only |
 | C-03 | VoiceGuard v0 — interface + spectral fallback (Maya) | STUB (labelled) | `citizen/voiceguard/voiceguard.py` (66 LOC); `tests/test_voiceguard.py` (6) | Flags only degenerate audio (pure tones, silence, white noise). Cannot detect a neural voice clone. Engine string literally embeds `NOT a trained anti-spoof model`. Full spec → `MAYA_BUILD.md` |
 | C-04 | Screen endpoints | BUILT | `POST /api/citizen/screen_message`, `POST /api/citizen/screen_voice`; `citizen/api.py` | `screen_message` accepts `lang` but the scorer ignores it (cross-language token set is applied blind) |
 | C-05 | One-tap report rail — HMAC-signed event, category + severity band + optional opaque `case_id`, no PII | BUILT | `citizen/api.py::report`, `spine/telemetry_mac.py::sign_event`; `tests/test_citizen_api.py`, `tests/test_m1_campaign_flow.py` | Forwarding only works when `RAKSHA_BUS_URL` is set. See **BUG-1** below — the offline message is currently false |

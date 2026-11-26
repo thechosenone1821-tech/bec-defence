@@ -3,6 +3,9 @@
 > Living log. **Protocol:** every substantive change appends an entry here —
 > never rewrite history, append corrections. Format:
 > `## [version] — date — author — summary` then bullets of substance.
+> Test counts and engine strings inside older version entries are historical
+> as-of that release; current verified state is the newest entry and
+> `../BUILD_STATE.md`.
 
 ## [0.1.0] — 2026-11-20 — AI-assisted maintainer session — Initial documentation set
 
@@ -170,10 +173,47 @@
   human tasks — NOT done, not claimable from this sandbox.
 - Docs frozen for rehearsal at v0.7.0. Tests 67/67.
 
+## [0.8.0] — 2026-11-26 — AI-assisted maintainer session — MessageGuard v1 integrated
+
+- Folded the standalone Part 3 tree at
+  `../random project that ew need to integrate/raksha/` into the main
+  application: `raksha-code/citizen/messageguard/` now carries the v1
+  scorer, normalizer, band map, `MSG-*` reason catalogue, and en/hi/te regex
+  token sets. `score_message()` remains the stable Citizen API contract;
+  `analyze()` is the measured engine. The original staging tree is retained
+  for provenance, not as a runtime source of truth.
+- Added 492 hand-authored labelled JSONL fixtures (372 scam + 120 genuine)
+  under `raksha-code/citizen/fixtures/messageguard/`. The 20-item M3 corpus
+  remains a smoke test only and is explicitly not a measurement corpus.
+- Added a reproducible harness at `raksha-code/evals/messageguard/` with
+  `--check` drift detection and a generator for
+  `raksha/MESSAGEGUARD_EVALS.md`. Measured on the shipped scorer:
+  **99.2%** scam detection (369/372), **11.7%** false-positive rate (14/120),
+  **96.5%** overall accuracy (475/492) at the >=MODERATE operating point —
+  **hand-authored, in-distribution fixtures only; real-world UNMEASURED**.
+- Wired the stable reason codes into `citizen/voiceguard/i18n.py` with
+  en/hi/te sentences; `MSG-*` codes now reach the Citizen explanation layer
+  without exposing raw scores, matched scam phrases, or internal family keys.
+  Added 34 Python tests (23 ported scorer tests + 11 integration tests).
+- Fixed two integration regressions: a Hindi negation cue matched the tail of
+  `सत्यापन करें` and suppressed a real credential request; ASCII word
+  boundaries failed after Indic combining marks in Telugu compatibility rows.
+  Both have regression tests and neither changed the published eval numbers.
+- Verified: **1252 pytest passed**, 1 skipped, 1 documented xfail; **90 Node
+  browser tests passed**; `evals/messageguard/run_evals.py --check` green;
+  M6 eval table reproduces with the new MessageGuard rows.
+- Docs synced: `README.md`, `AI_HANDOFF.md`, `ARCHITECTURE.md`,
+  `ROADMAP.md`, `BUILD_GUIDE.md`, `EVALS.md`, `MESSAGEGUARD_EVALS.md`,
+  `../specs/00_INDEX.md`, `../specs/03_citizen_messageguard.md`,
+  `../raksha-code/README.md`, `../BUILD_STATE.md`, and
+  `../CITIZEN_APP_BUILD.md`. No safety rail was relaxed; the executor stays
+  dry-run and VoiceGuard still does not claim clone detection.
+
 ## Unreleased / parked
 
 - RAAVAN `playbook.yaml` (10 techniques, fixtures, expected defenses)
-- Eval harness implementation (`evals/`)
 - Citizen app repo creation decision
 - Hackathon date + team rosters for the two parallel builds
 - Verification of all [VERIFY] statistics (PIB, CERT-In, AIIMS)
+- Consent-cleared, real-device message corpus and sender-ID allowlist
+  (needed before any real-world MessageGuard accuracy claim)

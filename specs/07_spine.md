@@ -327,13 +327,16 @@ asserts a final boolean is not testing the layer it names.**
 
 | Check | Result |
 |---|---|
-| `pytest tests/` | **1218 passed, 1 skipped, 1 xfailed** |
-| `pytest tests/ --collect-only` | **1220 collected** |
+| `pytest tests/` | **1252 passed, 1 skipped, 1 xfailed** |
+| `pytest tests/ --collect-only` | **1254 collected** |
 | `test_part7_spine_dod.py` | 39 passed |
+| `test_messageguard_v1.py` + `test_messageguard_integration.py` | 34 passed |
 | `node --test tests/*.test.js` | **90 pass, 0 fail** |
 | `boot_manifest --check` | **INTEGRITY OK — 4 files** |
 
-1179 + 39 = 1218 and 1181 + 39 = 1220. Both reconcile with Part 4 Phase 7.
+The Part 7 phase-end math was 1179 + 39 = 1218 and 1181 + 39 = 1220. The
+MessageGuard v1 integration later added 34 tests: 1218 + 34 = 1252 passed and
+1220 + 34 = 1254 collected. Both reconcile with `../BUILD_STATE.md`.
 
 ## What this part still does not have
 

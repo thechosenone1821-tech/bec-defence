@@ -5,11 +5,11 @@
 > something today. Nothing is carried forward from a plan, a slide, or an earlier
 > version of this document.
 >
-> **Verified:** 2026-11-25 · branch `arena/f36c9305-bec-defence` @ `46f0707`
+> **Verified:** 2026-11-26 · branch `arena/3b136fd9-bec-defence`
 >
-> **Scope:** the whole app. **MessageGuard is deliberately excluded** from this
-> consolidation — it is a small rules-based scorer with a 20-message fixture set,
-> and its state is unchanged since the original build.
+> **Scope:** the whole app, **including MessageGuard v1**. The standalone Part 3
+> tree has been folded into `raksha-code/`; its measurement is reproducible from
+> this checkout, and every figure below was produced by running something here.
 
 ---
 
@@ -17,10 +17,10 @@
 
 | | |
 |---|---|
-| Python tests | **1218 passed**, 0 failed (1 skipped, 1 documented xfail) |
+| Python tests | **1252 passed**, 0 failed (1 skipped, 1 documented xfail) |
 | Browser tests (Node) | **90 passed**, 0 failed |
-| **Total** | **1308 checks, 0 failures** |
-| Source under test | ~8,300 lines (`citizen/`, `spine/`, `sentinel/`, `raavan/`, `evals/`) |
+| **Total** | **1342 passing checks, 0 failures** |
+| Source under test | 10,802 Python lines (`citizen/`, `spine/`, `sentinel/`, `raavan/`, `evals/`, `wc -l`) |
 | Running services | 2 (Citizen app on `:8095`, Spine bus on `:8090`) |
 
 The suite is green. That is necessary and not sufficient — §5 lists what no test
@@ -54,6 +54,20 @@ silence     SILENT             p=—       SILENT_AUDIO
 Silence correctly **never reaches the model** — that was a real bug (digital zero
 scored P(spoof)=0.94 and accused a recording containing no voice) and it is now
 gated.
+
+**MessageGuard v1 — deterministic scam-message screening**
+
+| | |
+|---|---|
+| Implementation | `citizen/messageguard/` — six weighted en/hi/te rule families, `MSG-*` reason codes, negation guards, 0.25–0.99 legacy band map |
+| Corpus | **492 hand-authored fixtures** (372 scam + 120 genuine-alert), labelled per language and family |
+| Measured at ≥MODERATE | **99.2%** scam detection, **11.7%** FPR, **96.5%** overall accuracy, 96.3% precision |
+| Reproduce | `python evals/messageguard/run_evals.py --check`; full FP review in `raksha/MESSAGEGUARD_EVALS.md` |
+| Hard limit | In-distribution only. Real-world recall/FPR **UNMEASURED**; novel scripts and genuine KYC alerts remain documented failure modes |
+
+The original 20-message M3 corpus still passes 20/20 as an API smoke test, but
+no accuracy claim is made from it. `score_message()` keeps the original Citizen
+contract; `analyze()` is the measured engine.
 
 **Citizen Risk Engine**
 
@@ -126,9 +140,11 @@ Spine endpoints live: `/api/health`, `/api/state`, `/api/ingest`,
 | `test_phase6_load_fatigue.py` | 19 |
 | `test_phase7_fleet_ops.py` | 41 |
 | `test_part7_spine_dod.py` | 39 |
-| **collected** | **1220** |
+| `test_messageguard_v1.py` | 23 |
+| `test_messageguard_integration.py` | 11 |
+| **collected** | **1254** |
 | skipped (1) + xfailed (1 documented defect) | −2 |
-| **pytest passed** | **1218** |
+| **pytest passed** | **1252** |
 | `maya_capture.test.js` | 30 |
 | `panic_family.test.js` | 23 |
 | `queue.test.js` | 18 |
@@ -153,6 +169,8 @@ Recorded because most were invisible to a passing suite.
 | 8 | Panic button was documented as locking the screen when it was a `tel:` link | the spec was never checked against the code |
 | 9 | Message tab printed a raw score to a citizen | violated the spine's own rule |
 | 10 | Empty-message case rendered *"This clip does not give a clear answer"* | voice wording leaking onto a text screen |
+| 11 | Hindi negation cue matched inside `सत्यापन करें` | Suppressed a real UPI-PIN request while trying to protect genuine OTP deliveries |
+| 12 | ASCII `\b` boundaries failed after Indic combining marks | Telugu UPI-PIN and KYC verification compatibility rows silently never matched |
 
 Bug 6 is the one to remember: **not a crash — an accusation produced from a type
 error**, and nothing in the interface would have looked wrong.
@@ -169,6 +187,7 @@ This is the honest part, and it is the part that decides what this is worth.
 | **No neural clone** | No modern TTS in the corpus. A good clone is expected to pass as `INCONCLUSIVE`. |
 | **Telephony is simulated** | Recall falls 72% → **39%** on narrowband audio. Real codecs (G.729/AMR/Opus) are not tested at all. |
 | **No real telemetry** | Zero organs have seen captured attack traffic. Thresholds are physically motivated, not validated. |
+| **No real device messages** | MessageGuard has seen 492 hand-authored fixtures, not consent-cleared SMS traffic. No sender metadata, no field FPR, no novel-script recall. |
 | **Nothing executes** | Every action is dry-run. "We blocked it" always means "we would have". |
 | **Commander is a rule table** | No local model is running; the "AI commander" demos through its fallback. |
 | **No console UI** | Everything the company side does is visible only through `curl`. |
@@ -182,7 +201,7 @@ This is the honest part, and it is the part that decides what this is worth.
 |---|---|---|
 | **1 · Citizen spine** | Risk fusion, i18n, capture, report rail, panic, family mode | ✅ **100%** — all 3 phases, +257 tests |
 | **2 · VoiceGuard** | Synthetic-speech screening | 65% — real pipeline, fake data |
-| **3 · MessageGuard** | Scam-script detection | *excluded from this consolidation* |
+| **3 · MessageGuard** | Scam-script detection | ✅ **100% (spec DoD)** — v1 integrated; 492 hand-authored fixtures, measured 96.5% accuracy / 11.7% FPR; real-world UNMEASURED |
 | **4 · Detection rings** | The 8 shield organs | 70% — 8/8 coded, 0 fed real traffic |
 | **5 · Response & governance** | Planner, Governor, commander | 75% — strongest part; no live model, dry-run |
 | **6 · Console & red-team** | SOC UI, RAAVAN, measurement | **30% — no UI at all** |
@@ -200,7 +219,7 @@ Only three things, and only one is on the critical path:
 |---|---|---|
 | **Voice model on real speech + real clones** (8–10k clips, Indian-accented) | 2 | any accuracy claim; the word "clone" |
 | On-device quantisation (ONNX INT8) | 2 | shipping to a phone |
-| Message classifier on a real corpus | 3 | excluded here |
+| Message evaluation on a consent-cleared real corpus | 3 | any field accuracy / FPR claim |
 
 Everything in Parts 4, 5, 6 and 7 is **deterministic mathematics by design** —
 that is the safety argument, not a shortcut. Part 5's commander needs a model
@@ -217,8 +236,10 @@ that is the safety argument, not a shortcut. Part 5's commander needs a model
 | [`specs/01a_citizen_spine_roadmap.md`](specs/01a_citizen_spine_roadmap.md) | Part 1, 3-phase roadmap + build log |
 | [`specs/01b_citizen_spine_phase3.md`](specs/01b_citizen_spine_phase3.md) | Phase 3 hardening log |
 | [`specs/02_citizen_voiceguard.md`](specs/02_citizen_voiceguard.md) | Part 2 spec, measured results |
+| [`specs/03_citizen_messageguard.md`](specs/03_citizen_messageguard.md) | Part 3 spec, integration and definition of done |
 | [`specs/04–07`](specs/) | Parts 4, 5, 6, 7 specs |
 | `raksha/EVALS.md` | Every measured number with its condition |
+| `raksha/MESSAGEGUARD_EVALS.md` | Generated MessageGuard v1 measurement and full FP review |
 | `raksha-code/citizen/voiceguard/MODEL_CARD.md` | Model limitations |
 
 ---
@@ -240,7 +261,7 @@ that is the safety argument, not a shortcut. Part 5's commander needs a model
 |---|---|---|
 | 1 | **Build the SOC console (Part 6)** | ~400–600 lines turns ~80% of a finished engine into something a judge can watch. Currently demos via `curl`. |
 | 2 | **Real voice corpus (Part 2)** | Unlocks every accuracy claim and the word "clone". Needs data collection, not coding. |
-| 3 | Per-organ fixture corpora | Turns "8 organs" into 8 measured detection rates. |
+| 3 | Per-organ and MessageGuard field corpora | Turns "8 organs" and a rules corpus into measured detection rates on real traffic. |
 
 > Consolidation note: this document supersedes the status sections of any earlier
 > file. Where they disagree, this one was produced by execution today.

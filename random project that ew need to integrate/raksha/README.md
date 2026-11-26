@@ -1,5 +1,9 @@
 # Raksha — Part 3: MessageGuard (citizen feature)
 
+> **INTEGRATED 2026-11-26:** this standalone snapshot has been folded into the
+> main `raksha/` and `raksha-code/` trees. See [INTEGRATED.md](INTEGRATED.md)
+> for the new source-of-truth paths. Do not edit code here.
+
 The detector that reads a suspicious SMS / WhatsApp message and tells the person whether it
 looks like a known scam script. Deterministic, offline, explainable, multilingual
 (English / Hindi / Telugu). **Deliberately rules, not a trained model** — see the

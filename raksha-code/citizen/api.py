@@ -13,9 +13,12 @@ Endpoints (all same-origin; CORS disabled — the PWA ships with this service):
                                   severity band, language and opaque tokens.
   GET  / and /app/*              -> the PWA (static)
 
-Honesty: message screening is heuristic (see messageguard); voice screening is
-as heuristic fallback (see voiceguard); neither is an accusation — verdicts are
-advisory and every screen links to the 1930 national cybercrime helpline.
+Honesty: message screening uses the measured MessageGuard v1 rule scorer (see
+messageguard and raksha/MESSAGEGUARD_EVALS.md); its accuracy is in-distribution
+on 492 hand-authored fixtures, with real-world recall UNMEASURED. Voice
+screening is a synthetic-corpus heuristic fallback (see voiceguard). Neither is
+an accusation — verdicts are advisory and every screen links to the 1930
+national cybercrime helpline.
 """
 
 from __future__ import annotations
@@ -103,7 +106,7 @@ def build_app(bus_url: Optional[str] = None, poster: Optional[Callable[[Dict[str
 
     @app.get("/api/citizen/health")
     async def health():
-        return {"status": "ok", "engine": "messageguard-rules-v0 + spectral_fallback_v0",
+        return {"status": "ok", "engine": "messageguard-rules-v1 + spectral_fallback_v0",
                 "bus_configured": bool(bus_url), "reports_today": state["reports_today"],
                 "honesty": "heuristic detectors — not a security guarantee"}
 
@@ -119,6 +122,9 @@ def build_app(bus_url: Optional[str] = None, poster: Optional[Callable[[Dict[str
         # It now selects the explanation language, and is echoed back so a
         # caller can tell whether a fallback occurred.
         lang = _i18n.normalise_language(payload.get("lang"))
+        # Detection stays language-agnostic: `lang` selects citizen copy, not
+        # the script a scam message may be written in. The v1 scorer applies
+        # en/hi/te token sets and language-agnostic link tokens together.
         result = score_message(text)
         # Part 1 Phase 1: the tab used to print "Score 0.65 · credential,
         # urgency", which violates the spine's own rule that a citizen never

@@ -1,4 +1,4 @@
-"""MAYA / VoiceGuard — reason catalogue and sentence rendering (en / hi / te).
+"""VoiceGuard + MessageGuard — reason catalogue and sentence rendering (en / hi / te).
 
 Every reason code becomes a plain-language sentence a person can act on. The
 rules that shape this file:
@@ -451,6 +451,62 @@ _FAMILIES: Dict[str, Dict[str, str]] = {
     },
 }
 
+# Stable MSG-* reason codes from citizen/messageguard/reasons.py. The i18n
+# layer deliberately does not import the detector package at runtime; a test
+# asserts this map stays identical to that catalogue.
+MSG_REASON_FAMILY = {
+    "MSG-CRED-OTP-SHARE": "credential",
+    "MSG-CRED-CVV-SHARE": "credential",
+    "MSG-CRED-UPI-PIN-RECEIVE": "credential",
+    "MSG-CRED-UPI-PIN-ENTRY": "credential",
+    "MSG-CRED-UPI-COLLECT-REQUEST": "credential",
+    "MSG-CRED-BANK-DETAILS": "credential",
+    "MSG-AUTH-DIGITAL-ARREST": "authority",
+    "MSG-AUTH-ARREST-WARRANT": "authority",
+    "MSG-AUTH-CASE-AGAINST-YOU": "authority",
+    "MSG-AUTH-AGENCY-THREAT": "authority",
+    "MSG-AUTH-PARCEL-SEIZED": "authority",
+    "MSG-AUTH-TELECOM-BLOCK": "authority",
+    "MSG-AUTH-RBI-ACTION": "authority",
+    "MSG-AUTH-POWER-DISCONNECT": "authority",
+    "MSG-MONEY-FEE-DEMAND": "money_action",
+    "MSG-MONEY-FINE-PENALTY": "money_action",
+    "MSG-MONEY-BAIL": "money_action",
+    "MSG-MONEY-TRANSFER-DEMAND": "money_action",
+    "MSG-PRIZE-LOTTERY": "prize",
+    "MSG-PRIZE-WON-AMOUNT": "prize",
+    "MSG-URG-DEADLINE-HOURS": "urgency",
+    "MSG-URG-LAST-WARNING": "urgency",
+    "MSG-URG-IMMEDIATELY": "urgency",
+    "MSG-URG-ELSE-CLAUSE": "urgency",
+    "MSG-LINK-SHORTENER": "link_grab",
+    "MSG-LINK-CLICK-HERE": "link_grab",
+    "MSG-LINK-VERIFY-NOW": "link_grab",
+    "MSG-LINK-LOOKALIKE-DOMAIN": "link_grab",
+    "MSG-LINK-APK": "link_grab",
+}
+
+# A few codes need a more actionable sentence than the family-level copy.
+# Every other MSG-* code renders through render_family() below, so no code can
+# leak as a raw key and no matched scam phrase is shown to a citizen.
+_MESSAGE_REASON_OVERRIDES: Dict[str, Dict[str, str]] = {
+    "MSG-CRED-UPI-PIN-RECEIVE": {
+        "en": "It says to enter a UPI PIN to receive money. A PIN is never needed to receive money.",
+        "hi": "यह पैसे पाने के लिए UPI PIN डालने को कहता है। पैसे पाने के लिए कभी PIN नहीं चाहिए।",
+        "te": "డబ్బు పొందడానికి UPI PIN నమోదు చేయమంటోంది. డబ్బు పొందడానికి PIN ఎప్పుడూ అవసరం లేదు.",
+    },
+    "MSG-LINK-SHORTENER": {
+        "en": "It hides the destination behind a shortened link.",
+        "hi": "यह छोटे लिंक के पीछे असली पता छुपाता है।",
+        "te": "ఇది చిన్న లింక్ వెనుక అసలు చిరునామా దాచిపెడుతుంది.",
+    },
+    "MSG-LINK-APK": {
+        "en": "It asks you to install an app or APK from a link.",
+        "hi": "यह लिंक से ऐप या APK इंस्टॉल करने को कहता है।",
+        "te": "ఇది లింక్ నుంచి యాప్ లేదా APK ఇన్‍స్టాల్ చేయమంటోంది.",
+    },
+}
+
 _NO_MESSAGE_SIGNAL = {
     "en": "We recognise no known scam wording here — that is not proof it is safe.",
     "hi": "यहाँ कोई ज्ञात धोखाधड़ी शब्द नहीं मिला — यह सुरक्षित होने का सबूत नहीं है।",
@@ -500,6 +556,27 @@ def render_family(family: str, lang: str = DEFAULT_LANGUAGE) -> str:
     if entry is None:
         return _FAMILIES["urgency"][lang]
     return entry.get(lang) or entry[DEFAULT_LANGUAGE]
+
+
+def render_message_reason(code: str, lang: str = DEFAULT_LANGUAGE) -> str:
+    """One stable MSG-* reason code -> one citizen sentence.
+
+    Codes, not matched scam phrases, cross this boundary. A code outside the
+    catalogue returns the honest "nothing found is not nothing wrong" sentence.
+    """
+    lang = normalise_language(lang)
+    entry = _MESSAGE_REASON_OVERRIDES.get(code)
+    if entry:
+        return entry.get(lang) or entry[DEFAULT_LANGUAGE]
+    family = MSG_REASON_FAMILY.get(code)
+    if family:
+        return render_family(family, lang)
+    return _NO_MESSAGE_SIGNAL[lang]
+
+
+def message_reason_codes() -> List[str]:
+    """All MSG-* codes with a translation — used by the coverage test."""
+    return sorted(MSG_REASON_FAMILY)
 
 
 # --------------------------------------------------------------------------- #
@@ -582,13 +659,28 @@ def explain_message(result: Dict[str, Any], lang: str = DEFAULT_LANGUAGE) -> Dic
     copy = body.get(lang) or body["en"]
 
     families = [f for f in (result.get("families_hit") or []) if isinstance(f, str)]
-    sentences = [render_family(f, lang) for f in families]
+    details = [d for d in (result.get("reason_details") or [])
+               if isinstance(d, dict) and d.get("code")]
+    first_code_by_family: Dict[str, str] = {}
+    for detail in details:
+        family = detail.get("family")
+        code = detail.get("code")
+        if family and code and family not in first_code_by_family:
+            first_code_by_family[family] = str(code)
+    selected_codes = [first_code_by_family[f] for f in families
+                      if f in first_code_by_family]
+    if selected_codes:
+        sentences = [render_message_reason(code, lang) for code in selected_codes]
+    else:
+        sentences = [render_family(f, lang) for f in families]
     if not families:
         # Message-specific fallback. Using R_LOW_CONFIDENCE here produced
         # "This clip does not give a clear answer" on a *text message* screen —
         # voice wording leaking into a different surface. Small, but it tells
         # the user the app does not know what it is looking at.
         sentences = [_NO_MESSAGE_SIGNAL[lang]]
+    message_codes = sorted({str(d["code"]) for d in details
+                            if str(d.get("code")) in MSG_REASON_FAMILY})
 
     return {
         "verdict": verdict,
@@ -596,6 +688,7 @@ def explain_message(result: Dict[str, Any], lang: str = DEFAULT_LANGUAGE) -> Dic
         "action": copy["action"],
         "reasons": sentences,
         "reason_codes": families,
+        "message_reason_codes": message_codes,
         "helpline": HELPLINE,
         "disclaimer": _DISCLAIMER[lang],
         "lang": lang,

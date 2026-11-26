@@ -1,5 +1,9 @@
 # Local virtual environments (created by tooling; not project source)
 .venv/
+# Python bytecode / caches (created by test runs; not project source)
+__pycache__/
+*.py[cod]
+.pytest_cache/
 # Release archives (rebuild from the branch; not source)
 eigenshield-v2-final.zip
 eigenshield-v2-1-final.zip

@@ -1,5 +1,9 @@
 # MessageGuard — measured evaluation (EVALS.md)
 
+> **INTEGRATED 2026-11-26:** the maintained, generated report is
+> [`../../raksha/MESSAGEGUARD_EVALS.md`](../../raksha/MESSAGEGUARD_EVALS.md).
+> This file is a historical snapshot; see [INTEGRATED.md](INTEGRATED.md).
+
 _Generated from `evals/results.json` by `evals/run_evals.py`; regenerate with `python evals/run_evals.py && python evals/gen_evals_md.py`. All numbers below are computed, not quoted from memory._
 
 ## 1. What was measured

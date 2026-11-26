@@ -1,6 +1,6 @@
 # RAKSHA — Build Guide (what to build, how, in what order)
 
-> **Last updated:** 2026-11-20 · Audience: engineers and AI coders.
+> **Last updated:** 2026-11-26 · Audience: engineers and AI coders.
 > Read `CONTEXT.md` and `ARCHITECTURE.md` first. This file is the working
 > plan — keep it honest and current.
 
@@ -59,12 +59,13 @@ Identity (auth-log fixture → Ring-1 filter), Cloud (exfil heuristics on
 fixture logs), AI-Agent (tool-call drift + canary-doc). Each ships with:
 firing fixture, silent-case fixture, tests.
 
-**M3 — Citizen app — ✅ DONE 2026-11-20 (demo-grade, honestly labeled).**
-MessageGuard first
-(highest demo value per hour; embedding+regex ensemble), VoiceGuard second
-(pretrained anti-spoof model via ONNX if available; deterministic spectral
-fallback otherwise — never block the demo on model training). Report rail →
-signed ingest into the same bus.
+**M3 — Citizen app — ✅ DONE, then hardened through 2026-11-26.**
+MessageGuard v1 is now the deterministic, offline, explainable regex scorer in
+`raksha-code/citizen/messageguard/` — six weighted families, `MSG-*` reason
+codes, en/hi/te token sets, and a 492-fixture reproducible eval. It is **not**
+an embedding ensemble or a trained classifier; real-world accuracy remains
+UNMEASURED. VoiceGuard stays synthetic-corpus-only and never claims clone
+detection. Report rail → signed ingest into the same bus.
 
 **M4 — RAAVAN + correlator — ✅ DONE 2026-11-20.** playbook steps as idempotent scenario
 functions writing into sandbox fixtures; correlator fingerprint = token
@@ -77,10 +78,11 @@ overlap + 5-minute temporal proximity + kill-chain stage progression.
 through the Governor; dry-run executor; `action_plan` WS frame; ledgered
 `containment_plan`. Finding: deep-implant cut breaches the 90% uptime floor →
 BLOCKED → human step-up (by design). Ingress cut: 100% critical weight
-preserved, ICU INTACT. Tests 67/67.
+preserved, ICU INTACT. Tests 67/67 at M5; 1252 pytest + 90 Node checks now.
 
-**M6 — Evals & stage (day 3):** ✅ measured table DONE 2026-11-20
-(`raksha-code/evals/run_evals.py`, frozen in `raksha/EVALS.md`; docs v0.7.0).
+**M6 — Evals & stage (day 3):** ✅ measured tables DONE, extended 2026-11-26
+(`raksha-code/evals/run_evals.py`, `raksha/EVALS.md`, and the generated
+`raksha/MESSAGEGUARD_EVALS.md`; docs v0.8.0).
 Rehearse ×5, backup video, judges'-turn script, night-before [VERIFY] check =
 human stage tasks (see EVALS.md M6 checklist) — not doable in this sandbox.
 
@@ -113,7 +115,7 @@ on the spine with measurement built in from M1.
 | `pytest` (inherited + new) | Every PR; 100% green before merge |
 | Containment correctness | Cut set disconnects every seeded attacker; preserves ≥90% of fixture mission flows |
 | Governor torture tests | 10,000 fuzzed action dicts; zero Tier-0 approvals without human step-up; zero TCB disagreements escape |
-| Citizen accuracy | MessageGuard precision ≥90% on in-domain scripts, false-positive rate reported, multilingual parity tested |
+| Citizen accuracy | MessageGuard v1 in-domain precision ≥90%, false-positive rate reported, multilingual parity tested; real-device corpus still required before any real-world claim |
 | Ledger integrity | Golden-vector hashes; anchor cross-check; tamper test |
 | Eval table | Baselines × metrics, per `ROADMAP.md` Phase 1 Day 3 |
 
@@ -134,15 +136,16 @@ legitimate flows preserved, mean time to recover. No adjectives as evidence.
 
 ```bash
 # install
-pip install -r raksha-code/spine/requirements.txt
-# spine smoke
-pytest tests/ -q
+pip install -r raksha-code/requirements.txt
+# Python + browser tests
+cd raksha-code && pytest -q && node --test tests/*.test.js
+# reproducible MessageGuard measurement
+python evals/messageguard/run_evals.py --check
+python evals/messageguard/gen_evals_md.py
 # citizen message filter demo
-python -m citizen.inference.messageguard --text "your KYC expires..." --lang te
-# sentinel hospital sim
-cd deploy/hospital && docker compose --profile sim up
+python -m citizen.api --port 8095
 # full raavan scenario
-python -m evals.run --scenario raavan/killchain_01.yaml --baseline raksha
+python -m raavan.killchain --bus-url http://127.0.0.1:8090
 # stage rehearsal
 python -m evals.stage --act 2 --dry-run
 ```

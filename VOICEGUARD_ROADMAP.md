@@ -1,6 +1,6 @@
 # MAYA / VoiceGuard — 5-phase build roadmap
 
-> **Last updated:** 2026-11-23 · **Version:** roadmap v1.0
+> **Last updated:** 2026-11-26 · **Version:** roadmap v1.0
 > **Purpose:** split the entire VoiceGuard build into five executable phases,
 > each ending in green tests and a demoable, honest increment.
 > **Companion:** `MAYA_BUILD.md` (deep spec, model choice, §6 acceptance
@@ -180,8 +180,11 @@ adjective where a number belongs.
 | 4 | Verdicts, reasons, multilingual, risk fusion | ✅ done | 55 | 260 py |
 | 5 | PWA integration, measurement, release | ✅ done | 38 py + 6 js | 298 py · 30 js |
 
-**Current totals (verified 2026-11-23):** `pytest tests/ -q` → **298 passed**;
-`node --test tests/maya_capture.test.js` → **30 passed**. 328 checks, 0 failures.
+**Current totals (verified 2026-11-26, after later Citizen phases and the
+MessageGuard v1 integration):** `pytest -q` → **1252 passed** (1 skipped, 1
+documented xfail); `node --test tests/*.test.js` → **90 passed**. **1342 passing
+checks, 0 failures.** The per-phase "suite at phase end" column above is
+historical and deliberately unchanged.
 
 > This board previously listed invented counts (25/18/23/21/19 and 92→173
 > "green") before any of Phase 2–5 existed. Those numbers were never produced by

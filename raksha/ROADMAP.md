@@ -1,8 +1,9 @@
 # RAKSHA — Roadmap
 
-> **Last updated:** 2026-11-20 · Dates beyond Phase 0 are **targets**, not
+> **Last updated:** 2026-11-26 · Dates beyond Phase 0 are **targets**, not
 > promises; slips are recorded in `CHANGELOG.md`, never silently edited.
-> Anchor: today = 2026-11-20. Hackathon date = TBD (owner to pin).
+> Anchor: original plan written 2026-11-20; current verified state is in
+> `../BUILD_STATE.md`. Hackathon date = TBD (owner to pin).
 
 ---
 
@@ -22,7 +23,7 @@
 
 - [x] Repo layout per `BUILD_GUIDE.md` §2; shared packages extracted from eigenshield-v2 (spine ported: sanitizer, ledger, Governor, TCB, tripwire, bus) — M1 DONE, 27/27 tests green
 - [x] Sentinel: shields ported (all 8 organs from eigenshield-v2), organ-backed executor, tests 37/37 green — hospital-profile graph seeding is the remaining Day-1 item
-- [x] Citizen: PWA shipped (vanilla JS, offline SW, 1930 panic button); MessageGuard v0 (synthetic-tuned rules, en/hi/te, 20/20 on synthetic corpus); VoiceGuard = interface + spectral fallback (honest non-model); report rail signed+forwarded — 54/54 green
+- [x] Citizen: PWA shipped (vanilla JS, offline SW, 1930 panic button); MessageGuard v1 integrated (deterministic en/hi/te rules, 492 hand-authored fixtures, measured FP review — real-world UNMEASURED); VoiceGuard = synthetic-corpus screening, never claims clone detection; report rail signed+forwarded — 1252 pytest + 90 Node tests green as of 2026-11-26
 - [ ] Shared bus + ledger wired end-to-end with one synthetic campaign
 
 **Day 2 — the fight**

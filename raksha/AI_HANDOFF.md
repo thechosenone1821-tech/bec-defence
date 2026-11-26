@@ -2,7 +2,7 @@
 
 > **Audience:** any AI (this file is written for LLMs, autonomous agents and
 > human engineers who think like them).
-> **Last updated:** 2026-11-20 · **Living document** — keep it true.
+> **Last updated:** 2026-11-26 · **Living document** — keep it true.
 
 You are acting as a senior engineer on a two-app defence ecosystem for India
 (RAKSHA Citizen + RAKSHA Sentinel). Read in this order before touching
@@ -78,12 +78,12 @@ After ANY substantive change:
 | Area | State |
 | --- | --- |
 | EIGENSHIELD v2.1 FORTRESS | Built, tested, pushed (PR #1, open) |
-| RAKSHA docs | v0.1.0 — initial set committed |
-| raksha-code/ | **M1 SHIPPED** — spine + tests green (27/27), PR #1 |
-| Citizen app | **M3 SHIPPED (demo-grade)** — PWA + FastAPI live on :8095; heuristic detectors labeled |
-| Sentinel app | **M2+M4+M5 SHIPPED** — shields + RAAVAN replay + campaign fusion + containment planner live (67/67) |
-| Evals & stage | **M6 IN PROGRESS** — measured table frozen in raksha/EVALS.md; rehearsal/video/judges' script = human tasks (not doable in sandbox) |
-| RAAVAN playbook | NOT STARTED (spec'd in ARCHITECTURE §6) |
+| RAKSHA docs | **v0.8.0** — MessageGuard v1 integration and measured eval synced on 2026-11-26 |
+| raksha-code/ | **M1–M6 + Citizen phases SHIPPED** — 1252 pytest passed (1 skipped, 1 xfail), 90 Node tests passed |
+| Citizen app | **M3 SHIPPED, then hardened** — PWA + FastAPI; MessageGuard v1 measured on 492 hand-authored fixtures (real-world UNMEASURED); VoiceGuard synthetic-only, never claims clone detection |
+| Sentinel app | **M2+M4+M5 SHIPPED** — shields + RAAVAN replay + campaign fusion + containment planner; executor stays dry-run |
+| Evals & stage | **M6 tables reproducible** — `raksha/EVALS.md` + `raksha/MESSAGEGUARD_EVALS.md`; rehearsal/video/judges' script = human tasks (not doable in sandbox) |
+| RAAVAN playbook | Shipped as a sandbox replay; full ten-technique stage choreography still a human task |
 | Verification of [VERIFY] stats | OPEN — maintainer must pull PIB/CERT-In releases |
 | Pilots | OPEN — no MoU yet |
 
