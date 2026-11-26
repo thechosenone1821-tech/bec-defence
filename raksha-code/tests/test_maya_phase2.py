@@ -190,12 +190,12 @@ class TestApiRetention:
 
     def test_api_rejects_more_than_retention_window(self, client):
         r = client.post("/api/citizen/screen_voice",
-                        json={"samples": [0.0] * 240_000})
+                        json={"consent": True, "samples": [0.0] * 240_000})
         assert r.status_code == 413
 
     def test_api_accepts_a_three_second_window(self, client):
         samples = [0.1 * float(np.sin(i / 40.0)) for i in range(48_000)]
-        r = client.post("/api/citizen/screen_voice", json={"samples": samples})
+        r = client.post("/api/citizen/screen_voice", json={"consent": True, "samples": samples})
         assert r.status_code == 200
         assert r.json()["verdict"] in {"SILENT", "INCONCLUSIVE", "SUSPICIOUS",
                                        "LIKELY_SYNTHETIC"}

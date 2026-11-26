@@ -18,7 +18,7 @@ a scam warning is a real-world failure, not a cosmetic one.
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 from . import contract as C
 
@@ -162,6 +162,151 @@ _DISCLAIMER = {
 }
 
 
+# --------------------------------------------------------------------------- #
+# Band copy (Part Two, task 2.1).
+#
+# This table used to live in `citizen/risk/engine.py` — five bands x three
+# languages of citizen-facing copy inside the module whose whole job was to hold
+# no English at all. It belongs here: everything a citizen reads comes from this
+# file, so there is one place to review copy and one place to translate it.
+# --------------------------------------------------------------------------- #
+_BAND_COPY: Dict[str, Dict[str, Tuple[str, str]]] = {
+    "LOW_CONFIDENCE": {
+        "en": ("Not enough information to judge",
+               "Trust your instinct. If they ask for money or OTP, hang up and call 1930."),
+        "hi": ("पर्याप्त जानकारी नहीं है",
+               "अपनी समझ पर भरोसा रखें। पैसे या OTP माँगे जाएँ तो फोन काटें और 1930 पर कॉल करें।"),
+        "te": ("సరిపడా సమాచారం లేదు",
+               "మీ బుద్ధిని నమ్మండి. డబ్బు లేదా OTP అడిగితే ఫోన్ పెట్టేసి 1930కి కాల్ చేయండి."),
+    },
+    "LOW": {
+        "en": ("No known fraud warning signs found",
+               "Still never share OTP, PIN or CVV with anyone."),
+        "hi": ("धोखाधड़ी के ज्ञात संकेत नहीं मिले",
+               "फिर भी OTP, PIN या CVV किसी को न दें।"),
+        "te": ("తెలిసిన మోసపు సంకేతాలు లేవు",
+               "అయినా OTP, PIN లేదా CVV ఎవరికీ ఇవ్వకండి."),
+    },
+    "ELEVATED": {
+        "en": ("Some warning signs are present",
+               "Pause. Verify through an official number before doing anything."),
+        "hi": ("कुछ चेतावनी संकेत मौजूद हैं",
+               "रुकें। कुछ भी करने से पहले आधिकारिक नंबर से पुष्टि करें।"),
+        "te": ("కొన్ని హెచ్చరిక సంకేతాలు ఉన్నాయి",
+               "ఆగండి. ఏదైనా చేసే ముందు అధికారిక నంబర్ ద్వారా నిర్ధారించుకోండి."),
+    },
+    "HIGH": {
+        "en": ("This looks like a scam attempt",
+               "Do not pay, do not share OTP. Call 1930."),
+        "hi": ("यह धोखाधड़ी का प्रयास लगता है",
+               "पैसे न दें, OTP न बताएँ। 1930 पर कॉल करें।"),
+        "te": ("ఇది మోసం ప్రయత్నంలా ఉంది",
+               "డబ్బు ఇవ్వద్దు, OTP చెప్పవద్దు. 1930కి కాల్ చేయండి."),
+    },
+    "CRITICAL": {
+        "en": ("This is almost certainly a scam",
+               "Hang up now. Call 1930 and your bank immediately."),
+        "hi": ("यह लगभग निश्चित रूप से धोखाधड़ी है",
+               "अभी फोन काटें। 1930 और अपने बैंक को तुरंत कॉल करें।"),
+        "te": ("ఇది దాదాపు ఖచ్చితంగా మోసం",
+               "వెంటనే ఫోన్ పెట్టేయండి. 1930కి, మీ బ్యాంకుకు వెంటనే కాల్ చేయండి."),
+    },
+}
+
+# --------------------------------------------------------------------------- #
+# The honesty label (Part Two, task 2.2).
+#
+# This is the sentence that stops the app being believed more than it deserves:
+# "judgement-based weighting, not calibrated against real fraud outcomes". It was
+# English-only, so a Telugu reader received a Telugu warning and an English
+# disclaimer explaining that the warning was not proof. The one sentence that
+# must survive translation was the one that did not.
+#
+# It stays deliberately long and unflattering. Shortening it would raise the
+# credibility of the screen beyond what the measurements support.
+# --------------------------------------------------------------------------- #
+_ADVISORY: Dict[str, str] = {
+    "en": ("Judgement-based weighting, not calibrated against real fraud "
+           "outcomes — an aid to your decision, not a verdict."),
+    "hi": ("यह मानव-निर्धारित भारांक पर आधारित है, असली धोखाधड़ी के आँकड़ों पर "
+           "कैलिब्रेटेड नहीं है — यह आपके फैसले में एक सहायता है, कोई अंतिम निर्णय नहीं।"),
+    "te": ("ఇది నిర్ణయించిన బరువుల ఆధారంగా పనిచేస్తుంది, నిజమైన మోసం ఫలితాలపై "
+           "కాలిబ్రేట్ చేయబడలేదు — ఇది మీ నిర్ణయానికి సహాయం మాత్రమే, తీర్పు కాదు."),
+}
+
+
+def render_band(band: str, lang: str = DEFAULT_LANGUAGE) -> Dict[str, str]:
+    """A risk band -> the headline and action a citizen reads.
+
+    Falls back to ``LOW_CONFIDENCE`` copy for an unknown band: the safe rendering
+    for "we do not recognise this band" is "we cannot judge", never "all clear".
+    """
+    lang = normalise_language(lang)
+    entry = _BAND_COPY.get(str(band)) or _BAND_COPY["LOW_CONFIDENCE"]
+    title, action = entry.get(lang) or entry[DEFAULT_LANGUAGE]
+    return {"headline": title, "action": action, "lang": lang}
+
+
+def render_advisory(lang: str = DEFAULT_LANGUAGE) -> str:
+    """The honesty label, in the reader's language."""
+    lang = normalise_language(lang)
+    return _ADVISORY.get(lang) or _ADVISORY[DEFAULT_LANGUAGE]
+
+
+# --------------------------------------------------------------------------- #
+# Band *reasons* (Part Two, task 2.4).
+#
+# `fusion.band_for()` returns a machine explanation of why a band is what it is:
+# "a single weak signal is not enough without corroboration". That is the most
+# useful sentence in the whole payload and it was English developer text that no
+# citizen could read. These three shapes are the only ones Part One produces.
+# --------------------------------------------------------------------------- #
+_BAND_REASON_KINDS = {
+    # (substring to look for) -> (catalogue key, sentence per language)
+    "no signals": ("nothing_seen", {
+        "en": "There was nothing to judge yet.",
+        "hi": "अभी जाँचने के लिए कुछ नहीं था।",
+        "te": "ఇంకా అంచనా వేయడానికి ఏమీ లేదు.",
+    }),
+    "corroboration": ("needs_more", {
+        "en": "One weak sign alone is not enough. Tell us if they ask for money or OTP.",
+        "hi": "एक कमज़ोर संकेत ही पर्याप्त नहीं है। पैसे या OTP माँगे जाएँ तो बताएँ।",
+        "te": "ఒక బలహీన సంకేతం మాత్రమే సరిపోదు. డబ్బు లేదా OTP అడిగితే చెప్పండి.",
+    }),
+    "falls in": ("scored", {
+        "en": "Enough separate signs were seen together to raise this.",
+        "hi": "अलग-अलग संकेत साथ मिले, इसलिए यह चेतावनी बढ़ी।",
+        "te": "వేర్వేరు సంకేతాలు కలిసి కనిపించాయి, అందుకే ఈ హెచ్చరిక పెరిగింది.",
+    }),
+    "exceeds": ("reached_top", {
+        "en": "Several independent signs agree. Treat this as a serious warning.",
+        "hi": "कई स्वतंत्र संकेत एक ही बात कह रहे हैं। इसे गंभीर चेतावनी मानें।",
+        "te": "అనేక స్వతంత్ర సంకేతాలు ఏకీభవిస్తున్నాయి. దీన్ని తీవ్రమైన హెచ్చరికగా తీసుకోండి.",
+    }),
+    "below": ("too_weak", {
+        "en": "The signs seen so far are weak.",
+        "hi": "अब तक मिले संकेत कमज़ोर हैं।",
+        "te": "ఇప్పటివరకు కనిపించిన సంకేతాలు బలహీనంగా ఉన్నాయి.",
+    }),
+}
+
+
+def render_band_reason(why: str, lang: str = DEFAULT_LANGUAGE) -> str:
+    """Turn Part One's English band explanation into a citizen sentence.
+
+    Matching is by substring rather than by parsing, because Part One's reasons
+    are prose for engineers and this must never raise on a wording change. An
+    unrecognised reason returns "" and the caller shows nothing — a missing
+    explanation is survivable, a wrong one is not.
+    """
+    lang = normalise_language(lang)
+    text = str(why or "").lower()
+    for needle, (key, table) in _BAND_REASON_KINDS.items():
+        if needle in text:
+            return table.get(lang) or table[DEFAULT_LANGUAGE]
+    return ""
+
+
 def normalise_language(lang: Optional[str]) -> str:
     """Map anything caller-ish onto a supported code, defaulting to English."""
     if not lang:
@@ -170,14 +315,52 @@ def normalise_language(lang: Optional[str]) -> str:
     return base if base in LANGUAGES else DEFAULT_LANGUAGE
 
 
+# Part Two, task 2.3. Every fallback that quietly served English is recorded
+# here (code -> language that was asked for). A missing Telugu string used to be
+# invisible: the app kept working, kept looking finished, and shipped English to
+# a Telugu reader forever. Nothing raises on a gap, but a gap can now be asserted
+# to be empty instead of assumed to be.
+FALLBACK_LOG: List[Dict[str, str]] = []
+_FALLBACK_LIMIT = 200
+
+
+def _record_fallback(code: str, lang: str) -> None:
+    """Note a code that had to borrow English. Bounded, and never raises."""
+    try:
+        if len(FALLBACK_LOG) >= _FALLBACK_LIMIT:
+            return
+        FALLBACK_LOG.append({"code": str(code), "lang": str(lang)})
+    except Exception:      # a diagnostics hook must never break a warning
+        pass
+
+
+def fallbacks() -> List[Dict[str, str]]:
+    """Copy of the fallback log, for tests and for a support probe."""
+    return list(FALLBACK_LOG)
+
+
+def reset_fallbacks() -> None:
+    """Clear the log. Tests call this so one gap cannot hide behind another."""
+    del FALLBACK_LOG[:]
+
+
 def render_reason(code: str, lang: str = DEFAULT_LANGUAGE,
                   params: Optional[Dict[str, Any]] = None) -> str:
-    """One reason code -> one sentence. Never raises, never returns a raw key."""
+    """One reason code -> one sentence. Never raises, never returns a raw key.
+
+    A missing translation falls back to English *and records that it did*
+    (task 2.3). Silence was the failure mode: the screen looked complete while
+    quietly answering in the wrong language.
+    """
     lang = normalise_language(lang)
     entry = _REASONS.get(code)
     if entry is None:
+        _record_fallback(str(code), lang)
         return _REASONS[C.R_LOW_CONFIDENCE][lang]
-    return entry.get(lang) or entry[DEFAULT_LANGUAGE]
+    if not entry.get(lang):
+        _record_fallback(str(code), lang)
+        return entry[DEFAULT_LANGUAGE]
+    return entry[lang]
 
 
 def render_verdict(verdict: str, lang: str = DEFAULT_LANGUAGE) -> Dict[str, str]:
@@ -438,6 +621,19 @@ _REPORT_COPY = {
         "te": ("ఈ ఫోన్‌లో సేవ్ చేయబడింది",
                "ఆన్‌లైన్‌లోకి వచ్చినప్పుడు పంపబడుతుంది. ఇంకా ఏమీ పరికరం నుండి బయటకు పోలేదు."),
     },
+    "forwarding_failed": {
+        # The server accepted the report and failed to pass it on. A 200 is not
+        # delivery, and "Report sent" here would be the exact lie Part Four
+        # exists to prevent: the citizen believes a report is filed that reached
+        # nobody. Says what is true — it is on the server — and what to do now.
+        "en": ("Received, but not passed on",
+               "The service took your report but could not send it upstream. "
+               "It is on the server. Call 1930 so a person hears it now."),
+        "hi": ("रिपोर्ट मिली, लेकिन आगे नहीं भेजी जा सकी",
+               "सेवा ने रिपोर्ट ली, पर आगे नहीं भेज सकी। यह सर्वर पर है। अभी 1930 पर कॉल करें ताकि किसी व्यक्ति तक बात पहुँचे।"),
+        "te": ("నివేదిక అందింది, కానీ ముందుకు పంపబడలేదు",
+               "సేవ మీ నివేదికను తీసుకుంది, కానీ ముందుకు పంపలేకపోయింది. అది సర్వర్‌పై ఉంది. ఇప్పుడే 1930కి కాల్ చేయండి."),
+    },
     "failed": {
         "en": ("Report not sent",
                "Call 1930 instead. Your data did not leave this phone."),
@@ -461,9 +657,15 @@ def explain_report(result: Optional[Dict[str, Any]], lang: str = DEFAULT_LANGUAG
     entry = _REPORT_COPY.get(state) or _REPORT_COPY["failed"]
     body = entry.get(lang) or entry["en"]
     out = {"title": body[0], "detail": body[1], "helpline": HELPLINE, "lang": lang}
-    if isinstance(result, dict) and result.get("forwarded"):
-        fwd = result["forwarded"]
-        out["reached_network"] = bool(isinstance(fwd, dict) and fwd.get("forwarded"))
+    fwd = result.get("forwarded") if isinstance(result, dict) else None
+    reached = bool(isinstance(fwd, dict) and fwd.get("forwarded"))
+    out["reached_network"] = reached
+    out["accepted"] = bool(isinstance(result, dict) and result.get("status") == "REPORTED")
+    # `accepted but not reached` is its own state, never "sent".
+    out["delivered"] = reached
+    if out["accepted"] and not reached:
+        fb = _REPORT_COPY["forwarding_failed"].get(lang) or _REPORT_COPY["forwarding_failed"]["en"]
+        out["title"], out["detail"] = fb
     return out
 
 

@@ -189,7 +189,7 @@ class TestFuzzApi:
 
     def test_voice_with_unicode_and_nested_junk(self, client):
         r = client.post("/api/citizen/screen_voice",
-                        json={"samples": ["१२३", None, True, "🎤"]})
+                        json={"consent": True, "samples": ["१२३", None, True, "🎤"]})
         assert r.status_code in (200, 422)
 
     def test_unicode_confusables_do_not_crash_screening(self, client):
@@ -243,9 +243,11 @@ class TestGoldenCopy:
             assert current == body["families"], f"family copy drifted for {lang}"
 
     def test_band_copy_is_unchanged(self, golden):
-        from citizen.risk.engine import BANDS, _band_copy
+        from citizen.risk.engine import BANDS
+        from citizen.voiceguard.i18n import render_band
         for lang, body in golden.items():
-            current = {b: list(_band_copy(b, lang)) for b in BANDS}
+            current = {b: [render_band(b, lang)["headline"],
+                           render_band(b, lang)["action"]] for b in BANDS}
             assert current == body["bands"], f"band copy drifted for {lang}"
 
     def test_report_copy_is_unchanged(self, golden):

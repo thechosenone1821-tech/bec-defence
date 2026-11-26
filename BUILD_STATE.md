@@ -17,9 +17,9 @@
 
 | | |
 |---|---|
-| Python tests | **555 passed**, 0 failed |
-| Browser tests (Node) | **71 passed**, 0 failed |
-| **Total** | **626 checks, 0 failures** |
+| Python tests | **732 passed**, 0 failed (1 documented xfail) |
+| Browser tests (Node) | **90 passed**, 0 failed |
+| **Total** | **822 checks, 0 failures** |
 | Source under test | ~8,300 lines (`citizen/`, `spine/`, `sentinel/`, `raavan/`, `evals/`) |
 | Running services | 2 (Citizen app on `:8095`, Spine bus on `:8090`) |
 
@@ -107,19 +107,25 @@ Spine endpoints live: `/api/health`, `/api/state`, `/api/ingest`,
 | Suite | Tests |
 |---|---|
 | `test_part1_phase3.py` | 196 |
+| `test_spine_part1_fusion.py` | 101 |
 | `test_maya_phase1.py` | 61 |
 | `test_maya_phase4.py` | 55 |
 | `test_maya_phase3.py` | 47 |
+| `test_spine_part2_explanation.py` | 34 |
+| `test_spine_part3_capture.py` | 44 |
 | `test_part1_citizen_spine.py` | 40 |
 | `test_maya_phase5.py` | 38 |
 | `test_maya_phase2.py` | 30 |
 | `test_part1_phase2.py` | 21 |
 | platform tests (fortress, organs, governor, ledger, RAAVAN, …) | 67 |
-| **pytest total** | **555** |
+| **collected** | **734** |
+| skipped (1) + xfailed (1 documented defect) | −2 |
+| **pytest passed** | **732** |
 | `maya_capture.test.js` | 30 |
 | `panic_family.test.js` | 23 |
 | `queue.test.js` | 18 |
-| **node total** | **71** |
+| `spine_delivery.test.js` | 19 |
+| **node total** | **90** |
 
 ---
 

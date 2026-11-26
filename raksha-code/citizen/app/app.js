@@ -11,9 +11,21 @@ document.querySelectorAll(".tab").forEach(btn => {
 async function api(path, body) {
   const r = await fetch(path, {method: "POST", headers: {"Content-Type": "application/json"},
                                body: JSON.stringify(body || {})});
-  if (!r.ok) throw new Error("HTTP " + r.status);
+  if (!r.ok) {
+    // Attach the status so callers can tell "the server said no" apart from
+    // "the phone had no signal". Part Four, task 4.2.
+    const err = new Error("HTTP " + r.status);
+    err.status = r.status;
+    throw err;
+  }
   return r.json();
 }
+
+/* Part Four, task 4.2: the decision lives in send-state.js so it can be tested
+ * (a browser script is not reachable from a test runner). One implementation,
+ * one set of copy, no second definition to drift. */
+const classifySend = (window.RakshaSend && window.RakshaSend.classifySend)
+  || function (err) { return err ? "retry" : "sent"; };
 
 function esc(s) { const d = document.createElement("div"); d.textContent = String(s); return d.innerHTML; }
 
@@ -255,12 +267,22 @@ btnReport.addEventListener("click", async () => {
       saved = r.ok;
       pending = r.size;
     }
-    repOut.innerHTML = saved
-      ? `<div class="verdict MODERATE" data-icon="❔">Saved on this phone</div>
-         <div class="voice-action">No signal. Your report is kept on this device and will be sent automatically when you are back online.</div>
-         <div class="helpline">If you lost money, call 1930 NOW — do not wait for the report.</div>`
-      : `<div class="verdict MODERATE" data-icon="❔">Report not sent</div>
-         <div class="voice-action">Call 1930 instead. Your data did not leave this phone.</div>`;
+    const outcome = classifySend(e);
+    const sendCopy = (window.RakshaSend && window.RakshaSend.SEND_COPY) || {};
+    if (outcome === "rejected") {
+      // The server refused it. Retrying will not help, and saying "saved for
+      // when you are online" would be a promise nothing can keep.
+      repOut.innerHTML = `<div class="verdict MODERATE" data-icon="❔">Report not accepted</div>
+         <div class="voice-action">${sendCopy.rejected || "The service refused this report. Call 1930 instead."}</div>
+         <div class="helpline">If you lost money, call 1930 NOW — do not wait for the report.</div>`;
+    } else {
+      repOut.innerHTML = saved
+        ? `<div class="verdict MODERATE" data-icon="❔">Saved on this phone</div>
+           <div class="voice-action">No signal. Your report is kept on this device and will be sent automatically when you are back online.</div>
+           <div class="helpline">If you lost money, call 1930 NOW — do not wait for the report.</div>`
+        : `<div class="verdict MODERATE" data-icon="❔">Report not sent</div>
+           <div class="voice-action">Call 1930 instead. Your data did not leave this phone.</div>`;
+    }
   } finally { btnReport.disabled = false; btnReport.textContent = "Send report"; }
 });
 

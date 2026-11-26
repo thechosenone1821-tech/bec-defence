@@ -59,7 +59,7 @@ ledger and Governor that both apps depend on).
 
 | Part | Built | Honest verdict |
 |---|---|---|
-| 1 · Citizen spine | **100%** | All 3 phases done (+257 tests, 626 total). |
+| 1 · Citizen spine | **100% + rebuilt** | 3 phases done, then rebuilt in 4 parts (fusion · explanation · capture · delivery). **+196 tests over 626, 822 total.** |
 | 2 · VoiceGuard | **65%** | Real pipeline, real measurements — on fake data. |
 | 3 · MessageGuard | **55%** | Rules work; corpus far too small to claim accuracy. |
 | 4 · Detection rings | **70%** | 8/8 organs coded; none seen real traffic. |

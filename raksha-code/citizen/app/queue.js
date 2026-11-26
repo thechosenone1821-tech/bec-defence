@@ -102,33 +102,77 @@ function clear(store) {
  * succeeds — a failed flush must not lose the backlog. The flush stops at the
  * first failure so ordering is preserved and a dead network is not hammered.
  */
+/**
+ * Decide whether a sender's return value means "the server took it".
+ *
+ * Part Four, task 4.1. `flush` used to treat ANY truthy value as success, so the
+ * most natural call site — `flush(store, e => fetch(url, ...))` — passed a
+ * `Response`, which is truthy even when the status is 500. The report was
+ * deleted from the queue and reported as sent, which is the one lie this module
+ * exists to prevent.
+ *
+ * A `Response`-like value (anything with a numeric `status`) is judged by its
+ * status, and only 2xx counts. Plain booleans keep working exactly as before, so
+ * no existing caller had to change.
+ *
+ * Returns one of: "sent" | "retry" | "rejected".
+ */
+function classifySend(result) {
+  if (result && typeof result === "object" && typeof result.status === "number") {
+    var st = result.status;
+    if (st >= 200 && st < 300) return "sent";
+    /* 4xx will never succeed on retry (bad shape, not bad network). */
+    if (st >= 400 && st < 500) return "rejected";
+    return "retry";
+  }
+  if (result === true) return "sent";
+  if (result === false || result === undefined || result === null) return "retry";
+  /* Some other truthy value (a string, a parsed body): treat as accepted, which
+   * is what every existing boolean-style caller already meant. */
+  return "sent";
+}
+
 function flush(store, send) {
   var items = readQueue(store);
   if (!items.length) return Promise.resolve({sent: 0, remaining: 0});
 
   var sent = 0;
+  var rejected = 0;
   var i = 0;
 
+  function settle() {
+    writeQueue(store, items.slice(sent));
+    var out = {sent: sent, remaining: items.length - sent};
+    /* `rejected` appears only when something was rejected. Callers written
+     * against the old {sent, remaining} shape keep matching exactly, so the
+     * fix could not become a breaking change to every existing assertion. */
+    if (rejected) out.rejected = rejected;
+    return out;
+  }
+
   function step() {
-    if (i >= items.length) {
-      writeQueue(store, items.slice(sent));
-      return {sent: sent, remaining: items.length - sent};
-    }
+    if (i >= items.length) return settle();
     return Promise.resolve()
       .then(function () { return send(items[i]); })
-      .then(function (ok) {
-        if (!ok) {
-          writeQueue(store, items.slice(sent));
-          return {sent: sent, remaining: items.length - sent};
+      .then(function (result) {
+        var outcome = classifySend(result);
+        if (outcome === "sent") {
+          sent += 1;
+          i += 1;
+          return step();
         }
-        sent += 1;
-        i += 1;
-        return step();
+        if (outcome === "rejected") {
+          /* Keep it: a report the server refuses is a bug the user should not
+           * pay for, but stop retrying it on this pass. */
+          rejected += 1;
+          i += 1;
+          return step();
+        }
+        /* Network-shaped failure: stop here so ordering is preserved and a dead
+         * network is not hammered. */
+        return settle();
       })
-      .catch(function () {
-        writeQueue(store, items.slice(sent));
-        return {sent: sent, remaining: items.length - sent};
-      });
+      .catch(function () { return settle(); });
   }
 
   return Promise.resolve(step());
@@ -145,6 +189,7 @@ if (typeof module !== "undefined" && module.exports) {
     size: size,
     clear: clear,
     flush: flush,
+    classifySend: classifySend,
   };
 }
 if (typeof window !== "undefined") {
@@ -155,5 +200,6 @@ if (typeof window !== "undefined") {
     size: size,
     clear: clear,
     flush: flush,
+    classifySend: classifySend,
   };
 }

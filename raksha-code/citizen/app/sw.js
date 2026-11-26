@@ -15,7 +15,7 @@
  * stored on a shared cache.
  */
 
-const CACHE = "raksha-citizen-v0.4.0";
+const CACHE = "raksha-citizen-v0.4.1";
 
 const ASSETS = [
   "./",
@@ -25,6 +25,7 @@ const ASSETS = [
   "./maya-capture.js",
   "./maya-capture-worklet.js",
   "./panic.js",
+  "./send-state.js",
   "./queue.js",
   "./family.js",
   "./app.js",
@@ -43,14 +44,36 @@ self.addEventListener("install", e => {
 });
 
 /* Activate: delete every previous cache version. Without this, a phone keeps a
- * v0.3 shell forever and the new files never arrive. */
+ * v0.3 shell forever and the new files never arrive.
+ *
+ * Part Four, task 4.4. This used to call clients.claim() unconditionally, which
+ * let a new worker take over a page that was *already open*: that page keeps
+ * running the old scripts, but the caches its old scripts expect were just
+ * deleted. Mid-session, offline, the next asset request finds nothing.
+ *
+ * A page with no controller is a first install — claim it, there is nothing to
+ * disrupt. A page that already has a controller is mid-update: leave it alone
+ * and let the next navigation pick up the new shell, which is the boring and
+ * correct behaviour for an app whose whole promise is "the panic button works
+ * offline".
+ */
 self.addEventListener("activate", e => {
   e.waitUntil(
     caches.keys()
       .then(keys => Promise.all(
         keys.filter(k => k !== CACHE).map(k => caches.delete(k))
       ))
-      .then(() => self.clients.claim())
+      .then(() => {
+        var uncontrolled = typeof self.clients.matchAll === "function"
+          ? self.clients.matchAll({ type: "window" })
+              .then(clients => clients.some(c => !c.controller))
+              .catch(() => false)
+          : false;
+        return Promise.resolve(uncontrolled).then(anyUncontrolled => {
+          if (anyUncontrolled) return self.clients.claim();
+          return undefined;
+        });
+      })
   );
 });
 

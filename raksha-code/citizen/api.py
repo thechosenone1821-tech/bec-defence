@@ -35,7 +35,8 @@ from fastapi.staticfiles import StaticFiles
 from citizen.messageguard import score_message
 from citizen.voiceguard import i18n as _i18n
 from citizen.voiceguard import score_voice
-from citizen.voiceguard.capture import MAX_SCREEN_SAMPLES, retention_policy
+from citizen.voiceguard.capture import (MAX_SCREEN_SAMPLES, retention_policy,
+                                        screen_with_consent)
 from citizen.risk import assess as risk_assess
 
 def _safe_int(value: Any) -> int:
@@ -135,6 +136,22 @@ def build_app(bus_url: Optional[str] = None, poster: Optional[Callable[[Dict[str
 
     @app.post("/api/citizen/screen_voice")
     async def screen_voice(payload: Dict[str, Any] = Body(...)):
+        # Part Three, task 3.1. /retention has always advertised
+        # "consent_required": true while this endpoint never checked it, so the
+        # guarantee lived only in a class that nothing outside the tests
+        # constructed. Consent is now required here, where the audio actually
+        # arrives, and the refusal is a 403 carrying citizen copy rather than a
+        # bare error string — a client should be able to *show* the refusal.
+        gate = screen_with_consent(payload.get("samples"), payload.get("consent"),
+                                   lang=payload.get("lang"))
+        if not gate["accepted"]:
+            # Keep the HTTP meaning of each refusal: no consent is a 403, a
+            # missing body is a 422, an oversized window is a 413. Collapsing
+            # every refusal to one code would make the client guess *why*, which
+            # is the thing task 3.3 exists to prevent.
+            code = {"consent": 403, "no_audio": 422, "too_long": 413}.get(
+                gate["reason"], 422)
+            raise HTTPException(code, detail=gate["explanation"])
         samples = payload.get("samples")
         if not isinstance(samples, list):
             raise HTTPException(422, "samples must be a list of floats")
@@ -219,8 +236,13 @@ def build_app(bus_url: Optional[str] = None, poster: Optional[Callable[[Dict[str
                        "category": category, "severity": severity_band,
                        "forwarded": forward, "helpline": "1930",
                        "lang": lang}
+        # Part Four: a 200 from *this* server is not delivery. `explain_report`
+        # re-derives what actually happened from `forwarded` and will say
+        # "received, but not passed on" rather than "Report sent". The state
+        # passed here is only the fallback for the failure case.
         payload_out["explanation"] = _i18n.explain_report(
             payload_out, lang, "sent" if forward else "offline")
+        payload_out["delivered"] = payload_out["explanation"]["delivered"]
         return payload_out
         # note is accepted for future on-device features but is NEVER stored or sent
 

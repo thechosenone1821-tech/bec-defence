@@ -230,8 +230,9 @@ class TestRiskEngine:
     def test_every_band_has_copy_in_every_language(self):
         for band in BANDS:
             for lang in (EN, HI, TE):
-                from citizen.risk.engine import _band_copy
-                title, action = _band_copy(band, lang)
+                from citizen.voiceguard.i18n import render_band
+                _b = render_band(band, lang)
+                title, action = _b["headline"], _b["action"]
                 assert title and action
                 assert len(action) > 15
 
@@ -287,7 +288,7 @@ class TestPhase4Api:
     def test_screen_voice_includes_a_localised_explanation(self, client):
         samples = [0.5 * float(np.sin(2 * np.pi * 440 * i / 16000)) for i in range(16000)]
         r = client.post("/api/citizen/screen_voice",
-                        json={"samples": samples, "lang": "hi"}).json()
+                        json={"consent": True, "samples": samples, "lang": "hi"}).json()
         assert r["explanation"]["lang"] == "hi"
         assert r["explanation"]["title"]
 
@@ -329,8 +330,8 @@ class TestNoFalseReassurance:
         assert ("OTP" in r["action"]) or ("1930" in r["action"])
 
     def test_every_band_copy_mentions_a_concrete_action(self):
-        from citizen.risk.engine import _band_copy
+        from citizen.voiceguard.i18n import render_band as _rb
         for band in BANDS:
-            _, action = _band_copy(band, EN)
+            action = _rb(band, EN)["action"]
             assert any(k in action for k in ("1930", "OTP", "official number",
                                             "Hang up", "hang up", "Verify")), band

@@ -58,11 +58,11 @@ def test_report_rejects_unknown_category(client):
 def test_screen_voice_endpoint(client):
     import math
     samples = [0.6 * math.sin(2 * math.pi * 440 * i / 16000) for i in range(16000)]
-    v = client.post("/api/citizen/screen_voice", json={"samples": samples}).json()
+    v = client.post("/api/citizen/screen_voice", json={"consent": True, "samples": samples}).json()
     # Phase 3's model may escalate a pure tone to LIKELY_SYNTHETIC.
     assert v["verdict"] in {"SUSPICIOUS", "INCONCLUSIVE", "SILENT", "LIKELY_SYNTHETIC"}
 
 
 def test_screen_voice_rejects_oversized(client):
-    r = client.post("/api/citizen/screen_voice", json={"samples": [0.0] * 250_000})
+    r = client.post("/api/citizen/screen_voice", json={"consent": True, "samples": [0.0] * 250_000})
     assert r.status_code == 413

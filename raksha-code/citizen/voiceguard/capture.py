@@ -154,11 +154,24 @@ class CaptureSession:
         self.consented = bool(consented)
 
     def ingest(self, samples: Sequence[float], sr: int = TARGET_SR) -> np.ndarray:
-        """Accept a window for screening, enforcing the retention ceiling."""
+        """Accept a window for screening, enforcing the retention ceiling.
+
+        Part Three, task 3.2. This used to validate the window and return it
+        without ever writing it into ``self.ring``. ``destroy()`` then reported
+        ``zero_passes: 1`` — a true statement about an empty buffer and a false
+        impression about the audio. The samples that had been screened were
+        handed to the caller and held nowhere this object could reach, so the
+        retention accounting described a buffer that never held anything.
+
+        The window is now copied into the ring before it is returned, so
+        ``destroy()`` zeroes the memory that actually held it. What this can and
+        cannot promise is stated plainly: the ring copy is wiped, the array this
+        returns is the caller's working buffer, and a Python module cannot reach
+        into it later. Claiming otherwise would be the same lie in a new place.
+        """
         if not self.consented:
             raise RetentionError("consent required before any audio is processed")
-        arr = np.asarray(samples, dtype=np.float64) if not isinstance(samples, np.ndarray) \
-            else np.asarray(samples, dtype=np.float64)
+        arr = np.asarray(samples, dtype=np.float64)
         arr = arr.ravel()
         if sr != TARGET_SR:
             arr = resample_to_16k(arr, sr)
@@ -166,14 +179,104 @@ class CaptureSession:
             raise RetentionError(
                 f"window of {arr.size} samples exceeds the {MAX_SCREEN_SAMPLES} "
                 f"({MAX_SCREEN_SAMPLES / TARGET_SR:.1f} s) retention ceiling")
+        # Keep the screened window in this object's ring so it can be zeroed.
+        self.ring.push_block(arr, TARGET_SR)
         self.screens += 1
         return arr
 
     def destroy(self) -> Dict[str, Any]:
+        """Zero the ring and report exactly what was wiped.
+
+        ``buffered_samples`` is the number of samples that were actually in the
+        ring at destroy time — 0 only when nothing was ever ingested, which is
+        now a meaningful statement rather than an accident.
+        """
+        held = int(self.ring._filled) if hasattr(self.ring, "_filled") else 0
         self.ring.stop()
         self.destroyed = True
         return {"destroyed": True, "zero_passes": self.ring.zero_count,
-                "screens": self.screens}
+                "screens": self.screens, "buffered_samples": held}
+
+
+# --------------------------------------------------------------------------- #
+# Refusal as a state (Part Three, task 3.3).
+#
+# A UI that has to catch an exception to learn *why* it was refused will show
+# the wrong copy: "consent required" and "clip too long" need different words and
+# different next steps. These refusals are data, not raises, so the caller can
+# render them without a try/except around user-facing logic.
+# --------------------------------------------------------------------------- #
+REFUSAL_COPY = {
+    "consent": {
+        "en": ("Recording needs your permission",
+               "Tap Start listening first. Nothing is recorded until you do."),
+        "hi": ("रिकॉर्डिंग के लिए आपकी अनुमति चाहिए",
+               "पहले 'सुनना शुरू करें' दबाएँ। जब तक आप न करें, कुछ रिकॉर्ड नहीं होता।"),
+        "te": ("రికార్డింగ్‌కు మీ అనుమతి కావాలి",
+               "మొదట 'వినడం ప్రారంభించండి' నొక్కండి. మీరు నొక్కేవరకు ఏమీ రికార్డ్ కాదు."),
+    },
+    "no_audio": {
+        "en": ("No audio arrived",
+               "Try again, or use the message check instead."),
+        "hi": ("कोई ऑडियो नहीं आया",
+               "दोबारा कोशिश करें, या संदेश जाँच का उपयोग करें।"),
+        "te": ("ఆడియో రాలేదు",
+               "మళ్లీ ప్రయత్నించండి, లేదా సందేశ తనిఖీని ఉపయోగించండి."),
+    },
+    "too_long": {
+        "en": ("That was longer than we keep",
+               "Only the last few seconds are ever used. Try a shorter clip."),
+        "hi": ("यह हमारे रखने से लंबा था",
+               "केवल आखिरी कुछ सेकंड उपयोग होते हैं। छोटी क्लिप आज़माएँ।"),
+        "te": ("ఇది మేము ఉంచే దానికంటే పొడవు",
+               "చివరి కొన్ని సెకన్లు మాత్రమే వాడతాము. చిన్న క్లిప్ ప్రయత్నించండి."),
+    },
+}
+
+
+def refusal(reason: str, lang: str = "en") -> Dict[str, Any]:
+    """A refusal a client can show without catching anything."""
+    lang = lang if lang in ("en", "hi", "te") else "en"
+    entry = REFUSAL_COPY.get(reason) or REFUSAL_COPY["no_audio"]
+    title, action = entry[lang]
+    return {
+        "accepted": False,
+        "reason": reason,
+        "audio_processed": False,
+        "explanation": {"title": title, "action": action, "lang": lang,
+                        "helpline": "1930"},
+    }
+
+
+def screen_with_consent(samples: Any, consented: Any, sr: int = TARGET_SR,
+                        lang: str = "en") -> Dict[str, Any]:
+    """The consent gate, as a value.
+
+    Returns ``{"accepted": False, ...}`` for every refusal and
+    ``{"accepted": True, "samples": <arr>}`` when the window may be screened.
+    ``audio_processed`` is present and False on every refusal so a caller can
+    assert the promise rather than trust it.
+    """
+    if consented is not True:
+        return refusal("consent", lang)
+    if samples is None:
+        return refusal("no_audio", lang)
+    try:
+        arr = np.asarray(samples, dtype=np.float64).ravel()
+    except (TypeError, ValueError):
+        return refusal("no_audio", lang)
+    if arr.size == 0:
+        return refusal("no_audio", lang)
+    # Deliberately NOT rejecting non-finite samples here. The API's boundary
+    # already drops them and screens the rest (Phase 5), and a single NaN must
+    # not turn a real clip into "no audio": the citizen would lose the verdict
+    # they came for. This gate decides *consent and size*, not data quality.
+    if sr != TARGET_SR:
+        arr = resample_to_16k(arr, sr)
+    if arr.size > MAX_SCREEN_SAMPLES:
+        return refusal("too_long", lang)
+    return {"accepted": True, "reason": "ok", "audio_processed": True,
+            "samples": arr, "lang": lang if lang in ("en", "hi", "te") else "en"}
 
 
 def retention_policy() -> Dict[str, Any]:

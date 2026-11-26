@@ -272,7 +272,7 @@ class TestCitizenPath:
     def test_full_path_synthetic_clip_is_actionable(self, client):
         clip = corpus.make_synthetic(9)
         r = client.post("/api/citizen/screen_voice",
-                        json={"samples": [float(x) for x in clip[:16000]], "lang": "en"}).json()
+                        json={"consent": True, "samples": [float(x) for x in clip[:16000]], "lang": "en"}).json()
         ex = r["explanation"]
         assert ex["action"] and ex["title"]
         # Whatever the verdict, a citizen is never left without an action.
@@ -280,7 +280,7 @@ class TestCitizenPath:
 
     def test_full_path_silence_gives_silent_not_an_accusation(self, client):
         r = client.post("/api/citizen/screen_voice",
-                        json={"samples": [0.0] * 16000}).json()
+                        json={"consent": True, "samples": [0.0] * 16000}).json()
         assert r["verdict"] == "SILENT"
         assert r["explanation"]["actionable"] is False
 
@@ -289,7 +289,7 @@ class TestCitizenPath:
         client can inject them even though strict JSON forbids them. Before the
         Phase-5 fix this produced a 500 with a traceback instead of a verdict —
         i.e. a malformed request could take the screening endpoint down."""
-        body = b'{"samples": [0.0, NaN, 0.1, Infinity, -Infinity]}'
+        body = b'{"consent": true, "samples": [0.0, NaN, 0.1, Infinity, -Infinity]}'
         r = client.post("/api/citizen/screen_voice", content=body,
                         headers={"content-type": "application/json"})
         assert r.status_code == 200
@@ -299,7 +299,7 @@ class TestCitizenPath:
     def test_non_finite_mixed_with_real_audio_still_returns_a_verdict(self, client):
         clip = [round(float(x), 6) for x in corpus.make_synthetic(4)[:16000]]
         clip[100:105] = ["NaN"] * 5
-        body = ("{\"samples\": [" + ", ".join(str(x) for x in clip) + "]}").encode()
+        body = ("{\"consent\": true, \"samples\": [" + ", ".join(str(x) for x in clip) + "]}").encode()
         r = client.post("/api/citizen/screen_voice", content=body,
                         headers={"content-type": "application/json"})
         assert r.status_code == 200
@@ -307,7 +307,7 @@ class TestCitizenPath:
 
     def test_no_audio_is_echoed_back(self, client):
         clip = [float(x) for x in corpus.make_synthetic(4)[:16000]]
-        r = client.post("/api/citizen/screen_voice", json={"samples": clip}).json()
+        r = client.post("/api/citizen/screen_voice", json={"consent": True, "samples": clip}).json()
         blob = json.dumps(r)
         assert "samples" not in r
         assert len(blob) < 20000, "payload looks like it may contain audio"

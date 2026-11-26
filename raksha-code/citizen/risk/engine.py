@@ -199,7 +199,9 @@ def assess(voice: Optional[Dict[str, Any]] = None,
     )
 
     band = core["band"]
-    headline, action = _band_copy(band, lang)
+    # Part Two owns every citizen sentence; this module owns none.
+    display = i18n.render_band(band, lang)
+    headline, action = display["headline"], display["action"]
 
     # Part One deliberately returns *internal* source/detail values. Turning them
     # into sentences is Part Two's job, and doing it here would put English in
@@ -222,56 +224,13 @@ def assess(voice: Optional[Dict[str, Any]] = None,
         "helpline": i18n.HELPLINE,
         "lang": lang,
         "degraded": core["degraded"],
-        "advisory": ("Judgement-based weighting, not calibrated against real "
-                     "fraud outcomes — an aid to your decision, not a verdict."),
+        # Part Two, task 2.2: this used to be an English literal here, so the
+        # honesty label was the one sentence that never translated.
+        "advisory": i18n.render_advisory(lang),
+        # Part Two, task 2.4: Part One's explanation of *why* the band is what it
+        # is, now readable. Empty string when the reason is a wording this build
+        # does not recognise — a missing explanation beats a wrong one.
+        "band_explanation": i18n.render_band_reason(core["band_reason"], lang),
     }
 
 
-_BAND_COPY = {
-    BAND_LOW_CONFIDENCE: {
-        "en": ("Not enough information to judge",
-               "Trust your instinct. If they ask for money or OTP, hang up and call 1930."),
-        "hi": ("पर्याप्त जानकारी नहीं है",
-               "अपनी समझ पर भरोसा रखें। पैसे या OTP माँगे जाएँ तो फोन काटें और 1930 पर कॉल करें।"),
-        "te": ("సరిపడా సమాచారం లేదు",
-               "మీ బుద్ధిని నమ్మండి. డబ్బు లేదా OTP అడిగితే ఫోన్ పెట్టేసి 1930కి కాల్ చేయండి."),
-    },
-    BAND_LOW: {
-        "en": ("No known fraud warning signs found",
-               "Still never share OTP, PIN or CVV with anyone."),
-        "hi": ("धोखाधड़ी के ज्ञात संकेत नहीं मिले",
-               "फिर भी OTP, PIN या CVV किसी को न दें।"),
-        "te": ("తెలిసిన మోసపు సంకేతాలు లేవు",
-               "అయినా OTP, PIN లేదా CVV ఎవరికీ ఇవ్వకండి."),
-    },
-    BAND_ELEVATED: {
-        "en": ("Some warning signs are present",
-               "Pause. Verify through an official number before doing anything."),
-        "hi": ("कुछ चेतावनी संकेत मौजूद हैं",
-               "रुकें। कुछ भी करने से पहले आधिकारिक नंबर से पुष्टि करें।"),
-        "te": ("కొన్ని హెచ్చరిక సంకేతాలు ఉన్నాయి",
-               "ఆగండి. ఏదైనా చేసే ముందు అధికారిక నంబర్ ద్వారా నిర్ధారించుకోండి."),
-    },
-    BAND_HIGH: {
-        "en": ("This looks like a scam attempt",
-               "Do not pay, do not share OTP. Call 1930."),
-        "hi": ("यह धोखाधड़ी का प्रयास लगता है",
-               "पैसे न दें, OTP न बताएँ। 1930 पर कॉल करें।"),
-        "te": ("ఇది మోసం ప్రయత్నంలా ఉంది",
-               "డబ్బు ఇవ్వద్దు, OTP చెప్పవద్దు. 1930కి కాల్ చేయండి."),
-    },
-    BAND_CRITICAL: {
-        "en": ("This is almost certainly a scam",
-               "Hang up now. Call 1930 and your bank immediately."),
-        "hi": ("यह लगभग निश्चित रूप से धोखाधड़ी है",
-               "अभी फोन काटें। 1930 और अपने बैंक को तुरंत कॉल करें।"),
-        "te": ("ఇది దాదాపు ఖచ్చితంగా మోసం",
-               "వెంటనే ఫోన్ పెట్టేయండి. 1930కి, మీ బ్యాంకుకు వెంటనే కాల్ చేయండి."),
-    },
-}
-
-
-def _band_copy(band: str, lang: str):
-    entry = _BAND_COPY.get(band) or _BAND_COPY[BAND_LOW_CONFIDENCE]
-    body = entry.get(lang) or entry["en"]
-    return body[0], body[1]

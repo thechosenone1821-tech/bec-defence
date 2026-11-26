@@ -78,17 +78,19 @@ class TestNoSafeBand:
         assert not any("SAFE" in b for b in BANDS)
 
     def test_no_band_copy_promises_safety(self):
-        from citizen.risk.engine import _band_copy
+        # Band copy moved to the catalogue in Part Two; the invariant did not.
+        from citizen.voiceguard.i18n import render_band
         for band in BANDS:
             for lang in (EN, HI, TE):
-                title, action = _band_copy(band, lang)
+                _b = render_band(band, lang)
+                title, action = _b["headline"], _b["action"]
                 blob = (title + action).lower()
                 assert "is safe" not in blob, f"{band}/{lang} promises safety"
                 assert "100%" not in blob
 
     def test_the_lowest_band_still_warns(self):
-        from citizen.risk.engine import _band_copy
-        title, action = _band_copy(BAND_LOW_CONFIDENCE, EN)
+        from citizen.voiceguard.i18n import render_band
+        action = render_band(BAND_LOW_CONFIDENCE, EN)["action"]
         assert "1930" in action
 
 
@@ -195,7 +197,7 @@ class TestNoAudioEcho:
         from citizen.voiceguard import corpus
         c = TestClient(build_app(bus_url="", poster=lambda e: {"accepted": 1}))
         clip = [round(float(x), 6) for x in corpus.make_synthetic(3)[:16000]]
-        r = c.post("/api/citizen/screen_voice", json={"samples": clip}).json()
+        r = c.post("/api/citizen/screen_voice", json={"consent": True, "samples": clip}).json()
         assert "samples" not in r
         assert len(json.dumps(r)) < 20000
 
