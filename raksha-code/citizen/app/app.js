@@ -27,13 +27,20 @@ btnMsg.addEventListener("click", async () => {
   if (!text) { msgBox.focus(); return; }
   btnMsg.disabled = true; btnMsg.textContent = "Screening…";
   try {
-    const v = await api("/api/citizen/screen_message", {text});
+    const v = await api("/api/citizen/screen_message", {text, lang: lang()});
     msgOut.classList.remove("hidden");
+    // Part 1 Phase 1: render the server's localised explanation. The raw score
+    // and the matched token list were previously shown here, which
+    //   (a) broke the spine's own "never show a raw score" rule, and
+    //   (b) printed English diagnostics on a Hindi/Telugu screen.
+    const ex = v.explanation || {};
+    const band = {CRITICAL: "CRITICAL", HIGH: "HIGH", MODERATE: "MODERATE"}[v.verdict] || "LOW";
+    const icon = {CRITICAL: "⛔", HIGH: "⚠️", MODERATE: "❔", LOW: "✓"}[band];
     msgOut.innerHTML = `
-      <div class="verdict ${esc(v.verdict)}">${esc(v.verdict)}</div>
-      <div>Score ${esc(v.score)} · ${esc((v.families_hit||[]).join(", ") || "no signal families")}</div>
-      <ul>${(v.reasons||[]).map(r => `<li>${esc(r)}</li>`).join("")}</ul>
-      <div class="helpline">Advisory only — if unsure, don't act. ${esc(v.disclaimer || "Call 1930.")}</div>`;
+      <div class="verdict ${band}" data-icon="${icon}">${esc(ex.title || v.verdict)}</div>
+      <div class="voice-action">${esc(ex.action || "Call 1930 if in doubt.")}</div>
+      <ul>${(ex.reasons||[]).map(r => `<li>${esc(r)}</li>`).join("")}</ul>
+      <div class="helpline">${esc(ex.disclaimer || "Advisory only.")}</div>`;
   } catch (e) {
     msgOut.classList.remove("hidden");
     msgOut.innerHTML = `<div class="verdict MODERATE">UNAVAILABLE</div><div>Could not screen. Stay safe: if in doubt call 1930.</div>`;
@@ -144,12 +151,13 @@ btnReport.addEventListener("click", async () => {
     const body = {category: selectedCategory, severity: sevRange.value / 100};
     const cref = (caseRef && caseRef.value.trim()) || "";
     if (cref) body.case_id = cref;
-    const v = await api("/api/citizen/report", body);
+    const v = await api("/api/citizen/report", {...body, lang: lang()});
     repOut.classList.remove("hidden");
-    const fw = v.forwarded && v.forwarded.forwarded ? "✓ reached Raksha response network" : "✓ noted (offline mode — will sync)";
-    repOut.innerHTML = `<div class="verdict LOW">REPORTED</div>
-      <div>${esc(fw)}</div>
-      <div>Event ${esc(v.event_id)} · severity ${esc(v.severity)}</div>
+    // Part 1 Phase 1: an event id and a severity float are not citizen-facing.
+    // The wrapper says what happened and what did NOT leave the phone.
+    const ex = v.explanation || {};
+    repOut.innerHTML = `<div class="verdict LOW" data-icon="✓">${esc(ex.title || "Report sent")}</div>
+      <div class="voice-action">${esc(ex.detail || "")}</div>
       <div class="helpline">If you lost money already, call 1930 NOW and freeze the transaction.</div>`;
   } catch (e) {
     repOut.classList.remove("hidden");

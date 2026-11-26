@@ -228,6 +228,178 @@ def explain(result: Dict[str, Any], lang: str = DEFAULT_LANGUAGE) -> Dict[str, A
     }
 
 
+# --------------------------------------------------------------------------- #
+# MessageGuard signal families -> citizen sentences.
+#
+# These are NOT the same thing as reason codes: a "family" is an input signal
+# that contributed to a message verdict, and a citizen should see "it is asking
+# for your OTP", never the internal name `credential`.
+# --------------------------------------------------------------------------- #
+_FAMILIES: Dict[str, Dict[str, str]] = {
+    "credential": {
+        "en": "It asks for your OTP, PIN, CVV or password.",
+        "hi": "यह आपका OTP, PIN, CVV या पासवर्ड माँगता है।",
+        "te": "ఇది మీ OTP, PIN, CVV లేదా పాస్‌వర్డ్ అడుగుతోంది.",
+    },
+    "authority": {
+        "en": "It pretends to be police, a court, the RBI or a tax officer.",
+        "hi": "यह पुलिस, अदालत, RBI या कर अधिकारी होने का दिखावा करता है।",
+        "te": "ఇది పోలీసు, కోర్టు, RBI లేదా పన్ను అధికారిగా నటిస్తోంది.",
+    },
+    "money_action": {
+        "en": "It asks you to send or transfer money.",
+        "hi": "यह पैसे भेजने या ट्रांसफर करने को कहता है।",
+        "te": "ఇది డబ్బు పంపమని లేదా బదిలీ చేయమని అడుగుతోంది.",
+    },
+    "prize": {
+        "en": "It claims you won a prize or lottery.",
+        "hi": "यह दावा करता है कि आपने इनाम या लॉटरी जीती है।",
+        "te": "మీరు బహుమతి లేదా లాటరీ గెలిచారని చెబుతోంది.",
+    },
+    "urgency": {
+        "en": "It pressures you to act immediately.",
+        "hi": "यह तुरंत कार्रवाई करने का दबाव बनाता है।",
+        "te": "వెంటనే చర్య తీసుకోవాలని ఒత్తిడి చేస్తోంది.",
+    },
+    "link_grab": {
+        "en": "It pushes you to click a link or verify now.",
+        "hi": "यह लिंक पर क्लिक करने या अभी सत्यापित करने को कहता है।",
+        "te": "లింక్ నొక్కమని లేదా వెంటనే ధృవీకరించమని చెబుతోంది.",
+    },
+}
+
+_NO_MESSAGE_SIGNAL = {
+    "en": "We recognise no known scam wording here — that is not proof it is safe.",
+    "hi": "यहाँ कोई ज्ञात धोखाधड़ी शब्द नहीं मिला — यह सुरक्षित होने का सबूत नहीं है।",
+    "te": "ఇక్కడ తెలిసిన మోసపు పదాలు లేవు — ఇది సురక్షితమని రుజువు కాదు.",
+}
+
+_MESSAGE_VERDICT = {
+    "LOW": {
+        "en": {"title": "No known scam signals found",
+               "action": "Still never share OTP, PIN or CVV with anyone."},
+        "hi": {"title": "धोखाधड़ी के ज्ञात संकेत नहीं मिले",
+               "action": "फिर भी OTP, PIN या CVV किसी को न दें।"},
+        "te": {"title": "తెలిసిన మోసపు సంకేతాలు లేవు",
+               "action": "అయినా OTP, PIN లేదా CVV ఎవరికీ ఇవ్వకండి."},
+    },
+    "MODERATE": {
+        "en": {"title": "Some warning signs are present",
+               "action": "Verify through the official number on your card. Do not reply."},
+        "hi": {"title": "कुछ चेतावनी संकेत मौजूद हैं",
+               "action": "अपने कार्ड पर दिए आधिकारिक नंबर से पुष्टि करें। जवाब न दें।"},
+        "te": {"title": "కొన్ని హెచ్చరిక సంకేతాలు ఉన్నాయి",
+               "action": "మీ కార్డ్‌పై ఉన్న అధికారిక నంబర్ ద్వారా నిర్ధారించుకోండి. రిప్లై ఇవ్వవద్దు."},
+    },
+    "HIGH": {
+        "en": {"title": "This looks like a scam message",
+               "action": "Do not reply, do not click, do not pay. Call 1930."},
+        "hi": {"title": "यह धोखाधड़ी का संदेश लगता है",
+               "action": "जवाब न दें, लिंक न खोलें, पैसे न दें। 1930 पर कॉल करें।"},
+        "te": {"title": "ఇది మోసపు సందేశంలా ఉంది",
+               "action": "రిప్లై ఇవ్వవద్దు, లింక్ నొక్కవద్దు, డబ్బు ఇవ్వద్దు. 1930కి కాల్ చేయండి."},
+    },
+    "CRITICAL": {
+        "en": {"title": "This is almost certainly a scam",
+               "action": "Delete it. Do not pay. Call 1930 and your bank."},
+        "hi": {"title": "यह लगभग निश्चित रूप से धोखाधड़ी है",
+               "action": "इसे हटा दें। पैसे न दें। 1930 और अपने बैंक को कॉल करें।"},
+        "te": {"title": "ఇది దాదాపు ఖచ్చితంగా మోసం",
+               "action": "దీన్ని తొలగించండి. డబ్బు ఇవ్వద్దు. 1930కి, మీ బ్యాంకుకు కాల్ చేయండి."},
+    },
+}
+
+
+def render_family(family: str, lang: str = DEFAULT_LANGUAGE) -> str:
+    """One MessageGuard signal family -> one sentence. Never a raw key."""
+    lang = normalise_language(lang)
+    entry = _FAMILIES.get(family)
+    if entry is None:
+        return _FAMILIES["urgency"][lang]
+    return entry.get(lang) or entry[DEFAULT_LANGUAGE]
+
+
+def explain_message(result: Dict[str, Any], lang: str = DEFAULT_LANGUAGE) -> Dict[str, Any]:
+    """Turn a ``score_message`` payload into a citizen-facing explanation.
+
+    Deliberately drops ``score`` and ``hits``: §2.2 of the Part 1 spec says a
+    raw score never reaches the screen, and matched token lists are diagnostics
+    for a developer, not advice for a person.
+    """
+    lang = normalise_language(lang)
+    verdict = str(result.get("verdict") or "MODERATE").upper()
+    body = _MESSAGE_VERDICT.get(verdict) or _MESSAGE_VERDICT["MODERATE"]
+    copy = body.get(lang) or body["en"]
+
+    families = [f for f in (result.get("families_hit") or []) if isinstance(f, str)]
+    sentences = [render_family(f, lang) for f in families]
+    if not families:
+        # Message-specific fallback. Using R_LOW_CONFIDENCE here produced
+        # "This clip does not give a clear answer" on a *text message* screen —
+        # voice wording leaking into a different surface. Small, but it tells
+        # the user the app does not know what it is looking at.
+        sentences = [_NO_MESSAGE_SIGNAL[lang]]
+
+    return {
+        "verdict": verdict,
+        "title": copy["title"],
+        "action": copy["action"],
+        "reasons": sentences,
+        "reason_codes": families,
+        "helpline": HELPLINE,
+        "disclaimer": _DISCLAIMER[lang],
+        "lang": lang,
+        "actionable": verdict in ("HIGH", "CRITICAL"),
+    }
+
+
+_REPORT_COPY = {
+    "sent": {
+        "en": ("Report sent",
+               "Only the category, a severity band and a random token were sent. "
+               "No audio, message text or phone number left your phone."),
+        "hi": ("रिपोर्ट भेज दी गई",
+               "केवल श्रेणी, गंभीरता और एक यादृच्छिक टोकन भेजा गया। आपका ऑडियो, संदेश या फ़ोन नंबर नहीं भेजा गया।"),
+        "te": ("నివేదిక పంపబడింది",
+               "కేవలం వర్గం, తీవ్రత స్థాయి మరియు యాదృచ్ఛిక టోకెన్ మాత్రమే పంపబడ్డాయి. మీ ఆడియో, సందేశం లేదా ఫోన్ నంబర్ పంపలేదు."),
+    },
+    "offline": {
+        "en": ("Saved on this phone",
+               "It will be sent when you are back online. Nothing has left the device yet."),
+        "hi": ("इस फ़ोन पर सहेजा गया",
+               "ऑनलाइन होने पर भेजा जाएगा। अभी कुछ भी डिवाइस से बाहर नहीं गया।"),
+        "te": ("ఈ ఫోన్‌లో సేవ్ చేయబడింది",
+               "ఆన్‌లైన్‌లోకి వచ్చినప్పుడు పంపబడుతుంది. ఇంకా ఏమీ పరికరం నుండి బయటకు పోలేదు."),
+    },
+    "failed": {
+        "en": ("Report not sent",
+               "Call 1930 instead. Your data did not leave this phone."),
+        "hi": ("रिपोर्ट नहीं भेजी गई",
+               "इसके बजाय 1930 पर कॉल करें। आपका डेटा फ़ोन से बाहर नहीं गया।"),
+        "te": ("నివేదిక పంపబడలేదు",
+               "బదులుగా 1930కి కాల్ చేయండి. మీ డేటా ఫోన్ నుండి బయటకు పోలేదు."),
+    },
+}
+
+
+def explain_report(result: Optional[Dict[str, Any]], lang: str = DEFAULT_LANGUAGE,
+                   state: str = "sent") -> Dict[str, str]:
+    """Citizen-facing copy for the report screen.
+
+    The API returns an event id and a numeric severity. Neither is meaningful to
+    a person in distress, and the id looks like an account number. This wrapper
+    says what happened and, more importantly, *what did not leave the phone*.
+    """
+    lang = normalise_language(lang)
+    entry = _REPORT_COPY.get(state) or _REPORT_COPY["failed"]
+    body = entry.get(lang) or entry["en"]
+    out = {"title": body[0], "detail": body[1], "helpline": HELPLINE, "lang": lang}
+    if isinstance(result, dict) and result.get("forwarded"):
+        fwd = result["forwarded"]
+        out["reached_network"] = bool(isinstance(fwd, dict) and fwd.get("forwarded"))
+    return out
+
+
 def catalogue_codes() -> List[str]:
     """All codes that have a translation — used by the coverage test."""
     return sorted(_REASONS)

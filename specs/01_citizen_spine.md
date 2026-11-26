@@ -23,8 +23,15 @@
 | **Multilingual layer** | Every reason code renders a real sentence in en / hi / te; every non-trivial verdict ends with an action | ✅ built |
 | **Capture & privacy** | 3-second ring buffer, consent gate, visible recording indicator, zero retention | ✅ built |
 | **Report rail** | Signed, tokenised, minimal report into the shared graph | ✅ built |
-| **Panic button** | One tap to 1930 with the screen locked behind it | ✅ built |
+| **Panic button** | One tap to 1930 | ⚠️ **partial — helpline link only** |
 | **Family mode** | Stricter defaults and louder warnings for elders | ❌ not built |
+
+**Correction (Phase 1).** This table previously marked the panic button ✅ and
+described it as *"one tap to 1930 with the screen locked behind it"*. The screen
+lock and session-kill were **never written** — `index.html` contains a `tel:1930`
+link and nothing else. Marking an unwritten safety behaviour as built is the
+specific kind of claim this project is supposed to refuse, so it is corrected here
+rather than quietly deleted. The full behaviour is Phase 2, task 2.1.
 
 ---
 

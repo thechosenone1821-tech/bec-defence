@@ -105,6 +105,11 @@ def build_app(bus_url: Optional[str] = None, poster: Optional[Callable[[Dict[str
         # caller can tell whether a fallback occurred.
         lang = _i18n.normalise_language(payload.get("lang"))
         result = score_message(text)
+        # Part 1 Phase 1: the tab used to print "Score 0.65 · credential,
+        # urgency", which violates the spine's own rule that a citizen never
+        # sees a raw score. `explanation` is what the UI renders; `score` and
+        # `hits` stay in the payload for diagnostics only.
+        result["explanation"] = _i18n.explain_message(result, lang)
         result["helpline"] = "1930"
         result["lang"] = lang
         result["disclaimer"] = {
@@ -193,9 +198,13 @@ def build_app(bus_url: Optional[str] = None, poster: Optional[Callable[[Dict[str
         }
         state["reports_today"] += 1
         forward = _sign_and_forward(event)
-        return {"status": "REPORTED", "event_id": event["event_id"],
-                "category": category, "severity": severity_band,
-                "forwarded": forward, "helpline": "1930"}
+        payload_out = {"status": "REPORTED", "event_id": event["event_id"],
+                       "category": category, "severity": severity_band,
+                       "forwarded": forward, "helpline": "1930",
+                       "lang": lang}
+        payload_out["explanation"] = _i18n.explain_report(
+            payload_out, lang, "sent" if forward else "offline")
+        return payload_out
         # note is accepted for future on-device features but is NEVER stored or sent
 
     app.mount("/app", StaticFiles(directory=APP_DIR, html=True), name="app")
