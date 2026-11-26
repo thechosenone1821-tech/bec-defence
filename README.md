@@ -1,4 +1,4 @@
-# EIGENSHIELD v2.0 — Company-Wide Autonomous Immune System
+# [EIGENSHIELD v2.0 — Company-Wide Autonomous Immune System](https://www.youtube.com/watch?v=-ieJwYq4j-o)
 
 **Eight physics- and biology-inspired defense organs paired across four enterprise rings, orchestrated by one small local AI Commander and locked inside a deterministic Hard Safety Governor.**
 
