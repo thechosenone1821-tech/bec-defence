@@ -1,0 +1,59 @@
+{
+  "organ": "MUTS_EBPF_REPAIR",
+  "ring": "RING_4_NETWORK_HEALING",
+  "entry_point": "MutsEbpfRepair.report_mismatch",
+  "provenance": "synthetic",
+  "provenance_note": "Splice timings come from real wall-clock measurement inside this process, but the 'mismatch' is fabricated by the harness. No eBPF program was loaded and no exploit was run.",
+  "positive_definition": "A service reporting an invariant violation it is registered to repair.",
+  "negative_definition": "A service with no registered invariant, and a repeat report after a repair has already been spliced.",
+  "cases": [
+    {
+      "id": "A1-bounds-violation",
+      "label": "attack",
+      "kind": "splice",
+      "family": "repairable",
+      "generator": "register bounds_check_v1 for svc, then report one mismatch",
+      "rationale": "The case the organ exists for: a service reports an invariant violation it is registered to repair.",
+      "service_id": "svc_web",
+      "profile": "bounds_check_v1",
+      "reports": 1,
+      "registered": true
+    },
+    {
+      "id": "A2-repeat-exploit",
+      "label": "attack",
+      "kind": "splice",
+      "family": "repairable",
+      "generator": "same, then report a second time",
+      "rationale": "A repeat attempt against an already-patched service \u2014 the organ should block it and say so.",
+      "service_id": "svc_web",
+      "profile": "bounds_check_v1",
+      "reports": 2,
+      "registered": true
+    },
+    {
+      "id": "B1-unregistered-service",
+      "label": "benign",
+      "kind": "splice",
+      "family": "not-applicable",
+      "generator": "report a mismatch for a service with no invariant registered",
+      "rationale": "Nothing to repair: the organ must decline, not invent a splice.",
+      "service_id": "svc_legacy",
+      "profile": "bounds_check_v1",
+      "reports": 1,
+      "registered": false
+    },
+    {
+      "id": "B2-unknown-profile",
+      "label": "benign",
+      "kind": "splice",
+      "family": "not-applicable",
+      "generator": "attempt to register an unvetted patch profile",
+      "rationale": "The organ must refuse a profile it has not verified.",
+      "service_id": "svc_web",
+      "profile": "unvetted_profile_v9",
+      "reports": 1,
+      "registered": "reject"
+    }
+  ]
+}

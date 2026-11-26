@@ -1,0 +1,72 @@
+{
+  "organ": "LANDAUER_THERMAL_AUDITOR",
+  "ring": "RING_3_ENDPOINT_SILICON",
+  "entry_point": "LandauerThermalAudit.audit",
+  "provenance": "synthetic",
+  "provenance_note": "A linear power model fitted on 12 synthetic calibration points, then fed synthetic readings. No RAPL or IPMI data was captured; real hardware telemetry is Phase 5's requirement.",
+  "positive_definition": "Sustained power draw the fitted model cannot explain from reported work.",
+  "negative_definition": "Workloads the model explains, plus (deliberately) a load spike that is real work the model simply does not capture.",
+  "cases": [
+    {
+      "id": "A1-crypto-mining",
+      "label": "attack",
+      "kind": "thermal",
+      "family": "unaccounted",
+      "generator": "power=95W, ipc=2.0, temp=50C for 6 samples; model predicts ~40W",
+      "rationale": "Sustained unaccounted draw, the shape of a miner on a compromised host.",
+      "power_w": 95.0,
+      "ipc": 2.0,
+      "temp_c": 50.0,
+      "samples": 6
+    },
+    {
+      "id": "A2-modest-parasite",
+      "label": "attack",
+      "kind": "thermal",
+      "family": "unaccounted",
+      "generator": "power=55W, ipc=2.0, temp=50C for 6 samples",
+      "rationale": "A quieter implant that stays just above the 8 W residual threshold.",
+      "power_w": 55.0,
+      "ipc": 2.0,
+      "temp_c": 50.0,
+      "samples": 6
+    },
+    {
+      "id": "B1-explained-load",
+      "label": "benign",
+      "kind": "thermal",
+      "family": "explained",
+      "generator": "power=41W, ipc=2.0, temp=50C",
+      "rationale": "A busy but fully accounted-for host: the model predicts the draw, so no residual exists. This is the negative that keeps the organ honest \u2014 without it, any hot machine would look compromised and the residual threshold would never be exercised.",
+      "power_w": 41.0,
+      "ipc": 2.0,
+      "temp_c": 50.0,
+      "samples": 6
+    },
+    {
+      "id": "B2-real-hot-workload",
+      "label": "benign",
+      "kind": "thermal",
+      "family": "explained",
+      "generator": "power=50W with ipc falling to 1.2 as the core throttles",
+      "rationale": "ADVERSARIAL BENIGN: a genuinely heavy compile. The model is linear in IPC and temperature, so real thermal behaviour can look unaccounted for.",
+      "power_w": 50.0,
+      "ipc": 1.2,
+      "temp_c": 50.0,
+      "samples": 6,
+      "ramp_expected": true
+    },
+    {
+      "id": "B3-single-spike",
+      "label": "benign",
+      "kind": "thermal",
+      "family": "explained",
+      "generator": "power=95W for 3 samples only",
+      "rationale": "A short burst \u2014 the sustain window must reject it.",
+      "power_w": 95.0,
+      "ipc": 2.0,
+      "temp_c": 50.0,
+      "samples": 3
+    }
+  ]
+}

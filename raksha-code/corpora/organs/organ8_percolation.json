@@ -1,0 +1,77 @@
+{
+  "organ": "HASHIMOTO_PERCOLATION",
+  "ring": "RING_4_NETWORK_HEALING",
+  "entry_point": "HashimotoPercolation._rpc_execute_cut",
+  "provenance": "synthetic",
+  "provenance_note": "Cuts are proposed by the campus planner against the synthetic topology in spine/config/company_topology.json. No real network was reconfigured.",
+  "positive_definition": "A cut plan that reduces the spectral radius without touching a crown-jewel edge and without breaching the 90% uptime floor.",
+  "negative_definition": "Plans that would cut tier-0, plans that carry no edges, and plans whose uptime cost is unacceptable.",
+  "cases": [
+    {
+      "id": "A1-guest-containment",
+      "label": "attack",
+      "kind": "cut_plan",
+      "family": "executable",
+      "generator": "planner output for seeds=[VLAN_GUEST_WIFI]",
+      "rationale": "A cut plan the system should execute: the guest VLAN is severed from corp IT without touching a crown-jewel edge.",
+      "seeds": [
+        "VLAN_GUEST_WIFI"
+      ],
+      "override_cut_edges": null,
+      "preserve": true
+    },
+    {
+      "id": "A2-lab-containment",
+      "label": "attack",
+      "kind": "cut_plan",
+      "family": "executable",
+      "generator": "planner output for seeds=[VLAN_LAB_DEV]",
+      "rationale": "Second executable plan, to show the result is not tuned to one seed.",
+      "seeds": [
+        "VLAN_LAB_DEV"
+      ],
+      "override_cut_edges": null,
+      "preserve": true
+    },
+    {
+      "id": "B1-crown-jewel-cut",
+      "label": "benign",
+      "kind": "cut_plan",
+      "family": "must-refuse",
+      "generator": "hand-built plan containing VLAN_CORE_AUTH <-> VLAN_ICU_CLINICAL",
+      "rationale": "ADVERSARIAL: a plan that would sever the crown-jewel link. 'Benign' here means 'not an attack the organ should execute' \u2014 a refusal is the correct outcome.",
+      "seeds": [],
+      "override_cut_edges": [
+        {
+          "a": "VLAN_CORE_AUTH",
+          "b": "VLAN_ICU_CLINICAL"
+        }
+      ],
+      "preserve": true
+    },
+    {
+      "id": "B2-empty-plan",
+      "label": "benign",
+      "kind": "cut_plan",
+      "family": "must-refuse",
+      "generator": "no cut_edges supplied",
+      "rationale": "An actuator invoked with no edges. Doing nothing and saying nothing is indistinguishable from doing something, so the correct behaviour is a visible refusal; this case pins that the organ refuses rather than returning a success status it did not earn.",
+      "seeds": [],
+      "override_cut_edges": [],
+      "preserve": true
+    },
+    {
+      "id": "B3-tier0-opt-out",
+      "label": "benign",
+      "kind": "cut_plan",
+      "family": "must-refuse",
+      "generator": "valid plan with preserve_tier0_vlans=false",
+      "rationale": "ADVERSARIAL: the caller asks to drop the tier-0 guarantee.",
+      "seeds": [
+        "VLAN_GUEST_WIFI"
+      ],
+      "override_cut_edges": null,
+      "preserve": false
+    }
+  ]
+}

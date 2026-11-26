@@ -1,0 +1,83 @@
+{
+  "organ": "COOKIE_FLUID_TURBULENCE",
+  "ring": "RING_1_PERIMETER_IDENTITY",
+  "entry_point": "CookieFluidTurbulence.observe",
+  "provenance": "synthetic",
+  "provenance_note": "Cadence/velocity/nav-length triples from a seeded expression. Not captured browser telemetry.",
+  "positive_definition": "A session whose interaction Reynolds number exceeds the organ's critical value: cursor moving far faster per navigation step than a person produces.",
+  "negative_definition": "Human interaction at ordinary and at brisk speed, and (deliberately) a scripted but *slow* attacker, which the statistic cannot see.",
+  "cases": [
+    {
+      "id": "A1-linear-scan",
+      "label": "attack",
+      "kind": "cadence_triple",
+      "generator": "rho=40, v=900, l=900 | Re = 1000*rho*v/1000*l/500",
+      "rationale": "A script walking a form field by field at machine speed.",
+      "family": "machine-speed",
+      "rho_cadence": 40.0,
+      "v_cursor": 900.0,
+      "l_nav": 900.0,
+      "samples": 4
+    },
+    {
+      "id": "A2-fast-harvester",
+      "label": "attack",
+      "kind": "cadence_triple",
+      "generator": "rho=60, v=1400, l=1200",
+      "rationale": "An aggressive scraper: velocity and cadence both raised together, which is the shape the Reynolds statistic is built for. Included as an easy positive so that the corpus distinguishes 'detects the obvious case' from 'detects the stealthy one' (A3).",
+      "family": "machine-speed",
+      "rho_cadence": 60.0,
+      "v_cursor": 1400.0,
+      "l_nav": 1200.0,
+      "samples": 4
+    },
+    {
+      "id": "A3-slow-drip-script",
+      "label": "attack",
+      "kind": "cadence_triple",
+      "generator": "rho=2, v=60, l=900",
+      "rationale": "ADVERSARIAL: a script that throttles itself to look human in velocity. Statistically it is slower than a person.",
+      "family": "throttled-script",
+      "rho_cadence": 2.0,
+      "v_cursor": 60.0,
+      "l_nav": 900.0,
+      "samples": 4
+    },
+    {
+      "id": "B1-human-browsing",
+      "label": "benign",
+      "kind": "cadence_triple",
+      "generator": "rho=4, v=120, l=400",
+      "rationale": "The calibrated baseline population, included so the corpus contains the ordinary case the organ is tuned around. Without it a 1.00 detection rate would say nothing about whether the detector ever stays quiet.",
+      "family": "human",
+      "rho_cadence": 4.0,
+      "v_cursor": 120.0,
+      "l_nav": 400.0,
+      "samples": 4
+    },
+    {
+      "id": "B2-human-brisk",
+      "label": "benign",
+      "kind": "cadence_triple",
+      "generator": "rho=6, v=300, l=600",
+      "rationale": "ADVERSARIAL BENIGN: a fast, practised operator on a large monitor. Included because this is the case most likely to be mistaken for a bot.",
+      "family": "human-expert",
+      "rho_cadence": 6.0,
+      "v_cursor": 300.0,
+      "l_nav": 600.0,
+      "samples": 4
+    },
+    {
+      "id": "B3-human-erratic",
+      "label": "benign",
+      "kind": "cadence_triple",
+      "generator": "rho=12, v=450, l=500",
+      "rationale": "ADVERSARIAL BENIGN: a user flailing at a confusing page \u2014 high cadence and high velocity, no script.",
+      "family": "human-expert",
+      "rho_cadence": 12.0,
+      "v_cursor": 450.0,
+      "l_nav": 500.0,
+      "samples": 4
+    }
+  ]
+}

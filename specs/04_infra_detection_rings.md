@@ -837,3 +837,292 @@ change is the documented workflow.
 * **The tripwire freeze is per-process and time-based** (60 s window). It has
   no operator reset endpoint; a fresh process was needed to continue. That is
   arguably correct for Phase 3 and is left for Phase 6 (fatigue/drift).
+
+---
+
+# Phase 4 execution log — the fixture corpus, and the rates it earns
+
+**Status: complete, and it changed what I believe about three of the eight
+organs.** Every organ now has a labelled corpus, a committed runner, and a
+published detection rate, false-positive rate and precision. The numbers are
+worse than the roadmap assumed and better than an adjective.
+
+## 4.1 The design decision that makes the numbers mean anything
+
+A fixture corpus has an obvious failure mode, and it is not instability. It is
+that **the person who writes the attack cases also wrote the detector.** Hand-
+author a botnet as "many sessions sharing one direction" and Organ 1, which
+computes the variance share along one direction, scores 100 %. That number
+measures consistency, not detection.
+
+So no case is a recorded sample. Every case is a **seeded generator expression**
+in the corpus file, compiled by one shared routine
+(`corpora/harness.py::_build_sessions`), with the parameters visible:
+
+    {"id": "A2-small-offset-bots", "label": "attack",
+     "generator": "10 benign ~ N(0,1)_5 ; 30 bots ~ N(0,0.02)_5 + [3,0,0,0,0]",
+     "bot_offset": [3.0,0,0,0,0], "bot_std": 0.02, ...}
+
+A reader who doubts "offset 3" can ask what happens at offset 1 without
+trusting the author. Every case also carries a `rationale` explaining why it is
+in the corpus, and a `family` so the report can be broken down.
+
+Three structural safeguards follow from the same reasoning:
+
+* **The oracle is the generator, not the detector.** `oracle_expected()` reads
+  the case's label. No rate is derived from anything the organ reports about
+  itself.
+* **Every organ is scored by observing emission**, via its real entry point,
+  never by reading a verdict field. `run_organ1` asserts
+  `fired == result["is_rank1_botnet"]` and then returns the *emission*.
+* **Every corpus must contain benign cases, and hard ones.** A corpus of only
+  attacks scores 1.00 against any always-fire detector. The suite fails a
+  corpus with one label only, and requires named adversarial-benign families
+  (`homogeneous-fleet`, `human-expert`, `procedural`, …).
+
+## 4.2 The published rates
+
+Measured by `python3 corpora/run_corpus.py`. 52 cases: 23 attack, 27 benign,
+2 identifiability controls (excluded from every rate — see §4.3).
+
+| Organ | A/B | Detection rate | FPR | Precision |
+|---|---|---|---|---|
+| `BEC_SPECTRAL_PROJECTOR` | 6/5 | 0.83 | **0.60** | 0.62 |
+| `COOKIE_FLUID_TURBULENCE` | 3/3 | 0.67 | **0.67** | 0.50 |
+| `BRAGG_FFT_FIREWALL` | 3/4 | 1.00 | **0.75** | 0.50 |
+| `HESSIAN_LYAPUNOV_GUARD` | 2/4 | 1.00 | 0.00 | 1.00 |
+| `LANDAUER_THERMAL_AUDITOR` | 2/3 | 1.00 | 0.33 | 0.67 |
+| `ENDPOINT_PAGE_CURVE` | 3/3 | 1.00 | 0.00 | 1.00 |
+| `MUTS_EBPF_REPAIR` | 2/2 | 1.00 | 0.00 | 1.00 |
+| `HASHIMOTO_PERCOLATION` | 2/3 | 1.00 | 0.00 | 1.00 |
+
+**Reference point, and it is the reason FPR is in this table at all:** a
+detector that always fires scores detection 1.00 and FPR 1.00 on any balanced
+corpus. Four organs report 1.00 detection; only two of those also report 0.00
+FPR, and those two are *mechanistic* — a tripwire and a refusal — not
+classifiers.
+
+Precision is published because a high detection rate with useless precision is
+how a detector gets switched off in month two (Phase 6's subject).
+
+## 4.3 Finding: Organ 1's threshold is not measuring what it claims
+
+Organ 1's docstring says the statistic separates a botnet ("many sessions
+condensing onto one direction") from a population. The corpus says otherwise.
+
+**The decisive experiment.** Build two populations from the *same* law — all
+rows `outer(N(0,6), [1,0,0,0,0]) + N(0,0.05)` — and call some of them hostile:
+
+| Composition | Condensation ratio |
+|---|---|
+| 5 "bots" of 40 | 1.000 |
+| 10 of 40 | 1.000 |
+| 20 of 40 | 1.000 |
+| 30 of 40 | 1.000 |
+| 35 of 40 | 1.000 |
+
+The ratio does not move with the label, because the input does not change.
+Relabelling the same matrix gives bit-identical output. **A homogeneous fleet
+of managed devices condenses to 1.0 regardless of how many members are
+compromised**, and this is not a bug in the organ — it is the definition of a
+variance share. There is no function of a session × feature matrix that can
+recover a label the matrix does not contain.
+
+Those two cases are committed as `X1-identifiability-setup` and
+`A7-identical-law-enemy-label`, with `role: "control"`, and excluded from every
+rate. Counting a miss on them as a detector failure would understate the organ
+while concealing the reason.
+
+**What the organ actually keys on** is population homogeneity, not malice:
+
+| Case | Ratio | Fires (thr 0.72) |
+|---|---|---|
+| 40 independent humans | 0.39 | no |
+| 30 bots at offset 15 | 0.98 | yes |
+| 30 bots at offset 3 | 0.74 | yes (barely) |
+| 30 bots at offset 1 | 0.38 | **no** |
+| 40 clean fleet devices | 1.000 | **yes** |
+| 20 heterogeneous humans | 0.78 | **yes** |
+
+A homogeneous benign fleet and a stealthy botnet are the same number. The
+threshold sits at 0.72, which is inside the range *both* spans.
+
+**So the published 0.83 / 0.60 is not "Organ 1 is mediocre."** It is "Organ 1
+detects offset-separated botnets perfectly (1.00 on that family), misses
+population-matched ones (0.00), and fires on most benign homogeneity (0.60)."
+The aggregate hides the mechanism; the per-family table in the JSON report does
+not. Concretely, the fix is not a threshold — it is a statistic that uses
+something the matrix does lack: shared *timing* or shared *target choice*
+across sessions, which the organ does not ingest.
+
+## 4.4 Finding: Organ 3's threshold is inert, and its second rule carries the work
+
+Bragg fires when `bragg_peak_ratio > 0.32` **or** `fiedler_lambda2 < 0.05`.
+
+| Case | peak | λ₂ | Peak rule | Fiedler rule |
+|---|---|---|---|---|
+| A1 direct injection | 0.667 | 0.0000 | BLOCK | BLOCK |
+| A2 nested override | 0.227 | 0.0000 | pass | BLOCK |
+| A3 fragment set | 0.228 | 0.0000 | pass | BLOCK |
+| B1 normal prose | 0.157 | 0.2187 | pass | pass |
+| B2 listicle | 0.647 | 0.0000 | **BLOCK** | **BLOCK** |
+| B3 repeated boilerplate | 0.946 | 0.0000 | **BLOCK** | **BLOCK** |
+| B4 markdown headings | 0.446 | 0.0000 | **BLOCK** | **BLOCK** |
+
+Two things fall out of that table.
+
+1. **The peak rule is not doing the detecting.** Both real injections score
+   *below* the 0.32 peak threshold (0.227 and 0.228) — they are blocked by the
+   Fiedler rule. Sweeping the peak threshold from 0.32 to 0.99 changes no
+   verdict on any case: the organ's published "Bragg peak" tuning knob is
+   inert for detection.
+2. **Lists repeat, and repetition is the trigger.** Listicles, boilerplate and
+   markdown headings all fire. There is no peak threshold that keeps injections
+   and drops listicles, because an injection *is* periodic text — the premise
+   that periodicity distinguishes hostile from procedural instruction is false
+   on this corpus.
+
+The Fiedler rule also fires on every non-prose case including the fragment set,
+so the organ is closer to "is this prose?" than "is this an injection?".
+
+## 4.5 Finding: /tmp was right about Organ 2
+
+`COOKIE_FLUID_TURBULENCE` publishes **0.67 detection and 0.67 FPR** — the same
+number, which is the signature of a statistic correlated with *activity* rather
+than with *scripting*:
+
+| Case | Re_beh | Verdict | Correct? |
+|---|---|---|---|
+| Human browsing | 1 100 | laminar | yes |
+| Human brisk (300 px/s) | 6 187 | **turbulent** | **no** |
+| Human erratic (450 px/s) | 9 000 | **turbulent** | **no** |
+| Script, linear scan | 185 625 | turbulent | yes |
+| Script, fast harvester | 98 400 | turbulent | yes |
+| **Script, throttled** | 619 | **laminar** | **no** |
+
+A fast human is flagged; a script that throttles itself is not. `re_crit =
+2300` sits between "brisk human" and "brisk human", not between human and
+machine. The corpus's `human-expert` family is what makes this visible — a
+corpus of only `human browsing` would have scored this organ 1.00 / 0.00.
+
+## 4.6 Organ 5's false positive is a data limitation, stated as one
+
+`B2-real-hot-workload` (50 W at IPC 1.2) is flagged: the fitted model predicts
+40.0 W, so residual 10.0 W exceeds the 8 W threshold. The calibration is
+**twelve identical points**, which yields `coef_ipc_w = 0.032` — the IPC term
+is almost irrelevant, so the model cannot attribute IPC-driven draw at all.
+This is a corpus limitation, not a code defect, and it is exactly what Phase 5
+(captured traffic, a real power model) exists to fix. It is recorded rather
+than papered over.
+
+## 4.7 What the two clean organs have in common
+
+`ENDPOINT_PAGE_CURVE` and `MUTS_EBPF_REPAIR` both score 1.00 / 0.00 / 1.00. It
+would be easy to present that as the best result in the table. It is the
+*least* informative result:
+
+* Page-Curve is a **tripwire** — a write to a file no legitimate process should
+  touch. There is no classification to get wrong, so 1.00 is expected once the
+  hook is correct.
+* MUTS is a **refusal** — a service with no registered invariant is declined by
+  construction.
+
+Neither is a detector in the statistical sense. Their 1.00 says the plumbing is
+right; it says nothing about whether they would catch a real attacker who has
+read this file. `HESSIAN_LYAPUNOV_GUARD` and `HASHIMOTO_PERCOLATION` also score
+cleanly, but on 2 attack cases each — a corpus that small cannot distinguish
+0.8 from 1.0.
+
+## 4.8 The Phase 4 suite
+
+`tests/test_phase4_corpus.py` — 21 tests, 5 classes:
+
+| Class | Guards |
+|---|---|
+| `TestEveryCorpusIsHonest` | 8 corpora, 8 adapters, `synthetic` provenance, both labels present, adversarial-benign families present, real rationales |
+| `TestDeterminism` | every matrix case builds byte-identically twice; a different seed gives a different matrix; the whole report is reproducible |
+| `TestScoringIsNotGameable` | always-fire scores detection 1.00 *and* FPR 1.00; never-fire scores 0; perfect is distinguishable from lazy; controls are excluded; flipping a control's label changes nothing |
+| `TestIdentifiability` | the §4.3 claim, executable: ratio invariant to bot fraction, relabelling changes nothing, the two controls fire identically |
+| `TestPublishedRates` | all 8 organs scored; a corpus without provenance is refused *by the loader*; Organ 1's FPR is recorded as ≥ 0.4; Organ 3's FPR ≥ 0.5; the two mechanistic organs are clean |
+
+Tests assert **properties, not the numbers.** Pinning "Organ 1 = 0.83" would
+break on every corpus addition and tell a reader nothing. The two exceptions
+are deliberate tripwires: `test_organ1_publishes_a_high_false_positive_rate`
+and `test_organ3_cannot_separate_injection_from_procedural_text` fail if a
+future fix changes the finding, with a message saying to update the spec and
+the test together rather than leave the table stale.
+
+### 4.8.1 Five defects found in the Phase 4 work itself
+
+1. **The corpus validator demanded matrix-only fields from every case.** Loading
+   an Organ 2 text/cadence corpus raised "missing `bot_direction_spread`". The
+   schema described one corpus shape, not all of them; validation is now
+   kind-aware.
+2. **`score_corpus` built its own payloads.** It called `build_case` directly,
+   so seven of eight corpora raised "unknown case kind". It now accepts a
+   compiler from the caller.
+3. **A test asserted `precision == 0.5` on an always-fire detector.** True for a
+   5-and-5 corpus, wrong for 6-and-5. The arithmetic was mine, not the code's.
+4. **A test could not fail.** The provenance test deleted a field from an
+   in-memory dict and then asserted a raise from a call that never read it.
+   Rewritten as `test_a_corpus_without_provenance_is_refused`: it writes a real
+   broken file and monkeypatches the corpus directory, so the refusal comes
+   from the loader that actually enforces it.
+5. **I generated filler rationales.** Faced with a "rationale too thin" failure,
+   the first fix appended `"— included because X is a case the organ must handle
+   correctly for its rate to mean anything."` to three cases. That is exactly
+   the substantiation-shaped noise this phase exists to remove. All three were
+   rewritten by hand to say what the case actually tests.
+
+Defect 5 is the one worth naming: the failure mode of an evidence phase is not
+a wrong number, it is a number surrounded by text that looks like justification.
+
+## 4.9 Mutation testing — 8 mutants, 8 killed
+
+`/tmp/mut_p4.py`. Each mutant makes the evidence untrustworthy in a different
+way; the suite must catch all of them.
+
+| # | Mutant | Killed by |
+|---|---|---|
+| M1 | a corpus drops its `provenance` stamp | 18 failures (`load_corpus` refuses) |
+| M2 | a corpus contains only attack cases | `test_both_labels_are_present_in_every_corpus` |
+| M3 | a case carries a one-word rationale | `test_every_case_carries_a_generator_and_a_rationale` |
+| M4 | control cases relabelled as scored | `test_controls_are_excluded_from_every_rate` |
+| M5 | two cases share an id | `load_corpus` duplicate-id check (12 failures) |
+| M6 | every case loses its `family` tag | `test_every_corpus_has_at_least_one_adversarial_benign_case` |
+| M7 | the loader stops requiring `provenance` | `test_a_corpus_without_provenance_is_refused` |
+| M8 | controls are counted in the rates | `test_a_control_case_cannot_improve_a_score` |
+
+Result: **8/8 killed.**
+
+## 4.10 Full-suite state
+
+| Check | Result |
+|---|---|
+| `pytest tests/` | **1092 passed, 1 skipped, 1 xfailed** |
+| `pytest tests/ --collect-only` | **1094 collected** (1092 + 1 + 1) |
+| `test_phase4_corpus.py` | 21 passed |
+| `node --test tests/*.test.js` | **90 pass, 0 fail** |
+
+Phase 3 was 1071 passed / 1073 collected. 1071 + 21 = 1092 and
+1073 + 21 = 1094. Both reconcile.
+
+## 4.11 What this phase does and does not settle
+
+**The §6 checkbox "each organ has a fixture corpus and a published detection
+rate" is now true in the narrow, literal sense** — and the honest summary is
+that four of eight organs are statistical classifiers with FPR at or above
+0.33, and of those, two have a threshold that does not do what its name says.
+
+**It does not settle calibration.** Every corpus is synthetic. The thresholds
+(0.72, 2300, 0.32/0.05, 2.5) have not been tested against traffic from a real
+network or a real model, and §4.3 is evidence that at least two of them are
+misplaced relative to *synthetic* data, let alone real data. Phase 5's job.
+
+**It does not settle false-positive behaviour under load.** One benign case per
+family is a demonstration that a failure mode exists, not a rate. Phase 6.
+
+**And it does not license a demo claim.** No sentence in any demo may say
+"detects 83 % of botnets". The defensible sentence is: *"on a 13-case synthetic
+corpus authored in this repository, Organ 1 fires on 5 of 6 attack vectors and
+3 of 5 benign populations, and the two failures share one cause."*
