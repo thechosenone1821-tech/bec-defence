@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "raksha-enterprise"
+version = "0.6.0"
+description = "Project Raksha Part 6 enterprise backend: signed telemetry pipeline, organ detection, campaign fusion, Governor policy engine, append-only ledger, RAAVAN red-team player, eval harness"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "Proprietary" }
+authors = [{ name = "Raksha Engineering" }]
+# Core engine is stdlib-only by design; the API bus is an optional extra.
+dependencies = []
+
+[project.optional-dependencies]
+api = ["fastapi>=0.110", "uvicorn[standard]>=0.29"]
+dev = ["pytest>=8", "httpx>=0.27"]
+
+[project.scripts]
+raksha-ledger = "raksha.ledger.cli:main"
+raksha-raavan = "raksha.raavan.player:main"
+
+[tool.setuptools.packages.find]
+include = ["raksha*"]
+
+[tool.setuptools.package-data]
+raksha = ["raavan/scenarios/*.json", "packagedata/*.json"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
