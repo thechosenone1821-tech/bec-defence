@@ -367,3 +367,149 @@ not been shown to fail is a comment with extra steps.
   default is now pinned by a test; the capability was not removed, because
   removing it would have been a behaviour change outside Phase 1's brief. It is
   Phase 7's job to give every organ a Governor-pulled kill switch.
+
+---
+
+## Execution log — Phase 2: Organ 1, end to end
+
+**Deliverable (§ table):** Organ 1 through the real bus → sanitizer → Commander,
+with a signed event and a Governor-gated RPC round trip.
+
+**Done.** The chain runs, and the two defects found on the way were both about a
+guarantee existing somewhere other than where it could be used.
+
+### 2.1 The actuator bypassed the organ's signature gate — **defect, fixed**
+
+This is the defect Phase 2 exists for.
+
+```
+executor("drop_bec_cluster", {...})   -> CLUSTER_DROPPED        (no signature anywhere)
+organ.handle_rpc(unsigned envelope)   -> REJECTED bad_signature
+organ.handle_rpc(signed envelope)     -> OK CLUSTER_DROPPED
+```
+
+The organ implemented the gate correctly. The executor — the only code path that
+can actually *act* — called `bec._rpc_drop_cluster(args)` directly, a private
+method, so the gate was never consulted. A gate that exists only where nothing
+can reach it is a comment.
+
+`bus.py`'s own docstring said *"In production this crosses a signed-RPC boundary
+(see reflexes.base_organ.sign_rpc)"*. The production path is the code, and the
+code did not.
+
+The executor now holds a table of `tool -> organ` and dispatches every
+organ-owned tool through `sign_rpc()` + `organ.handle_rpc()`. `set_service_readonly`
+and `escalate_human_stepup` have no organ behind them and are marked
+`platform_local` rather than pretending otherwise. Every result now carries
+`dispatch` (`signed_rpc` / `platform_local` / `dry_run`) and, for organ tools,
+`organ`, so the audit trail says who acted rather than only what happened.
+
+### 2.2 An organ refusal was indistinguishable from success — **gap, closed**
+
+With the gate on the path, the refusal path had to become visible. A rejected
+RPC now returns `RPC_REJECTED` carrying the organ's reason, instead of the
+executor having nothing to say. Otherwise the gate could reject every call and
+the SOC log would still read clean.
+
+### 2.3 Organ 1's reason said nothing — **gap, closed**
+
+Phase 1 guaranteed every event *has* a reason. Running the chain showed what
+Organ 1's actually was:
+
+```
+BEC_SPECTRAL_PROJECTOR reported RANK1_CONDENSATION_DETECTED at severity 0.773
+```
+
+True, and useless: it restates the signal name. It now states the measurement:
+
+```
+400 of 700 sessions collapse onto one direction (sigma1 share 0.773, threshold
+0.72); mean projection gap 8.08 between the two groups
+```
+
+This one is worth dwelling on. The Phase 1 test asserted that the reason
+contained "condensation" — which the *generic fallback already did*. The test
+passed, and the reason was worthless. A test that accepts the fallback as
+evidence cannot tell a real reason from a placeholder.
+
+### 2.4 Dry-run provenance — **gap, closed**
+
+The dry-run executor reported `DRY_RUN_<TOOL>` with `dry_run: true`, which was
+already honest, but nothing on the orchestration bundle distinguished a dry
+dispatch from a real one at a glance. It now sets `dispatch: "dry_run"`, the same
+field the organ path uses with a value that cannot be confused for it.
+
+### What mutation testing found — including a survivor that mattered
+
+Six mutants, and the first run had **one survivor: the defect itself**. A mutant
+that restored the exact bypass *while still setting `dispatch: "signed_rpc"` on
+the result* passed all 25 tests.
+
+That is the most useful result of the phase. The original test asserted a
+self-reported label:
+
+```python
+assert out["dispatch"] == "signed_rpc"   # verifies the label, not the mechanism
+```
+
+The fix was to observe the mechanism instead — patch `BaseOrgan.handle_rpc` and
+assert the executor actually entered it, with a signature on the envelope:
+
+| Mutant | First run | After strengthening |
+|---|---|---|
+| Executor bypasses the signed gate (the bug) | **SURVIVED** | killed (3 failures) |
+| Execute actions the Governor blocked | killed | killed |
+| Let unverified events reach the Commander | killed | killed |
+| Commander stops reacting to Organ 1 | killed | killed |
+| Organ renames its signal | killed | killed |
+| Dry-run claims a real dispatch | killed | killed |
+
+A second bug came out of the same work, in the tests themselves: the recording
+test patched `BECSpectralFilter.handle_rpc` — a *subclass* attribute — which
+shadowed the base-class patch a later test installed. The suite passed when that
+test ran alone and failed when it ran after. Patching is now done at
+`BaseOrgan` only, and the reason is written into the test, because a
+pass-alone-fail-together test is worse than no test: it trains people to re-run
+until green.
+
+### Live verification
+
+Against a running `uvicorn spine.bus:create_app` on `:8099`:
+
+```
+POST /api/ingest  (forged 0.99 event)  -> {accepted:1, verified:0, unverified:1}
+GET  /api/state                        -> the forgery is visible, verified:False
+POST /api/orchestrate                  -> HELD_UNVERIFIED_EVIDENCE, actions:null
+```
+
+and the trusted chain, driven through the same app object:
+
+```
+1. ORGAN  ratio=0.773 rank1=True sealed=True
+2. BUS    verified=True organ=BEC_SPECTRAL_PROJECTOR signal=RANK1_CONDENSATION_DETECTED
+3. CMD    mode=fallback_rules actions=['drop_bec_cluster']
+4. GOV    ['APPROVED']
+5. EXEC   drop_bec_cluster -> {'status':'CLUSTER_DROPPED','dispatch':'signed_rpc',
+                               'organ':'BEC_SPECTRAL_PROJECTOR'}
+```
+
+### Phase 2 result
+
+| Check | Before | After |
+|---|---|---|
+| pytest | 1010 passed | **1036 passed** (+26) |
+| Mutants | — | **6 injected, 6 killed** (1 needed a test rewrite first) |
+| Organ tools through the signed gate | 0 of 8 | **8 of 8** |
+| Live forged event reaching a plan | 0 | 0 (unchanged, now asserted) |
+
+### Not done, and not pretended
+
+- The SLM is unreachable in this environment, so every live run above is
+  `commander_mode: fallback_rules`. The **SLM path through the seam is untested.**
+  Phase 3 should not assume the model path behaves like the rule path.
+- The signed-RPC secret is a dev default (`EIGENSHIELD_RPC_SECRET`). In one
+  process, as `telemetry_mac.py` already says of the bus key, this is an
+  integrity tag and not a boundary. Phase 7 owns making that a real boundary.
+- `page_curve_trap` is still constructed with `allow_real_kill` False by the bus;
+  the capability remains, and Phase 7 owns the kill switch.
+- No fixture corpus, no detection rate. Unchanged from Phase 1.

@@ -36,6 +36,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from starlette.concurrency import run_in_threadpool
 
 from spine.sanitizer import sanitize_event, sanitize_batch
+from sentinel.shields.base_organ import sign_rpc
 from spine.entity_graph import EntityGraph
 
 try:
@@ -84,24 +85,54 @@ def _try_organ_executor():
     percol = HashimotoPercolation()
     muts = MutsEbpfRepair()
 
-    table = {
-        "drop_bec_cluster": lambda a: bec.drop_cluster(a.get("cluster_id", "CLUS_UNKNOWN"), int(a.get("ttl_seconds", 3600))),
-        "revoke_turbulent_session": lambda a: cookie._rpc_revoke(a),
-        "quarantine_ai_document": lambda a: bragg._rpc_quarantine(a),
-        "clamp_lyapunov_steering": lambda a: lyap._rpc_clamp(a),
-        "arm_page_curve_traps": lambda a: trap._rpc_arm(a),
-        "isolate_thermal_anomaly_host": lambda a: thermal._rpc_isolate(a),
-        "execute_percolation_cut": lambda a: percol._rpc_execute_cut(a),
-        "deploy_muts_ebpf_shield": lambda a: muts._rpc_deploy(a),
+    # Part 4 Phase 2. Each entry maps a Governor-approved tool to the organ that
+    # owns it. The call is made through `organ.handle_rpc()` with a *signed*
+    # envelope — never by reaching into `_rpc_*` directly.
+    #
+    # Before this, every entry called the organ's private handler, so the
+    # signature gate the organ implements was never consulted. The organ
+    # rejected an unsigned call via handle_rpc() while the reachable actuator
+    # performed it anyway: a gate that exists only where nothing can reach it.
+    #
+    # `set_service_readonly` and `escalate_human_stepup` are platform actions
+    # with no organ behind them, so they stay local and say so.
+    owned = {
+        "drop_bec_cluster": bec,
+        "revoke_turbulent_session": cookie,
+        "quarantine_ai_document": bragg,
+        "clamp_lyapunov_steering": lyap,
+        "arm_page_curve_traps": trap,
+        "isolate_thermal_anomaly_host": thermal,
+        "execute_percolation_cut": percol,
+        "deploy_muts_ebpf_shield": muts,
+    }
+    local = {
         "set_service_readonly": lambda a: {"status": "SERVICE_READONLY_SET", "service_id": a.get("service_id"), "ttl_seconds": a.get("ttl_seconds"), "dry_run": True},
         "escalate_human_stepup": lambda a: {"status": "HUMAN_STEPUP_REQUESTED", "incident_id": a.get("incident_id"), "severity": a.get("severity"), "summary": str(a.get("summary", ""))[:280]},
     }
 
     def execute(tool: str, args: Dict[str, Any]) -> Dict[str, Any]:
-        fn = table.get(tool)
+        org = owned.get(tool)
+        if org is not None:
+            envelope = sign_rpc(tool, dict(args or {}))
+            reply = org.handle_rpc(envelope)
+            if reply.get("status") != "OK":
+                # A refused RPC is a refusal, not a silent success. Returning
+                # the rejected envelope keeps the Governor's audit trail honest.
+                return {"status": "RPC_" + str(reply.get("status")),
+                        "reason": reply.get("reason", "organ refused the call"),
+                        "tool": tool, "rpc_id": reply.get("rpc_id")}
+            inner = reply.get("result")
+            out = dict(inner) if isinstance(inner, dict) else {"result": inner}
+            out["dispatch"] = "signed_rpc"
+            out["organ"] = getattr(org, "organ", "ORGAN_UNKNOWN")
+            return out
+        fn = local.get(tool)
         if fn is None:
             return {"status": "ERROR", "reason": f"no executor for tool {tool}"}
-        return fn(args)
+        out = dict(fn(args))
+        out["dispatch"] = "platform_local"
+        return out
 
     return execute, "organ"
 
@@ -145,7 +176,12 @@ def _build_dry_executor():
         fn = table.get(tool)
         if fn is None:
             return {"status": "ERROR", "reason": f"no executor for tool {tool}"}
-        return fn(args)
+        out = dict(fn(args))
+        # Same provenance field as the organ path, with a value that cannot be
+        # mistaken for a real dispatch. A dry run that reports only "dry_run"
+        # deep inside a status string is easy to miss in a log.
+        out["dispatch"] = "dry_run"
+        return out
 
     return execute, "dry-run"
 

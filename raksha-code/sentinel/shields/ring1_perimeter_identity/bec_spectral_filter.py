@@ -78,6 +78,14 @@ class BECSpectralFilter(BaseOrgan):
                 metrics={"condensation_ratio": round(ratio, 4),
                          "sessions_excised": len(excised),
                          "projection_gap": round(projection_gap, 3)},
+                # Part 4 Phase 2: the event's own reason. The generic fallback
+                # said "BEC_SPECTRAL_PROJECTOR reported RANK1_CONDENSATION_DETECTED
+                # at severity 0.773" — true, and useless to an analyst who wants
+                # to know why the organ believed it. This states the measurement.
+                reason=(f"{len(excised)} of {X.shape[0]} sessions collapse onto one "
+                        f"direction (sigma1 share {ratio:.3f}, threshold "
+                        f"{self.rank1_threshold}); mean projection gap "
+                        f"{projection_gap:.2f} between the two groups"),
             )
 
         ids = session_ids or [f"sess_{i:04d}" for i in range(X.shape[0])]
