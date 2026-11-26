@@ -138,9 +138,9 @@ now names the test that earns it, or the phase that will.
 | [x] | All 8 are deterministic | ✅ **now tested** | `test_emit_is_deterministic` (×8) + `test_organs_produce_stable_verdicts_on_identical_input`. Before Phase 1 nothing checked this. |
 | [x] | Every event carries a **reason**, not only a score | ✅ **true as of Phase 1** | `test_every_event_carries_a_reason` (×8). §3 required it; no event had a `reason` field. |
 | [x] | Every organ **fails closed** on malformed input | ✅ **true as of Phase 1** | `test_emit_never_raises_on_a_bad_severity` (×8). Before Phase 1, `emit(nan)` became severity **1.0** and `emit(None)` raised. |
-| [ ] | Each organ has a fixture corpus and a published detection rate | ⬜ Phase 4 | — |
-| [ ] | Each organ's threshold is calibrated against real traffic | ⬜ Phase 5 | — |
-| [ ] | False-positive behaviour under normal load is characterised | ⬜ Phase 6 | — |
+| [ ] | Each organ has a fixture corpus and a published detection rate | ⚠️ **partially earned, Phase 4** | `test_phase4_corpus.py` (21). Corpora exist for all 5 measurable organs and rates are published in §4 — but every case is synthetic and self-authored, so the rates describe the corpus, not the world. |
+| [ ] | Each organ's threshold is calibrated against real traffic | ❌ **NOT earned** | **0 of 7 thresholds calibrated.** `test_phase5_calibration.py` proves the *procedure* refuses to invent a value: `test_benign_only_is_insufficient`, `test_calibration_never_returns_a_value_for_insufficient_data`, `test_with_no_capture_every_threshold_is_insufficient`, `test_a_bad_line_among_good_ones_is_refused`. There is no capture file and none could be obtained, so the box stays open with that wording rather than being ticked on synthetic data. |
+| [ ] | False-positive behaviour under normal load is characterised | ⚠️ **numbers exist, budget is an assumption** | `test_phase6_load_fatigue.py` (19). Measured: fleet fires **9.0** times per shift on benign input; Bragg fires on **75 %** of its benign families (§6.2). But the 12-per-shift budget is a stated assumption, not a measurement, and the corpus weights families equally rather than by traffic. `test_the_fleet_stays_under_the_shift_budget` earns the number; nothing earns the budget. |
 
 **The honest summary of §4 needs no apology but does need one correction.** It
 said "5 test files / ~20 tests cover all of them". Measured: **13 tests in 4
@@ -1126,3 +1126,326 @@ family is a demonstration that a failure mode exists, not a rate. Phase 6.
 "detects 83 % of botnets". The defensible sentence is: *"on a 13-case synthetic
 corpus authored in this repository, Organ 1 fires on 5 of 6 attack vectors and
 3 of 5 benign populations, and the two failures share one cause."*
+
+---
+
+# Phase 5 execution log — calibration, and the traffic that does not exist
+
+**Status: partially impossible, fully honest about which part.** The phase's own
+roadmap line says *"post-hackathon; needs data that does not exist yet."* This
+repository has no captured traffic. It has no network sessions, no cursor
+telemetry, no hidden states, no power readings. I could not obtain any, and I
+did not invent any and label it "captured".
+
+What I could do, and did:
+
+1. a capture **format** and a calibration routine that refuses to answer when
+   the data does not support an answer (§5.1);
+2. a **status report** showing all seven thresholds running on unvalidated
+   values (§5.2);
+3. **one piece of genuinely out-of-sample evidence** — the project's own
+   documentation — which produced the worst result in this entire part (§5.4).
+
+## 5.1 A calibration routine that can say "I do not know"
+
+`corpora/capture.py`. A capture is JSONL, one observation per line, already
+reduced to the organ's feature space. The loader is deliberately strict: a
+malformed line raises, it is never skipped. Skipping would calibrate on an
+unknown subset of the traffic and report the result as the traffic's behaviour.
+
+`calibrate()` returns exactly one of three statuses:
+
+| Status | Meaning |
+|---|---|
+| `CALIBRATED` | ≥ 30 observations per class, and a threshold exists meeting both TPR and FPR targets |
+| `NOT_SEPARABLE` | enough data, but attack and benign overlap — no threshold can meet both targets |
+| `INSUFFICIENT_DATA` | fewer than 30 per class, with the counts in the reason |
+
+There is no fourth state in which a default is reused and called calibrated.
+That is the whole design: a spec that cannot express "not yet measured"
+produces confident numbers that are wrong, and this part exists because three
+of §6's checkboxes were ticked that way.
+
+`default_in_use` is `None` on a `CALIBRATED` result and the actual default
+otherwise, so a caller can always tell which value is live.
+
+## 5.2 The status report: 0 of 7 thresholds are calibrated
+
+    $ python3 corpora/calibrate_organs.py
+
+| Organ | Threshold | Default origin | Status |
+|---|---|---|---|
+| `COOKIE_FLUID_TURBULENCE` | `re_crit` = 2300.0 | unvalidated | INSUFFICIENT_DATA |
+| `BEC_SPECTRAL_PROJECTOR` | `rank1_threshold` = 0.72 | unvalidated | INSUFFICIENT_DATA |
+| `BRAGG_FFT_FIREWALL` | `bragg_peak_threshold` = 0.32 | unvalidated | INSUFFICIENT_DATA |
+| `BRAGG_FFT_FIREWALL` | `fiedler_threshold` = 0.05 | unvalidated | INSUFFICIENT_DATA |
+| `HESSIAN_LYAPUNOV_GUARD` | `cliff_threshold` = 2.5 | unvalidated | INSUFFICIENT_DATA |
+| `LANDAUER_THERMAL_AUDITOR` | `residual_threshold_w` = 8.0 | unvalidated | INSUFFICIENT_DATA |
+| `HASHIMOTO_PERCOLATION` | `target_radius` = 1.0 | documented-deviation | INSUFFICIENT_DATA |
+
+**0 of 7 calibrated.** Six are marked `unvalidated`, which is the honest label
+for "an author chose this and nobody has ever tested it against traffic". The
+seventh is not a tuned value at all — `rho >= 1` on any cyclic graph is a
+recorded deviation from the classical percolation result, and calibration does
+not apply to it.
+
+The registry also records *why* each default is suspect, quoting the Phase 4
+finding that exercised it. `apply` is deliberately not implemented: changing a
+live security threshold is a human decision with a paper trail.
+
+## 5.3 Why no threshold was "replaced"
+
+The phase deliverable says thresholds "either earn their values or are
+replaced". Replacing 0.72 with my own preferred number would be an author's
+opinion with a commit attached — the same failure mode as Phase 4's hand-written
+corpus, one level down. A threshold is earned by a capture file, and there is
+no capture file. §5.4 is what happened when I found data that *was* real.
+
+## 5.4 Finding: Organ 3 blocks every real document in this repository
+
+The one corpus that was not written for these detectors is the documentation,
+accumulated over months for reasons that had nothing to do with Bragg peaks.
+
+    $ python3 corpora/real_documents.py
+    documents: 28   words: 43,621
+    blocked:   27/28 (96%)
+      flagged by BRAGG_PEAK:       0
+      flagged by FIEDLER_FRACTURE: 27
+      with the peak rule alone:    0 blocked
+      with the Fiedler rule alone: 27 blocked
+    peak median 0.012  max 0.138
+    lambda2 median 0.0000
+
+    skipped above 6000 tokens (organ memory is quadratic):
+      specs/04_infra_detection_rings.md (11,778 tokens)
+
+**This corpus contains this log.** `specs/04_infra_detection_rings.md` is one of
+the documents being scanned, so the word count moves every time the file is
+edited — it read 43,611 before the sections above were finished and 43,621 now.
+That is not a bug in the measurement, it is what "unlabelled project
+documentation" means: the corpus is the repository, including the report on the
+corpus. The block rate and the attribution did not change across those edits
+(27/28, Fiedler 27, peak 0), which is the stability that matters.
+
+**The skipped document is itself a result.** Screening the 11.6k-token Part 4
+spec — the file this log lives in — exhausted a 4 GB container and the process
+was killed by the OOM reaper, more than once. The size cap exists because the
+organ cannot be pointed at it, and the skip is listed in the output rather than
+silently shrinking the corpus. §6.1 measures why.
+
+Three things fall out of that.
+
+**1. The rule everyone believes is secondary does all the work — and all the
+harm.** Phase 4 showed the Bragg *peak* threshold is inert on synthetic text.
+Phase 5 shows it never fires on real text either: peak median 0.012 against a
+0.32 threshold, max 0.138. With the peak rule alone, **zero** documents are
+blocked. The Fiedler rule, whose threshold was treated as a secondary check,
+blocks 28.
+
+**2. It is not measuring injection. It is measuring token rarity.** λ₂ is the
+algebraic connectivity of a k-nearest-neighbour graph over token embeddings.
+Rare tokens form isolated components, and a disconnected graph has λ₂ = 0 by
+definition. The minimal demonstration is one sentence:
+
+| Input | λ₂ | Blocked |
+|---|---|---|
+| `the server read the log file and wrote a report` | 0.0911 | no |
+| `… and wrote a report xq7zvm` | 0.0433 | **yes** |
+| `… and wrote a report (see appendix)` | 0.1691 | no |
+
+Adding one nonsense token disconnects the graph. Real documents contain
+hundreds of identifiers, paths, code spans and parentheticals. `README.md`
+splits into 7 components, `BUILD_STATE.md` into 3, the Part 4 spec into 28.
+
+**3. A firewall that blocks 96 % of the documentation an agent would be asked
+to read — and cannot survive reading the largest one — cannot be deployed in
+front of an agent at all.** This is the most
+actionable defect the part has produced, and it was found by pointing the organ
+at text nobody had tuned for it — which is exactly what Phase 5 is for.
+
+**What I did not do.** I did not change the threshold to make the number look
+better. With λ₂ median 0.0000 there is no threshold that passes real documents
+and blocks injections, because the two are not separated by this statistic at
+all. The fix is a different feature (sentence structure, instruction-verb
+detection), and it is not a Phase 5 decision.
+
+## 5.5 What Phase 5 does not have, stated as a list
+
+| Data the phase needs | Exists here |
+|---|---|
+| Network sessions with VLAN and timing | no |
+| Browser cursor telemetry | no |
+| Model hidden states from a jailbroken model | no |
+| RAPL/IPMI power traces, real calibration points | no — no `/sys/class/powercap` |
+| Confirmed attack labels | no |
+
+Six of eight organs therefore have **no** out-of-sample evidence of any kind.
+Only Organ 3 could be tested on real material, because text is the only data
+this repository has that predates the detectors.
+
+---
+
+# Phase 6 execution log — load, fatigue and drift
+
+**Status: complete, and it produced two defects and one uncomfortably well-
+behaved result.** Every number below is from `python3 corpora/soak.py`.
+
+## 6.1 Defect: Organ 3's memory is quadratic, and that is a DoS surface
+
+    | tokens | seconds | peak MB |
+    |    104 |   0.035 |     1.4 |
+    |    403 |   0.063 |     5.4 |
+    |    806 |   0.153 |    21.2 |
+    |   1612 |   0.496 |    84.0 |
+    |   3211 |   2.228 |   331.7 |
+
+    memory growth exponent: 1.61   (log-log slope)
+    time   growth exponent: 1.18
+
+`fiedler_lambda2` builds an `n x n` similarity matrix over `n` tokens:
+`sim = E @ E.T`, `A = np.zeros_like(sim)`. At 3,211 tokens that is 332 MB and
+2.2 seconds. A 9,000-token document — an ordinary long specification — needs
+roughly 2.6 GB.
+
+The consequence is not slow detection, and I did not have to construct a
+scenario to find it: **screening the 11.6k-token Part 4 spec killed a 4 GB
+container.** Twice, in this phase's own test run, as exit code 137 mid-suite.
+The estimation is straightforward: 8,901 tokens needs 0.63 GB for *one*
+float64 matrix, and `screen()` holds `sim`, `A` and copies.
+
+So **one oversized document is enough to exhaust the process running the
+security control** — not a hypothetical attacker, a spec file. A detector that
+dies on a large input is worse than no detector, because the dashboard shows it
+green until it stops.
+
+Pinned by `test_organ3_memory_grows_faster_than_linearly` (exponent > 1.2) and
+`test_memory_per_token_is_recorded`. A fix flips both tests, which is the
+intended tripwire.
+
+## 6.2 Alert fatigue: 75 % of Bragg's benign families fire
+
+Driving every benign corpus family through its organ, 20 cycles:
+
+| Organ | Alerts/shift | Benign families that fire |
+|---|---|---|
+| `BRAGG_FFT_FIREWALL` | 3.0 | **75 %** |
+| `COOKIE_FLUID_TURBULENCE` | 2.0 | 67 % |
+| `BEC_SPECTRAL_PROJECTOR` | 3.0 | 60 % |
+| `LANDAUER_THERMAL_AUDITOR` | 1.0 | 33 % |
+| fleet total | 9.0 | budget 12 |
+
+**What this number is.** The corpus holds one case per benign family, so this
+is an equal-weighted count of families that fire, not a rate for real traffic —
+whose family mix is unknown. The tool now says so in its own output
+(`interpretation`), and a test asserts that it says so.
+
+**What it is enough to establish.** Three quarters of the non-prose documents an
+analyst sends through Bragg come back flagged. If real traffic resembles the
+corpus at all, the firewall's precision is 0.50 (Phase 4), which means every
+other block is a false alarm on ordinary documentation. That is the mechanism by
+which a detector gets switched off in month two, and it is the number §6's third
+checkbox was asking for.
+
+The budget of 12 per shift is **an assumption, not a measurement**, and the
+spec says so. The fleet is under it at 9.0 — barely, and only because the corpus
+under-weights the families that fire.
+
+## 6.3 Garbage soak: nobody crashes, three go silent, and that is correct
+
+600 rounds of structurally valid, semantically empty input: empty strings,
+single tokens, null bytes, `1e300`, `1e-300`, NaN rows, negative cadences,
+path traversal in service ids.
+
+| Organ | processed | raised | emitted | silent |
+|---|---|---|---|---|
+| `BEC_SPECTRAL_PROJECTOR` | 450/600 | **150** | 0 | yes |
+| `COOKIE_FLUID_TURBULENCE` | 600/600 | 0 | 150 | no |
+| `BRAGG_FFT_FIREWALL` | 600/600 | 0 | 0 | yes |
+| `HESSIAN_LYAPUNOV_GUARD` | 600/600 | 0 | 0 | yes |
+| `LANDAUER_THERMAL_AUDITOR` | 600/600 | 0 | 0 | yes |
+| `MUTS_EBPF_REPAIR` | 600/600 | 0 | 120 | no |
+
+**The 150 raises are real and correctly placed.** `BECSpectralFilter.analyze()`
+raises `ValueError("session matrix contains non-finite values")` on a NaN row.
+That is the right behaviour for a function whose caller can retry — but it means
+a caller must never treat "the organ raised" as "no detection". Grepping the
+tree: **nothing in `spine/` calls `analyze()`**; the bus reaches organs only
+through `handle_rpc`. So this is a caller-contract hazard, not a live defect, and
+it is recorded so that whoever wires Ring 1 to real traffic has to confront it.
+
+**The three silent organs are silent for a defensible reason.** An empty string
+has no Bragg peak, a zero vector has no curvature, and 0 W produces no residual.
+Emitting on junk would be a fabricated verdict. `test_no_organ_emits_a_verdict_
+on_empty_input` pins that they stay quiet; `test_an_organ_processing_junk_does_
+not_go_silent_without_reason` requires the silence to be explainable rather than
+assumed.
+
+**Cookie and MUTS emit on junk, and should.** A 1e300 cadence is Re → ∞, which
+is genuinely turbulent; a 10,000-character service id genuinely trips the
+invariant. Junk that *is* an attack shape must still be reported.
+
+## 6.4 The tests
+
+| Suite | Tests | Guards |
+|---|---|---|
+| `test_phase5_calibration.py` | 27 | strict capture loading (including a corrupt line among good ones), all three calibration statuses, the registry never claiming calibrated, Organ 3's 96 % block rate, the reported size cap, and the one-token mechanism |
+| `test_phase6_load_fatigue.py` | 19 | growth exponents, memory per token, fleet under budget, the fatigue caveat present, silence explainable, no verdict on empty input, MUTS idempotence |
+
+Mutation: **8 mutants, 8 killed.**
+
+Two of those mutants are worth naming because they taught me something:
+
+* **P5-M3 survived the first run.** A mutant that silently skips corrupt JSON
+  passed every test, because each malformed-input test used a one-line file —
+  the skip fell through to the "no observations" check and still raised. The
+  mutation run found a real hole no amount of re-reading had. The fix is
+  `test_a_bad_line_among_good_ones_is_refused`: three lines, one corrupt, so a
+  skipping loader would return 2 rows and calibrate on 66 % of the capture in
+  silence.
+* **P6-M3 was a no-op.** My first "garbage generator" mutant fed `generator(0)`
+  forever — which is still junk. It survived because it changed nothing
+  meaningful. A mutant that does not change behaviour is not a survivor, it is a
+  mistake; it was replaced with a real idempotence break, which was killed.
+
+## 6.5 Full-suite state
+
+| Check | Result |
+|---|---|
+| `pytest tests/` | **1138 passed, 1 skipped, 1 xfailed** |
+| `pytest tests/ --collect-only` | **1140 collected** (1138 + 1 + 1) |
+| `test_phase5_calibration.py` | 27 passed |
+| `test_phase6_load_fatigue.py` | 19 passed |
+| `node --test tests/*.test.js` | **90 pass, 0 fail** |
+
+Phase 4 was 1092 passed / 1094 collected. 1092 + 27 + 19 = 1138 and
+1094 + 46 = 1140. Both reconcile.
+
+Two things had to change to get this run to complete at all, and both are the
+phase finding its own subject:
+
+* the first run of this suite was **OOM-killed at 75 %** (exit 137), which is
+  §6.1 happening live rather than in a probe;
+* `real_documents.py` grew a 6,000-token cap and now reports skips, because
+  a corpus that silently drops its largest member reads as complete when it is
+  not.
+
+Suite runtime fell from 81 s to 17 s for the Phase 5 file as a side effect, since
+the expensive attribution now runs on three small documents instead of three
+arbitrary ones.
+
+## 6.6 What these two phases leave open
+
+* **All seven thresholds remain unvalidated.** Phase 5 built the machinery and
+  produced the evidence that the machinery is needed; it could not produce the
+  traffic. This is the part's largest unmet item and no amount of further code
+  will close it.
+* **Organ 3 cannot be deployed in front of an agent.** 96 % of real documents
+  blocked, by a rule measuring token rarity. Fixing it is a design change, not a
+  threshold change.
+* **Organ 3's memory is quadratic** and a single large document can exhaust the
+  process.
+* **The fatigue budget of 12/shift is an assumption.** The fleet sits at 9.0
+  under equal weighting; a real family mix could go either way.
+* **The garbage soak is 600 rounds of simulated junk, not one hour of wall
+  clock.** It finds crashes and silence; it cannot find slow leaks, because
+  nothing here runs long enough to leak.
