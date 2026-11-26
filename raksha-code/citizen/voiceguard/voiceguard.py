@@ -64,9 +64,17 @@ def score_voice(samples: Sequence[float] | np.ndarray,
 
     Returns a dict whose keys are stable across versions (see module docstring).
     """
-    audio = np.asarray(list(samples), dtype=np.float64) if not isinstance(samples, np.ndarray) \
-        else np.asarray(samples, dtype=np.float64)
-    audio = audio.ravel()
+    # Phase 3 fuzz finding: this cast sat OUTSIDE the try/except, so
+    # `score_voice(["a", "b"])` raised ValueError despite the function's
+    # documented promise that it never raises. The docstring is the contract;
+    # the conversion had simply been placed above the guard that honours it.
+    try:
+        audio = np.asarray(list(samples), dtype=np.float64) \
+            if not isinstance(samples, np.ndarray) \
+            else np.asarray(samples, dtype=np.float64)
+        audio = audio.ravel()
+    except (TypeError, ValueError):
+        return _invalid(C.R_INVALID_PAYLOAD, "audio could not be interpreted as numbers")
 
     if audio.size < _MIN_SAMPLES:
         return _invalid(C.R_TOO_SHORT, "insufficient samples (<512)")

@@ -265,7 +265,9 @@ checked. A false assertion evolving into a true one is the system working.
 
 ---
 
-# PHASE 3 — HARDEN & SHIP
+# PHASE 3 — HARDEN & SHIP ✅ COMPLETE
+
+> Full plan and build log: [`01b_citizen_spine_phase3.md`](01b_citizen_spine_phase3.md)
 
 **Goal:** survives hostile input, real sensors and a cold audit.
 
@@ -290,6 +292,6 @@ district hospital could hand to a patient.
 |---|---|---|
 | 1 — Truth & verification | ✅ **complete** | +40 (368 total) |
 | 2 — Complete the spine | ✅ **complete** | +44 (412 total) |
-| 3 — Harden & ship | ⬜ not started | — |
+| 3 — Harden & ship | ✅ **complete** | +196 (626 total) |
 
 > Test counts are runner-reported, never aspirational.

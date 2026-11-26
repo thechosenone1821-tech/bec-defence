@@ -14,11 +14,11 @@
   <div class="badge">DEMO BUILD — heuristic detectors</div>
 </header>
 
-<nav class="tabs">
-  <button class="tab active" data-tab="home">Home</button>
-  <button class="tab" data-tab="message">Check Message</button>
-  <button class="tab" data-tab="voice">Check Voice</button>
-  <button class="tab" data-tab="report">Report</button>
+<nav class="tabs" aria-label="Main sections">
+  <button class="tab active" data-tab="home" aria-label="Home">Home</button>
+  <button class="tab" data-tab="message" aria-label="Check a message">Check Message</button>
+  <button class="tab" data-tab="voice" aria-label="Check a voice">Check Voice</button>
+  <button class="tab" data-tab="report" aria-label="Report an incident">Report</button>
 </nav>
 
 <main>
@@ -64,11 +64,11 @@
   <section id="report" class="panel">
     <h2>Report an incident — one tap</h2>
     <p class="hint">No phone numbers, no message content, no personal data leaves this phone. We send only the category and a severity band — signed and tokenized.</p>
-    <div class="report-grid">
-      <button class="chip" data-cat="voice">📞 Voice / call scam</button>
-      <button class="chip" data-cat="message">💬 Message scam</button>
-      <button class="chip" data-cat="financial">🪙 Money / UPI fraud</button>
-      <button class="chip" data-cat="other">⚠️ Other</button>
+    <div class="report-grid" role="radiogroup" aria-label="Report category">
+      <button class="chip" data-cat="voice" role="radio" aria-label="Voice or call scam">📞 Voice / call scam</button>
+      <button class="chip" data-cat="message" role="radio" aria-label="Message scam">💬 Message scam</button>
+      <button class="chip" data-cat="financial" role="radio" aria-label="Money or UPI fraud">🪙 Money / UPI fraud</button>
+      <button class="chip" data-cat="other" role="radio" aria-label="Other incident">⚠️ Other</button>
     </div>
     <input id="caseRef" class="case-ref" type="text" maxlength="40"
            placeholder="Case ref (demo kits only — leave blank normally)" autocomplete="off">
@@ -88,6 +88,7 @@
 </footer>
 <script src="maya-capture.js"></script>
 <script src="maya-capture-worklet.js"></script>
+<script src="queue.js"></script>
 <script src="panic.js"></script>
 <script src="family.js"></script>
 <script src="app.js"></script>

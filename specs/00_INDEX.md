@@ -40,7 +40,7 @@ ledger and Governor that both apps depend on).
 
 | # | File | Owns | Team |
 |---|---|---|---|
-| 1 | [`01_citizen_spine.md`](01_citizen_spine.md) · [roadmap](01a_citizen_spine_roadmap.md) | Risk fusion, three languages, privacy, report rail | 2 |
+| 1 | [`01_citizen_spine.md`](01_citizen_spine.md) · [roadmap](01a_citizen_spine_roadmap.md) · [phase 3](01b_citizen_spine_phase3.md) | Risk fusion, three languages, privacy, report rail | 2 |
 | 2 | [`02_citizen_voiceguard.md`](02_citizen_voiceguard.md) | Maya — the voice model | 2 |
 | 3 | [`03_citizen_messageguard.md`](03_citizen_messageguard.md) | Scam-text scorer | 2 |
 | 4 | [`04_infra_detection_rings.md`](04_infra_detection_rings.md) | The 8 organs | 4 |
@@ -56,7 +56,7 @@ ledger and Governor that both apps depend on).
 
 | Part | Built | Honest verdict |
 |---|---|---|
-| 1 · Citizen spine | **95%** | Phases 1–2 done (+84 tests). Phase 3 is hardening. |
+| 1 · Citizen spine | **100%** | All 3 phases done (+236 tests, 626 total). |
 | 2 · VoiceGuard | **65%** | Real pipeline, real measurements — on fake data. |
 | 3 · MessageGuard | **55%** | Rules work; corpus far too small to claim accuracy. |
 | 4 · Detection rings | **70%** | 8/8 organs coded; none seen real traffic. |

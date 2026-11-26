@@ -67,6 +67,26 @@ function wirePanic() {
 
 document.addEventListener("DOMContentLoaded", applyFamilyClass);
 document.addEventListener("DOMContentLoaded", wirePanic);
+
+/* --- offline report queue flush (Part 1, Phase 3) ---------------------
+ * Retries on load and whenever the browser reports it is back online.
+ * A queued report is only removed after the server accepts it.
+ * ------------------------------------------------------------------- */
+async function flushQueue() {
+  const q = window.RakshaQueue;
+  if (!q || q.size(window.localStorage) === 0) return;
+  await q.flush(window.localStorage, async (entry) => {
+    try {
+      await api("/api/citizen/report", entry);
+      return true;
+    } catch (err) {
+      return false;
+    }
+  });
+}
+
+document.addEventListener("DOMContentLoaded", flushQueue);
+window.addEventListener("online", flushQueue);
 {
   const chk = document.getElementById("chkFamily");
   if (chk) {
@@ -224,8 +244,23 @@ btnReport.addEventListener("click", async () => {
       <div class="voice-action">${esc(ex.detail || "")}</div>
       <div class="helpline">If you lost money already, call 1930 NOW and freeze the transaction.</div>`;
   } catch (e) {
+    // Phase 3: do not lose the report, and do not claim it was sent.
+    // The queue stores only category/severity/lang/case_id — the same fields
+    // the rail already carries — never content.
     repOut.classList.remove("hidden");
-    repOut.innerHTML = `<div class="verdict MODERATE">NOT SENT</div><div>Report could not be sent — call 1930 instead. Your data did not leave this phone.</div>`;
+    const q = window.RakshaQueue;
+    let saved = false, pending = 0;
+    if (q) {
+      const r = q.enqueue(window.localStorage, body);
+      saved = r.ok;
+      pending = r.size;
+    }
+    repOut.innerHTML = saved
+      ? `<div class="verdict MODERATE" data-icon="❔">Saved on this phone</div>
+         <div class="voice-action">No signal. Your report is kept on this device and will be sent automatically when you are back online.</div>
+         <div class="helpline">If you lost money, call 1930 NOW — do not wait for the report.</div>`
+      : `<div class="verdict MODERATE" data-icon="❔">Report not sent</div>
+         <div class="voice-action">Call 1930 instead. Your data did not leave this phone.</div>`;
   } finally { btnReport.disabled = false; btnReport.textContent = "Send report"; }
 });
 

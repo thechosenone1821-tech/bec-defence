@@ -38,6 +38,20 @@ from citizen.voiceguard import score_voice
 from citizen.voiceguard.capture import MAX_SCREEN_SAMPLES, retention_policy
 from citizen.risk import assess as risk_assess
 
+def _safe_int(value: Any) -> int:
+    """int() that never raises. Malformed input becomes 0 (no signal)."""
+    try:
+        f = float(value)
+    except (TypeError, ValueError):
+        return 0
+    if f != f or f in (float("inf"), float("-inf")):
+        return 0
+    try:
+        return int(f)
+    except (ValueError, OverflowError):
+        return 0
+
+
 _HERE = os.path.dirname(os.path.abspath(__file__))
 APP_DIR = os.path.join(_HERE, "app")
 
@@ -160,7 +174,10 @@ def build_app(bus_url: Optional[str] = None, poster: Optional[Callable[[Dict[str
             voice=payload.get("voice"),
             message=payload.get("message"),
             campaign_linked=bool(payload.get("campaign_linked", False)),
-            repeat_contacts=int(payload.get("repeat_contacts") or 0),
+            # Phase 3 fuzz finding: `int("abc")` here raised ValueError and the
+            # endpoint returned 500. Coerce defensively at the boundary as well
+            # as inside the engine — the boundary is what sees untrusted phones.
+            repeat_contacts=_safe_int(payload.get("repeat_contacts")),
             user_doubt=bool(payload.get("user_doubt", False)),
             lang=lang,
         )

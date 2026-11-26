@@ -88,6 +88,45 @@ _MIN_SIGNAL_COUNT = 2
 _STANDALONE_SOURCES = frozenset({"voice", "message", "campaign"})
 
 
+def _safe_int(v: Any) -> int:
+    """Coerce anything to an int without raising.
+
+    Phase 3 fuzz finding: `repeat_contacts="abc"` and `repeat_contacts=NaN` both
+    raised ValueError/OverflowError out of `int()`, which through the API became
+    an HTTP 500. A malformed field must degrade to "no repeat-contact signal",
+    never take the endpoint down — the caller may be a phone mid-update sending a
+    half-formed payload.
+    """
+    try:
+        f = float(v)
+    except (TypeError, ValueError):
+        return 0
+    if f != f or f in (float("inf"), float("-inf")):
+        return 0
+    try:
+        return int(f)
+    except (ValueError, OverflowError):
+        return 0
+
+
+def _safe_bool(v: Any) -> bool:
+    """Coerce to a bool without treating junk as evidence.
+
+    Phase 3 fuzz finding: `campaign_linked="nope"` was truthy, so a malformed
+    string added the 0.45 campaign-link weight and pushed the assessment to HIGH
+    on evidence that did not exist. Only real booleans and the integers 0/1 count;
+    every other type is "no signal". Failing towards *less* certainty is the only
+    safe direction for a fraud screen.
+    """
+    if isinstance(v, bool):
+        return v
+    if isinstance(v, int):
+        return v == 1
+    if isinstance(v, str):
+        return v.strip().lower() in ("true", "1", "yes")
+    return False
+
+
 def _clamp01(v: Any) -> float:
     try:
         f = float(v)
@@ -173,19 +212,20 @@ def assess(voice: Optional[Dict[str, Any]] = None,
                             "detail": mv})
 
     # --- campaign linkage ------------------------------------------------- #
-    if campaign_linked:
+    if _safe_bool(campaign_linked):
         weights.append(W_CAMPAIGN_LINK)
         signals.append({"source": "campaign", "weight": W_CAMPAIGN_LINK,
                         "detail": "same pattern already reported"})
 
     # --- repeat contact ---------------------------------------------------- #
-    if int(repeat_contacts or 0) >= 3:
+    repeat_n = _safe_int(repeat_contacts)
+    if repeat_n >= 3:
         weights.append(W_REPEAT_CONTACT)
         signals.append({"source": "repeat_contact", "weight": W_REPEAT_CONTACT,
-                        "detail": f"{int(repeat_contacts)} attempts"})
+                        "detail": f"{repeat_n} attempts"})
 
     # --- the person's own doubt --------------------------------------------- #
-    if user_doubt:
+    if _safe_bool(user_doubt):
         weights.append(W_USER_DOUBT)
         signals.append({"source": "user_doubt", "weight": W_USER_DOUBT,
                         "detail": "user reported unease"})

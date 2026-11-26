@@ -1,0 +1,293 @@
+{
+ "en": {
+  "bands": {
+   "CRITICAL": [
+    "This is almost certainly a scam",
+    "Hang up now. Call 1930 and your bank immediately."
+   ],
+   "ELEVATED": [
+    "Some warning signs are present",
+    "Pause. Verify through an official number before doing anything."
+   ],
+   "HIGH": [
+    "This looks like a scam attempt",
+    "Do not pay, do not share OTP. Call 1930."
+   ],
+   "LOW": [
+    "No known fraud warning signs found",
+    "Still never share OTP, PIN or CVV with anyone."
+   ],
+   "LOW_CONFIDENCE": [
+    "Not enough information to judge",
+    "Trust your instinct. If they ask for money or OTP, hang up and call 1930."
+   ]
+  },
+  "disclaimer": "This is an advisory screen, not proof. Never share OTP, PIN or CVV.",
+  "families": {
+   "authority": "It pretends to be police, a court, the RBI or a tax officer.",
+   "credential": "It asks for your OTP, PIN, CVV or password.",
+   "link_grab": "It pushes you to click a link or verify now.",
+   "money_action": "It asks you to send or transfer money.",
+   "prize": "It claims you won a prize or lottery.",
+   "urgency": "It pressures you to act immediately."
+  },
+  "reasons": {
+   "CLIPPED_AUDIO": "The recording is distorted and hard to judge.",
+   "INTERNAL_ERROR": "The check failed safely. Nothing was sent anywhere.",
+   "INVALID_PAYLOAD": "The audio could not be read.",
+   "LOW_CONFIDENCE": "This clip does not give a clear answer.",
+   "MECHANICAL_PAUSES": "The pauses are exactly evenly spaced, as a machine makes them.",
+   "MODEL_FLAGGED_SYNTHETIC": "Our on-device screen rated this likely AI-generated.",
+   "MODEL_FOUND_NOTHING": "Our screen found nothing, but that is not proof.",
+   "MONOTONE_PITCH": "The voice does not change pitch the way a real person does.",
+   "NO_BREATH_SOUNDS": "There are no breath sounds between sentences.",
+   "NO_TRAINED_MODEL": "No trained model is installed, so only basic checks ran.",
+   "PURE_TONE": "This is a flat, machine-made tone, not a human voice.",
+   "SILENT_AUDIO": "We could not hear any speech in this clip.",
+   "SPECTRAL_REGULARITY": "The sound texture barely changes from moment to moment.",
+   "TOO_SHORT": "The clip is too short to judge.",
+   "WHITE_NOISE": "This sounds like background noise, not a person speaking."
+  },
+  "report": {
+   "failed": "Report not sent",
+   "offline": "Saved on this phone",
+   "sent": "Report sent"
+  },
+  "verdicts": {
+   "ERROR": {
+    "action": "Stay safe: if in doubt, call 1930.",
+    "disclaimer": "This is an advisory screen, not proof. Never share OTP, PIN or CVV.",
+    "helpline": "1930",
+    "lang": "en",
+    "title": "Check unavailable",
+    "verdict": "ERROR"
+   },
+   "INCONCLUSIVE": {
+    "action": "If they ask for money, OTP or an 'arrest' — hang up. Call 1930.",
+    "disclaimer": "This is an advisory screen, not proof. Never share OTP, PIN or CVV.",
+    "helpline": "1930",
+    "lang": "en",
+    "title": "We cannot tell",
+    "verdict": "INCONCLUSIVE"
+   },
+   "LIKELY_SYNTHETIC": {
+    "action": "Hang up now. Do not pay. Call 1930 if money was asked for.",
+    "disclaimer": "This is an advisory screen, not proof. Never share OTP, PIN or CVV.",
+    "helpline": "1930",
+    "lang": "en",
+    "title": "This is probably an AI-generated voice",
+    "verdict": "LIKELY_SYNTHETIC"
+   },
+   "SILENT": {
+    "action": "Try again closer to the phone.",
+    "disclaimer": "This is an advisory screen, not proof. Never share OTP, PIN or CVV.",
+    "helpline": "1930",
+    "lang": "en",
+    "title": "We could not hear a voice",
+    "verdict": "SILENT"
+   },
+   "SUSPICIOUS": {
+    "action": "Hang up and call back on the official number on your card.",
+    "disclaimer": "This is an advisory screen, not proof. Never share OTP, PIN or CVV.",
+    "helpline": "1930",
+    "lang": "en",
+    "title": "This voice looks machine-made",
+    "verdict": "SUSPICIOUS"
+   }
+  }
+ },
+ "hi": {
+  "bands": {
+   "CRITICAL": [
+    "यह लगभग निश्चित रूप से धोखाधड़ी है",
+    "अभी फोन काटें। 1930 और अपने बैंक को तुरंत कॉल करें।"
+   ],
+   "ELEVATED": [
+    "कुछ चेतावनी संकेत मौजूद हैं",
+    "रुकें। कुछ भी करने से पहले आधिकारिक नंबर से पुष्टि करें।"
+   ],
+   "HIGH": [
+    "यह धोखाधड़ी का प्रयास लगता है",
+    "पैसे न दें, OTP न बताएँ। 1930 पर कॉल करें।"
+   ],
+   "LOW": [
+    "धोखाधड़ी के ज्ञात संकेत नहीं मिले",
+    "फिर भी OTP, PIN या CVV किसी को न दें।"
+   ],
+   "LOW_CONFIDENCE": [
+    "पर्याप्त जानकारी नहीं है",
+    "अपनी समझ पर भरोसा रखें। पैसे या OTP माँगे जाएँ तो फोन काटें और 1930 पर कॉल करें।"
+   ]
+  },
+  "disclaimer": "यह सलाहकार जाँच है, सबूत नहीं। OTP, PIN या CVV कभी साझा न करें।",
+  "families": {
+   "authority": "यह पुलिस, अदालत, RBI या कर अधिकारी होने का दिखावा करता है।",
+   "credential": "यह आपका OTP, PIN, CVV या पासवर्ड माँगता है।",
+   "link_grab": "यह लिंक पर क्लिक करने या अभी सत्यापित करने को कहता है।",
+   "money_action": "यह पैसे भेजने या ट्रांसफर करने को कहता है।",
+   "prize": "यह दावा करता है कि आपने इनाम या लॉटरी जीती है।",
+   "urgency": "यह तुरंत कार्रवाई करने का दबाव बनाता है।"
+  },
+  "reasons": {
+   "CLIPPED_AUDIO": "रिकॉर्डिंग विकृत है, जाँचना कठिन है।",
+   "INTERNAL_ERROR": "जाँच सुरक्षित रूप से रुकी। कोई डेटा कहीं नहीं भेजा गया।",
+   "INVALID_PAYLOAD": "ऑडियो पढ़ा नहीं जा सका।",
+   "LOW_CONFIDENCE": "इस क्लिप से साफ़ जवाब नहीं मिलता।",
+   "MECHANICAL_PAUSES": "ठहराव बिल्कुल बराबर अंतराल पर हैं, जैसे मशीन करती है।",
+   "MODEL_FLAGGED_SYNTHETIC": "ऑन-डिवाइस जाँच ने इसे AI से बना बताया।",
+   "MODEL_FOUND_NOTHING": "हमारी जाँच में कुछ नहीं मिला, पर यह सबूत नहीं है।",
+   "MONOTONE_PITCH": "आवाज़ में उतार-चढ़ाव नहीं है, जैसा असली इंसान में होता है।",
+   "NO_BREATH_SOUNDS": "वाक्यों के बीच साँस लेने की आवाज़ नहीं है।",
+   "NO_TRAINED_MODEL": "कोई प्रशिक्षित मॉडल नहीं है, इसलिए केवल सामान्य जाँच हुई।",
+   "PURE_TONE": "यह सपाट, मशीन से बनी आवाज़ है, इंसानी आवाज़ नहीं।",
+   "SILENT_AUDIO": "इस क्लिप में कोई आवाज़ सुनाई नहीं दी।",
+   "SPECTRAL_REGULARITY": "आवाज़ की बनावट पल-पल में बदलती नहीं है।",
+   "TOO_SHORT": "क्लिप जाँचने के लिए बहुत छोटी है।",
+   "WHITE_NOISE": "यह पृष्ठभूमि का शोर लगता है, किसी के बोलने की आवाज़ नहीं।"
+  },
+  "report": {
+   "failed": "रिपोर्ट नहीं भेजी गई",
+   "offline": "इस फ़ोन पर सहेजा गया",
+   "sent": "रिपोर्ट भेज दी गई"
+  },
+  "verdicts": {
+   "ERROR": {
+    "action": "सतर्क रहें: संदेह हो तो 1930 पर कॉल करें।",
+    "disclaimer": "यह सलाहकार जाँच है, सबूत नहीं। OTP, PIN या CVV कभी साझा न करें।",
+    "helpline": "1930",
+    "lang": "hi",
+    "title": "जाँच उपलब्ध नहीं",
+    "verdict": "ERROR"
+   },
+   "INCONCLUSIVE": {
+    "action": "अगर पैसे, OTP या 'गिरफ्तारी' की बात हो — फोन काटें। 1930 पर कॉल करें।",
+    "disclaimer": "यह सलाहकार जाँच है, सबूत नहीं। OTP, PIN या CVV कभी साझा न करें।",
+    "helpline": "1930",
+    "lang": "hi",
+    "title": "हम निर्णय नहीं कर सकते",
+    "verdict": "INCONCLUSIVE"
+   },
+   "LIKELY_SYNTHETIC": {
+    "action": "अभी फोन काटें। पैसे न दें। पैसे माँगे गए हों तो 1930 पर कॉल करें।",
+    "disclaimer": "यह सलाहकार जाँच है, सबूत नहीं। OTP, PIN या CVV कभी साझा न करें।",
+    "helpline": "1930",
+    "lang": "hi",
+    "title": "यह संभवतः AI से बनी आवाज़ है",
+    "verdict": "LIKELY_SYNTHETIC"
+   },
+   "SILENT": {
+    "action": "फोन के पास से दोबारा कोशिश करें।",
+    "disclaimer": "यह सलाहकार जाँच है, सबूत नहीं। OTP, PIN या CVV कभी साझा न करें।",
+    "helpline": "1930",
+    "lang": "hi",
+    "title": "आवाज़ सुनाई नहीं दी",
+    "verdict": "SILENT"
+   },
+   "SUSPICIOUS": {
+    "action": "फोन काटें और कार्ड पर दिए आधिकारिक नंबर पर कॉल करें।",
+    "disclaimer": "यह सलाहकार जाँच है, सबूत नहीं। OTP, PIN या CVV कभी साझा न करें।",
+    "helpline": "1930",
+    "lang": "hi",
+    "title": "यह आवाज़ मशीन से बनी लगती है",
+    "verdict": "SUSPICIOUS"
+   }
+  }
+ },
+ "te": {
+  "bands": {
+   "CRITICAL": [
+    "ఇది దాదాపు ఖచ్చితంగా మోసం",
+    "వెంటనే ఫోన్ పెట్టేయండి. 1930కి, మీ బ్యాంకుకు వెంటనే కాల్ చేయండి."
+   ],
+   "ELEVATED": [
+    "కొన్ని హెచ్చరిక సంకేతాలు ఉన్నాయి",
+    "ఆగండి. ఏదైనా చేసే ముందు అధికారిక నంబర్ ద్వారా నిర్ధారించుకోండి."
+   ],
+   "HIGH": [
+    "ఇది మోసం ప్రయత్నంలా ఉంది",
+    "డబ్బు ఇవ్వద్దు, OTP చెప్పవద్దు. 1930కి కాల్ చేయండి."
+   ],
+   "LOW": [
+    "తెలిసిన మోసపు సంకేతాలు లేవు",
+    "అయినా OTP, PIN లేదా CVV ఎవరికీ ఇవ్వకండి."
+   ],
+   "LOW_CONFIDENCE": [
+    "సరిపడా సమాచారం లేదు",
+    "మీ బుద్ధిని నమ్మండి. డబ్బు లేదా OTP అడిగితే ఫోన్ పెట్టేసి 1930కి కాల్ చేయండి."
+   ]
+  },
+  "disclaimer": "ఇది సలహా పరీక్ష మాత్రమే, రుజువు కాదు. OTP, PIN లేదా CVV ఎప్పుడూ పంచుకోవద్దు.",
+  "families": {
+   "authority": "ఇది పోలీసు, కోర్టు, RBI లేదా పన్ను అధికారిగా నటిస్తోంది.",
+   "credential": "ఇది మీ OTP, PIN, CVV లేదా పాస్‌వర్డ్ అడుగుతోంది.",
+   "link_grab": "లింక్ నొక్కమని లేదా వెంటనే ధృవీకరించమని చెబుతోంది.",
+   "money_action": "ఇది డబ్బు పంపమని లేదా బదిలీ చేయమని అడుగుతోంది.",
+   "prize": "మీరు బహుమతి లేదా లాటరీ గెలిచారని చెబుతోంది.",
+   "urgency": "వెంటనే చర్య తీసుకోవాలని ఒత్తిడి చేస్తోంది."
+  },
+  "reasons": {
+   "CLIPPED_AUDIO": "రికార్డింగ్ వక్రీకరించింది, అంచనా కష్టం.",
+   "INTERNAL_ERROR": "పరీక్ష సురక్షితంగా ఆగిపోయింది. ఎక్కడికీ డేటా పంపలేదు.",
+   "INVALID_PAYLOAD": "ఆడియో చదవలేకపోయాము.",
+   "LOW_CONFIDENCE": "ఈ క్లిప్ స్పష్టమైన సమాధానం ఇవ్వదు.",
+   "MECHANICAL_PAUSES": "విరామాలు సరిగ్గా సమాన దూరంలో ఉన్నాయి, యంత్రంలా.",
+   "MODEL_FLAGGED_SYNTHETIC": "మా పరికరంలోని పరీక్ష దీన్ని AI తయారు చేసినట్టు చెప్పింది.",
+   "MODEL_FOUND_NOTHING": "మా పరీక్షలో ఏమీ దొరకలేదు, కానీ అది రుజువు కాదు.",
+   "MONOTONE_PITCH": "నిజమైన మనిషిలా స్వరం మారడం లేదు.",
+   "NO_BREATH_SOUNDS": "వాక్యాల మధ్య శ్వాస శబ్దాలు లేవు.",
+   "NO_TRAINED_MODEL": "శిక్షణ పొందిన మాడల్ లేదు, కాబట్టి సాధారణ పరీక్షలే జరిగాయి.",
+   "PURE_TONE": "ఇది చదునైన, యంత్రంతో చేసిన శబ్దం, మనిషి గొంతు కాదు.",
+   "SILENT_AUDIO": "ఈ క్లిప్‌లో ఎలాంటి మాటలు వినిపించలేదు.",
+   "SPECTRAL_REGULARITY": "శబ్దం నిర్మాణం క్షణం క్షణం మారడం లేదు.",
+   "TOO_SHORT": "క్లిప్ అంచనా వేయడానికి చాలా చిన్నది.",
+   "WHITE_NOISE": "ఇది నేపథ్య శబ్దంలా ఉంది, ఎవరో మాట్లాడుతున్నట్టు కాదు."
+  },
+  "report": {
+   "failed": "నివేదిక పంపబడలేదు",
+   "offline": "ఈ ఫోన్‌లో సేవ్ చేయబడింది",
+   "sent": "నివేదిక పంపబడింది"
+  },
+  "verdicts": {
+   "ERROR": {
+    "action": "జాగ్రత్తగా ఉండండి: సందేహమైతే 1930కి కాల్ చేయండి.",
+    "disclaimer": "ఇది సలహా పరీక్ష మాత్రమే, రుజువు కాదు. OTP, PIN లేదా CVV ఎప్పుడూ పంచుకోవద్దు.",
+    "helpline": "1930",
+    "lang": "te",
+    "title": "పరీక్ష అందుబాటులో లేదు",
+    "verdict": "ERROR"
+   },
+   "INCONCLUSIVE": {
+    "action": "డబ్బు, OTP లేదా 'అరెస్ట్' గురించి అడిగితే — ఫోన్ పెట్టేయండి. 1930కి కాల్ చేయండి.",
+    "disclaimer": "ఇది సలహా పరీక్ష మాత్రమే, రుజువు కాదు. OTP, PIN లేదా CVV ఎప్పుడూ పంచుకోవద్దు.",
+    "helpline": "1930",
+    "lang": "te",
+    "title": "మేము నిర్ణయించలేము",
+    "verdict": "INCONCLUSIVE"
+   },
+   "LIKELY_SYNTHETIC": {
+    "action": "వెంటనే ఫోన్ పెట్టేయండి. డబ్బు ఇవ్వద్దు. డబ్బు అడిగితే 1930కి కాల్ చేయండి.",
+    "disclaimer": "ఇది సలహా పరీక్ష మాత్రమే, రుజువు కాదు. OTP, PIN లేదా CVV ఎప్పుడూ పంచుకోవద్దు.",
+    "helpline": "1930",
+    "lang": "te",
+    "title": "ఇది బహుశా AI తయారు చేసిన స్వరం",
+    "verdict": "LIKELY_SYNTHETIC"
+   },
+   "SILENT": {
+    "action": "ఫోన్ దగ్గరకు తీసుకొచ్చి మళ్లీ ప్రయత్నించండి.",
+    "disclaimer": "ఇది సలహా పరీక్ష మాత్రమే, రుజువు కాదు. OTP, PIN లేదా CVV ఎప్పుడూ పంచుకోవద్దు.",
+    "helpline": "1930",
+    "lang": "te",
+    "title": "స్వరం వినిపించలేదు",
+    "verdict": "SILENT"
+   },
+   "SUSPICIOUS": {
+    "action": "ఫోన్ పెట్టేసి, కార్డ్‌పై ఉన్న అధికారిక నంబర్‌కు కాల్ చేయండి.",
+    "disclaimer": "ఇది సలహా పరీక్ష మాత్రమే, రుజువు కాదు. OTP, PIN లేదా CVV ఎప్పుడూ పంచుకోవద్దు.",
+    "helpline": "1930",
+    "lang": "te",
+    "title": "ఈ స్వరం యంత్రంతో చేసినట్టు ఉంది",
+    "verdict": "SUSPICIOUS"
+   }
+  }
+ }
+}
