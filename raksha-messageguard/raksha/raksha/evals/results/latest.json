@@ -1,0 +1,497 @@
+{
+  "corpus": {
+    "total": 431,
+    "scam_total": 324,
+    "benign_total": 107,
+    "scam_by_lang": {
+      "en": 104,
+      "hi": 95,
+      "te": 95,
+      "hinglish": 30
+    },
+    "benign_by_lang": {
+      "en": 43,
+      "hi": 24,
+      "te": 24,
+      "hinglish": 16
+    },
+    "benign_bank_alerts": 85
+  },
+  "detection": {
+    "all": {
+      "n": 324,
+      "mean_score": 0.751,
+      "bands": {
+        "LOW": 4,
+        "MODERATE": 0,
+        "HIGH": 143,
+        "CRITICAL": 177
+      },
+      "det_moderate": 0.9877,
+      "det_high": 0.9877
+    },
+    "excl_gap": {
+      "n": 319,
+      "mean_score": 0.762,
+      "bands": {
+        "LOW": 0,
+        "MODERATE": 0,
+        "HIGH": 142,
+        "CRITICAL": 177
+      },
+      "det_moderate": 1.0,
+      "det_high": 1.0
+    },
+    "gap_only": {
+      "n": 5,
+      "mean_score": 0.09,
+      "bands": {
+        "LOW": 4,
+        "MODERATE": 0,
+        "HIGH": 1,
+        "CRITICAL": 0
+      },
+      "det_moderate": 0.2,
+      "det_high": 0.2
+    },
+    "by_lang": {
+      "en": {
+        "all": {
+          "n": 104,
+          "mean_score": 0.742,
+          "bands": {
+            "LOW": 1,
+            "MODERATE": 0,
+            "HIGH": 45,
+            "CRITICAL": 58
+          },
+          "det_moderate": 0.9904,
+          "det_high": 0.9904
+        },
+        "excl_gap": {
+          "n": 102,
+          "mean_score": 0.752,
+          "bands": {
+            "LOW": 0,
+            "MODERATE": 0,
+            "HIGH": 44,
+            "CRITICAL": 58
+          },
+          "det_moderate": 1.0,
+          "det_high": 1.0
+        }
+      },
+      "hi": {
+        "all": {
+          "n": 95,
+          "mean_score": 0.754,
+          "bands": {
+            "LOW": 1,
+            "MODERATE": 0,
+            "HIGH": 42,
+            "CRITICAL": 52
+          },
+          "det_moderate": 0.9895,
+          "det_high": 0.9895
+        },
+        "excl_gap": {
+          "n": 94,
+          "mean_score": 0.762,
+          "bands": {
+            "LOW": 0,
+            "MODERATE": 0,
+            "HIGH": 42,
+            "CRITICAL": 52
+          },
+          "det_moderate": 1.0,
+          "det_high": 1.0
+        }
+      },
+      "te": {
+        "all": {
+          "n": 95,
+          "mean_score": 0.758,
+          "bands": {
+            "LOW": 1,
+            "MODERATE": 0,
+            "HIGH": 43,
+            "CRITICAL": 51
+          },
+          "det_moderate": 0.9895,
+          "det_high": 0.9895
+        },
+        "excl_gap": {
+          "n": 94,
+          "mean_score": 0.766,
+          "bands": {
+            "LOW": 0,
+            "MODERATE": 0,
+            "HIGH": 43,
+            "CRITICAL": 51
+          },
+          "det_moderate": 1.0,
+          "det_high": 1.0
+        }
+      },
+      "hinglish": {
+        "all": {
+          "n": 30,
+          "mean_score": 0.756,
+          "bands": {
+            "LOW": 1,
+            "MODERATE": 0,
+            "HIGH": 13,
+            "CRITICAL": 16
+          },
+          "det_moderate": 0.9667,
+          "det_high": 0.9667
+        },
+        "excl_gap": {
+          "n": 29,
+          "mean_score": 0.782,
+          "bands": {
+            "LOW": 0,
+            "MODERATE": 0,
+            "HIGH": 13,
+            "CRITICAL": 16
+          },
+          "det_moderate": 1.0,
+          "det_high": 1.0
+        }
+      }
+    },
+    "by_category": {
+      "bail_emergency": {
+        "n": 13,
+        "mean_score": 0.8,
+        "bands": {
+          "LOW": 0,
+          "MODERATE": 0,
+          "HIGH": 4,
+          "CRITICAL": 9
+        },
+        "det_moderate": 1.0,
+        "det_high": 1.0
+      },
+      "card_block_phish": {
+        "n": 17,
+        "mean_score": 0.844,
+        "bands": {
+          "LOW": 0,
+          "MODERATE": 0,
+          "HIGH": 7,
+          "CRITICAL": 10
+        },
+        "det_moderate": 1.0,
+        "det_high": 1.0
+      },
+      "digital_arrest": {
+        "n": 28,
+        "mean_score": 0.936,
+        "bands": {
+          "LOW": 0,
+          "MODERATE": 0,
+          "HIGH": 0,
+          "CRITICAL": 28
+        },
+        "det_moderate": 1.0,
+        "det_high": 1.0
+      },
+      "electricity_cutoff": {
+        "n": 20,
+        "mean_score": 0.539,
+        "bands": {
+          "LOW": 0,
+          "MODERATE": 0,
+          "HIGH": 17,
+          "CRITICAL": 3
+        },
+        "det_moderate": 1.0,
+        "det_high": 1.0
+      },
+      "insurance_lapse": {
+        "n": 9,
+        "mean_score": 0.7,
+        "bands": {
+          "LOW": 0,
+          "MODERATE": 0,
+          "HIGH": 5,
+          "CRITICAL": 4
+        },
+        "det_moderate": 1.0,
+        "det_high": 1.0
+      },
+      "job_task": {
+        "n": 18,
+        "mean_score": 0.685,
+        "bands": {
+          "LOW": 0,
+          "MODERATE": 0,
+          "HIGH": 11,
+          "CRITICAL": 7
+        },
+        "det_moderate": 1.0,
+        "det_high": 1.0
+      },
+      "kyc_expiry": {
+        "n": 27,
+        "mean_score": 0.569,
+        "bands": {
+          "LOW": 0,
+          "MODERATE": 0,
+          "HIGH": 21,
+          "CRITICAL": 6
+        },
+        "det_moderate": 1.0,
+        "det_high": 1.0
+      },
+      "loan_fee": {
+        "n": 20,
+        "mean_score": 0.588,
+        "bands": {
+          "LOW": 0,
+          "MODERATE": 0,
+          "HIGH": 15,
+          "CRITICAL": 5
+        },
+        "det_moderate": 1.0,
+        "det_high": 1.0
+      },
+      "lottery_prize": {
+        "n": 25,
+        "mean_score": 0.864,
+        "bands": {
+          "LOW": 0,
+          "MODERATE": 0,
+          "HIGH": 8,
+          "CRITICAL": 17
+        },
+        "det_moderate": 1.0,
+        "det_high": 1.0
+      },
+      "obfuscation_gap": {
+        "n": 5,
+        "mean_score": 0.09,
+        "bands": {
+          "LOW": 4,
+          "MODERATE": 0,
+          "HIGH": 1,
+          "CRITICAL": 0
+        },
+        "det_moderate": 0.2,
+        "det_high": 0.2
+      },
+      "otp_request": {
+        "n": 29,
+        "mean_score": 0.729,
+        "bands": {
+          "LOW": 0,
+          "MODERATE": 0,
+          "HIGH": 19,
+          "CRITICAL": 10
+        },
+        "det_moderate": 1.0,
+        "det_high": 1.0
+      },
+      "parcel_customs": {
+        "n": 19,
+        "mean_score": 0.949,
+        "bands": {
+          "LOW": 0,
+          "MODERATE": 0,
+          "HIGH": 0,
+          "CRITICAL": 19
+        },
+        "det_moderate": 1.0,
+        "det_high": 1.0
+      },
+      "police_cbi_ed": {
+        "n": 24,
+        "mean_score": 0.911,
+        "bands": {
+          "LOW": 0,
+          "MODERATE": 0,
+          "HIGH": 0,
+          "CRITICAL": 24
+        },
+        "det_moderate": 1.0,
+        "det_high": 1.0
+      },
+      "rbi_freeze": {
+        "n": 17,
+        "mean_score": 0.844,
+        "bands": {
+          "LOW": 0,
+          "MODERATE": 0,
+          "HIGH": 4,
+          "CRITICAL": 13
+        },
+        "det_moderate": 1.0,
+        "det_high": 1.0
+      },
+      "refund_fee": {
+        "n": 13,
+        "mean_score": 0.621,
+        "bands": {
+          "LOW": 0,
+          "MODERATE": 0,
+          "HIGH": 9,
+          "CRITICAL": 4
+        },
+        "det_moderate": 1.0,
+        "det_high": 1.0
+      },
+      "sim_suspend": {
+        "n": 13,
+        "mean_score": 0.902,
+        "bands": {
+          "LOW": 0,
+          "MODERATE": 0,
+          "HIGH": 3,
+          "CRITICAL": 10
+        },
+        "det_moderate": 1.0,
+        "det_high": 1.0
+      },
+      "tax_refund": {
+        "n": 9,
+        "mean_score": 0.7,
+        "bands": {
+          "LOW": 0,
+          "MODERATE": 0,
+          "HIGH": 5,
+          "CRITICAL": 4
+        },
+        "det_moderate": 1.0,
+        "det_high": 1.0
+      },
+      "upi_collect": {
+        "n": 18,
+        "mean_score": 0.689,
+        "bands": {
+          "LOW": 0,
+          "MODERATE": 0,
+          "HIGH": 14,
+          "CRITICAL": 4
+        },
+        "det_moderate": 1.0,
+        "det_high": 1.0
+      }
+    }
+  },
+  "family_fire_rate": {
+    "credential": 0.25,
+    "authority": 0.3395,
+    "money_action": 0.5957,
+    "prize": 0.071,
+    "urgency": 0.8302,
+    "link_grab": 0.3519
+  },
+  "false_positives": {
+    "all": {
+      "n": 107,
+      "fp_moderate": 0.0187,
+      "fp_high": 0.0
+    },
+    "bank_alerts": {
+      "n": 85,
+      "fp_moderate": 0.0235,
+      "fp_high": 0.0
+    },
+    "by_lang": {
+      "en": {
+        "n": 43,
+        "fp_moderate": 0.0,
+        "fp_high": 0.0,
+        "bank_n": 32,
+        "bank_fp_high": 0.0
+      },
+      "hi": {
+        "n": 24,
+        "fp_moderate": 0.0417,
+        "fp_high": 0.0,
+        "bank_n": 20,
+        "bank_fp_high": 0.0
+      },
+      "te": {
+        "n": 24,
+        "fp_moderate": 0.0417,
+        "fp_high": 0.0,
+        "bank_n": 20,
+        "bank_fp_high": 0.0
+      },
+      "hinglish": {
+        "n": 16,
+        "fp_moderate": 0.0,
+        "fp_high": 0.0,
+        "bank_n": 13,
+        "bank_fp_high": 0.0
+      }
+    },
+    "rows": [
+      {
+        "id": "benign_hi_015",
+        "lang": "hi",
+        "category": "loan_emi",
+        "band": "MODERATE",
+        "score": 0.2,
+        "families": [
+          "urgency"
+        ],
+        "hits": [
+          "urgency: आज रात"
+        ]
+      },
+      {
+        "id": "benign_te_015",
+        "lang": "te",
+        "category": "loan_emi",
+        "band": "MODERATE",
+        "score": 0.2,
+        "families": [
+          "urgency"
+        ],
+        "hits": [
+          "urgency: ఈ రాత్రి"
+        ]
+      }
+    ]
+  },
+  "scam_misses": [
+    {
+      "id": "scam_en_103",
+      "lang": "en",
+      "category": "obfuscation_gap",
+      "score": 0
+    },
+    {
+      "id": "scam_hi_095",
+      "lang": "hi",
+      "category": "obfuscation_gap",
+      "score": 0
+    },
+    {
+      "id": "scam_hinglish_030",
+      "lang": "hinglish",
+      "category": "obfuscation_gap",
+      "score": 0
+    },
+    {
+      "id": "scam_te_095",
+      "lang": "te",
+      "category": "obfuscation_gap",
+      "score": 0
+    }
+  ],
+  "determinism": {
+    "verified": true,
+    "verdict_hash": "596e3cd861588e99"
+  },
+  "gates": {
+    "scam_fixtures_ge_300": true,
+    "per_language_coverage": true,
+    "benign_bank_alerts_ge_60": true,
+    "detection_high_excl_gap_ge_0.90": true,
+    "fp_high_bank_alerts_le_0.10": true
+  }
+}

@@ -1,0 +1,43 @@
+{"id": "benign_en_001", "label": "benign", "lang": "en", "category": "bank_txn", "text": "Dear Customer, Rs.1,250.00 debited from A/c XX4412 on 26-11-26 for UPI/TEXMI TRADERS. If not done by you, call 1800 000 111. - HDFC Bank"}
+{"id": "benign_en_002", "label": "benign", "lang": "en", "category": "bank_txn", "text": "Rs.25,000.00 credited to A/c XX1122 on 26-11-26, ref SALARY NOV26. Available balance Rs.84,212. - SBI"}
+{"id": "benign_en_003", "label": "benign", "lang": "en", "category": "bank_txn", "text": "Rs.860.00 spent on HDFC Card xx7788 at BIG BAZAAR HYD on 26NOV26. To block card: SMS BLOCK CC to 56767."}
+{"id": "benign_en_004", "label": "benign", "lang": "en", "category": "bank_txn", "text": "Your A/c XX9021 is debited for Rs.5,499 (Amazon order 402-889). Refund if cancelled by 30-11. - ICICI Bank"}
+{"id": "benign_en_005", "label": "benign", "lang": "en", "category": "bank_txn", "text": "IMPS Rs.10,000 received from RAMESH K on 26-11-26. A/c XX4412. - HDFC Bank"}
+{"id": "benign_en_006", "label": "benign", "lang": "en", "category": "bank_txn", "text": "Debit card xx8821: cash withdrawal Rs.5,000 at ATM ANDHERI MUM on 26NOV. Avl bal Rs.12,340. - Axis Bank"}
+{"id": "benign_en_007", "label": "benign", "lang": "en", "category": "bank_txn", "text": "UPI transaction of Rs.450 to SRI SAI MESS successful. Ref 6123xx881. Not you? Dial 1930 immediately."}
+{"id": "benign_en_008", "label": "benign", "lang": "en", "category": "bank_txn", "text": "Rs.2,400 debited for BESCOM bill payment on 26-11-26. Autopay mandate xx77. - Paytm Payments Bank"}
+{"id": "benign_en_009", "label": "benign", "lang": "en", "category": "bank_txn", "text": "Your Fixed Deposit XX3412 matured. Rs.1,05,000 credited to savings A/c. Renew in the official app if you wish. - SBI"}
+{"id": "benign_en_010", "label": "benign", "lang": "en", "category": "bank_txn", "text": "Rs.150 debited as annual card fee for card xx8821. - Axis Bank"}
+{"id": "benign_en_011", "label": "benign", "lang": "en", "category": "otp_notice", "text": "OTP 448210 for txn of Rs.5,000 on your HDFC card. DO NOT share with anyone, even bank staff."}
+{"id": "benign_en_012", "label": "benign", "lang": "en", "category": "otp_notice", "text": "459023 is your One Time Password for net banking login. Never share it. - ICICI Bank"}
+{"id": "benign_en_013", "label": "benign", "lang": "en", "category": "otp_notice", "text": "Your UPI transaction OTP is 551204. Do not share this OTP to receive money. - PhonePe"}
+{"id": "benign_en_014", "label": "benign", "lang": "en", "category": "otp_notice", "text": "OTP 771903 to verify your mobile number change. Valid 10 min. Do not disclose. - SBI"}
+{"id": "benign_en_015", "label": "benign", "lang": "en", "category": "otp_notice", "text": "Use 221199 to confirm your Paytm wallet KYC video call appointment. Do not share with anyone."}
+{"id": "benign_en_016", "label": "benign", "lang": "en", "category": "otp_notice", "text": "Your login OTP for the metro app is 660321. Ignore if not requested."}
+{"id": "benign_en_017", "label": "benign", "lang": "en", "category": "kyc_official", "text": "Update your KYC before 31-12-26 to continue mobile services. Visit www.airtel.in/kyc or your nearest store. - Airtel"}
+{"id": "benign_en_018", "label": "benign", "lang": "en", "category": "kyc_official", "text": "As per RBI guidelines, re-submit KYC documents for A/c XX4412 by 31-12-26 at your branch or on the official app. - HDFC Bank"}
+{"id": "benign_en_019", "label": "benign", "lang": "en", "category": "kyc_official", "text": "Your KYC for the demat account is due on 30-12-26. Complete it on the official Groww app. Help: 1800 000 222."}
+{"id": "benign_en_020", "label": "benign", "lang": "en", "category": "kyc_official", "text": "KYC pending for your Paytm wallet. Complete video KYC in the official app to continue using it without interruption."}
+{"id": "benign_en_021", "label": "benign", "lang": "en", "category": "loan_emi", "text": "Your EMI of Rs.14,200 is due on 01-12-26. Pay on time to avoid bounce charges. - Bajaj Housing Finance"}
+{"id": "benign_en_022", "label": "benign", "lang": "en", "category": "loan_emi", "text": "Reminder: personal loan EMI Rs.8,740 due tomorrow. Autopay will attempt debit tonight. - HDFC"}
+{"id": "benign_en_023", "label": "benign", "lang": "en", "category": "loan_emi", "text": "Education loan disbursal of Rs.1,20,000 to the college account is complete. Track it in the official app. - SBI Global Ed"}
+{"id": "benign_en_024", "label": "benign", "lang": "en", "category": "salary", "text": "Your November salary of Rs.45,000 has been credited. Download the payslip from the HRMS portal. - Zylker Corp HR"}
+{"id": "benign_en_025", "label": "benign", "lang": "en", "category": "salary", "text": "Bonus credit: Rs.12,000 credited to your salary account for the FY incentive. - Axis Bank"}
+{"id": "benign_en_026", "label": "benign", "lang": "en", "category": "bill_receipt", "text": "Electricity bill of Rs.860 paid successfully for consumer 0912345. Receipt: www.tsspdcl.co.in/rec8821."}
+{"id": "benign_en_027", "label": "benign", "lang": "en", "category": "bill_receipt", "text": "Your Airtel postpaid bill of Rs.799 was auto-debited. Next bill on 05-12."}
+{"id": "benign_en_028", "label": "benign", "lang": "en", "category": "bill_receipt", "text": "Water bill of Rs.320 paid successfully. Thank you. - HMWSSB"}
+{"id": "benign_en_029", "label": "benign", "lang": "en", "category": "bill_receipt", "text": "Gas booking confirmed for 26-11-26. Rs.905 will be debited on delivery. - Indane"}
+{"id": "benign_en_030", "label": "benign", "lang": "en", "category": "bank_fraud_alert", "text": "HDFC: A transaction of Rs.15,000 was attempted on card xx4412 and has been declined. If this was you, no action is needed. Report fraud: 1800 000 111."}
+{"id": "benign_en_031", "label": "benign", "lang": "en", "category": "bank_fraud_alert", "text": "SBI: Your card xx8821 has been blocked after 3 incorrect PIN attempts. To unblock, use the official app or ATM. Call 1800 000 111 for help."}
+{"id": "benign_en_032", "label": "benign", "lang": "en", "category": "bank_fraud_alert", "text": "Axis Bank fraud desk: we stopped an unauthorised login to your net banking. Password changed on your request. If this was not you, call 1800 000 111 now."}
+{"id": "benign_en_033", "label": "benign", "lang": "en", "category": "marketing", "text": "Mega festive sale: flat 60% off on everything. Ends Sunday midnight. Shop: www.mysite.com/sale"}
+{"id": "benign_en_034", "label": "benign", "lang": "en", "category": "marketing", "text": "New year offer: buy 1 get 1 on movie tickets this week only. Book on the official app."}
+{"id": "benign_en_035", "label": "benign", "lang": "en", "category": "marketing", "text": "Your reward points (2,450) expire on 31-12-26. Redeem them on the official app for vouchers."}
+{"id": "benign_en_036", "label": "benign", "lang": "en", "category": "marketing", "text": "Weekend deal: 2x cashback on recharges above Rs.199 till Sunday midnight."}
+{"id": "benign_en_037", "label": "benign", "lang": "en", "category": "marketing", "text": "You have 1 pending coupon from your last order. Use it in the official app within 30 days."}
+{"id": "benign_en_038", "label": "benign", "lang": "en", "category": "govt_service", "text": "Your DigiLocker account has a new document: Driving License. Open the official app to view it."}
+{"id": "benign_en_039", "label": "benign", "lang": "en", "category": "govt_service", "text": "mParivahan: fitness certificate of vehicle MH12AB1234 is valid till 20-06-27. No action needed."}
+{"id": "benign_en_040", "label": "benign", "lang": "en", "category": "govt_service", "text": "Your income tax return for AY 2026-27 has been e-verified. Refund, if due, will be credited in 4-6 weeks."}
+{"id": "benign_en_041", "label": "benign", "lang": "en", "category": "delivery", "text": "Your Blue Dart shipment 881234567 is out for delivery today. Track: www.bluedart.com/t88123."}
+{"id": "benign_en_042", "label": "benign", "lang": "en", "category": "delivery", "text": "Amazon: your package will arrive today between 2-6 PM. Manage the delivery in the app."}
+{"id": "benign_en_043", "label": "benign", "lang": "en", "category": "delivery", "text": "India Post: your speed post article EM992211334IN was delivered. Signature on record."}

@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "raksha-messageguard"
+version = "0.3.0"
+description = "MessageGuard (Part 3): deterministic, offline scam-script detector for SMS/WhatsApp messages in English, Hindi and Telugu."
+requires-python = ">=3.9"
+dependencies = []
+readme = "README.md"
+
+[tool.setuptools.packages.find]
+include = ["raksha*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

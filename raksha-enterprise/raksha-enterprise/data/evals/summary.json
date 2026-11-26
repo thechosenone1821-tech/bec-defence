@@ -1,0 +1,123 @@
+{
+ "aggregate": {
+  "detection_rate": 0.9194,
+  "fp_rate": 0.0008,
+  "n_attack": 335,
+  "n_clean": 1200
+ },
+ "campaign_wall_clock": {
+  "events": 18,
+  "n_repeats": 50,
+  "p50_ms": 2.472,
+  "p95_ms": 3.73
+ },
+ "generated": "2026-11-26T09:29:23Z",
+ "integrity": {
+  "signed_ok": 34,
+  "tampered_flagged": 6,
+  "unsigned_flagged": 10
+ },
+ "organ_stats": {
+  "docguard": {
+   "detection_rate": 0.92,
+   "fp_rate": 0.0067,
+   "n_attack": 50,
+   "n_clean": 150,
+   "n_flagged": 46,
+   "n_fp": 1
+  },
+  "fileguard": {
+   "detection_rate": 0.9778,
+   "fp_rate": 0.0,
+   "n_attack": 45,
+   "n_clean": 150,
+   "n_flagged": 44,
+   "n_fp": 0
+  },
+  "idguard": {
+   "detection_rate": 0.8857,
+   "fp_rate": 0.0,
+   "n_attack": 35,
+   "n_clean": 150,
+   "n_flagged": 31,
+   "n_fp": 0
+  },
+  "netguard": {
+   "detection_rate": 0.94,
+   "fp_rate": 0.0,
+   "n_attack": 50,
+   "n_clean": 150,
+   "n_flagged": 47,
+   "n_fp": 0
+  },
+  "quorumguard": {
+   "detection_rate": 0.9667,
+   "fp_rate": 0.0,
+   "n_attack": 30,
+   "n_clean": 150,
+   "n_flagged": 29,
+   "n_fp": 0
+  },
+  "sessionguard": {
+   "detection_rate": 0.85,
+   "fp_rate": 0.0,
+   "n_attack": 40,
+   "n_clean": 150,
+   "n_flagged": 34,
+   "n_fp": 0
+  },
+  "tier0guard": {
+   "detection_rate": 0.96,
+   "fp_rate": 0.0,
+   "n_attack": 25,
+   "n_clean": 150,
+   "n_flagged": 24,
+   "n_fp": 0
+  },
+  "voiceguard": {
+   "detection_rate": 0.8833,
+   "fp_rate": 0.0,
+   "n_attack": 60,
+   "n_clean": 150,
+   "n_flagged": 53,
+   "n_fp": 0
+  }
+ },
+ "scope": "MEASURED ON FIXTURES in a sandbox \u2014 not a deployment measurement",
+ "seed": 20261126,
+ "stage_latency": {
+  "fusion_add_us_per_detection": {
+   "n": 46050,
+   "p50": 0.627,
+   "p95": 0.65
+  },
+  "governor_us_per_proposal": {
+   "n": 600,
+   "p50": 2.719,
+   "p95": 2.843
+  },
+  "ledger_append_ms_per_block": {
+   "n": 30,
+   "p50": 0.021,
+   "p95": 0.039
+  },
+  "n_proposals": 3,
+  "n_stream": 1535,
+  "organ_detect_us_per_event": {
+   "n": 46050,
+   "p50": 0.618,
+   "p95": 0.795
+  },
+  "planner_ms_per_campaign": {
+   "n": 30,
+   "p50": 9.052,
+   "p95": 9.092
+  },
+  "verify_event_us_per_event": {
+   "n": 46050,
+   "p50": 7.845,
+   "p95": 8.862
+  }
+ },
+ "system": "raksha-enterprise"
+}

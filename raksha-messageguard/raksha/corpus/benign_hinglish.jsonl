@@ -1,0 +1,16 @@
+{"id": "benign_hinglish_001", "label": "benign", "lang": "hinglish", "category": "bank_txn", "text": "HDFC Bank: Aapke khate XX4412 se 26-11-26 ko Rs.1,250 nikale gaye (UPI/TEXMI TRADERS). Aapne nahi kiya to 1800 000 111 par call karein."}
+{"id": "benign_hinglish_002", "label": "benign", "lang": "hinglish", "category": "bank_txn", "text": "SBI: Khate XX1122 me 26-11-26 ko Rs.25,000 jama hue (salary November). Avl balance Rs.84,212."}
+{"id": "benign_hinglish_003", "label": "benign", "lang": "hinglish", "category": "bank_txn", "text": "HDFC card xx7788 se Big Bazaar Hyderabad me Rs.860 kharch hue. Card block karne ke liye 56767 par SMS karein."}
+{"id": "benign_hinglish_004", "label": "benign", "lang": "hinglish", "category": "bank_txn", "text": "ICICI: Khate XX9021 se Amazon order 402-889 ke liye Rs.5,499 kate gaye. 30-11 tak cancel karne par refund."}
+{"id": "benign_hinglish_005", "label": "benign", "lang": "hinglish", "category": "bank_txn", "text": "Axis Bank: Debit card xx8821 se 26NOV ko ATM Andheri Mumbai me Rs.5,000 nikale. Avl bal Rs.12,340."}
+{"id": "benign_hinglish_006", "label": "benign", "lang": "hinglish", "category": "otp_notice", "text": "HDFC card se Rs.5,000 txn ke liye OTP 448210. Ise kisi ke sath share na karein, bank staff ko bhi nahi."}
+{"id": "benign_hinglish_007", "label": "benign", "lang": "hinglish", "category": "otp_notice", "text": "ICICI: Net banking login ke liye aapka OTP 459023 hai. Ise kabhi share na karein."}
+{"id": "benign_hinglish_008", "label": "benign", "lang": "hinglish", "category": "otp_notice", "text": "PhonePe: Paisa lene ke liye kabhi bhi OTP share mat karo. Aapka txn OTP 551204 hai."}
+{"id": "benign_hinglish_009", "label": "benign", "lang": "hinglish", "category": "bill_receipt", "text": "Consumer 0912345 ka bijli bill Rs.860 successfully pay ho gaya. Receipt www.tsspdcl.co.in/rec8821 par hai."}
+{"id": "benign_hinglish_010", "label": "benign", "lang": "hinglish", "category": "bill_receipt", "text": "Indane: 26-11-26 ke liye gas booking confirm. Delivery par Rs.905 denge."}
+{"id": "benign_hinglish_011", "label": "benign", "lang": "hinglish", "category": "marketing", "text": "Festive sale! Sab par flat 60% off. Sunday midnight tak. Official app par shop karein."}
+{"id": "benign_hinglish_012", "label": "benign", "lang": "hinglish", "category": "marketing", "text": "New year offer: is hafte movie tickets buy 1 get 1. Official app par book karein."}
+{"id": "benign_hinglish_013", "label": "benign", "lang": "hinglish", "category": "govt_service", "text": "DigiLocker: Aapke khate me naya document aaya hai - Driving License. Official app se dekhein."}
+{"id": "benign_hinglish_014", "label": "benign", "lang": "hinglish", "category": "loan_emi", "text": "Bajaj Housing: Aapki EMI Rs.14,200 01-12-26 ko due hai. Time par pay karein taki bounce charge na lage."}
+{"id": "benign_hinglish_015", "label": "benign", "lang": "hinglish", "category": "kyc_official", "text": "Airtel: Mobile services continue karne ke liye 31-12-26 se pehle KYC update karein. www.airtel.in/kyc ya nearest store par jayein."}
+{"id": "benign_hinglish_016", "label": "benign", "lang": "hinglish", "category": "bank_fraud_alert", "text": "SBI: Aapke card xx8821 ko 3 baar galat pin daalne par block kar diya gaya hai. Kholne ke liye official app ya ATM use karein. Help: 1800 000 111."}

@@ -1,0 +1,24 @@
+{"id": "benign_hi_001", "label": "benign", "lang": "hi", "category": "bank_txn", "text": "एचडीएफसी बैंक: खाता XX4412 से 26-11-26 को ₹1,250 निकाले गए (UPI/TEXMI TRADERS)। यदि आपने नहीं किया तो 1800 000 111 पर कॉल करें।"}
+{"id": "benign_hi_002", "label": "benign", "lang": "hi", "category": "bank_txn", "text": "एसबीआई: खाता XX1122 में 26-11-26 को ₹25,000 जमा हुए (वेतन नवंबर)। उपलब्ध शेष ₹84,212।"}
+{"id": "benign_hi_003", "label": "benign", "lang": "hi", "category": "bank_txn", "text": "एचडीएफसी कार्ड xx7788 से बिग बाजार हैदराबाद में ₹860 खर्च हुए। कार्ड ब्लॉक करने के लिए 56767 पर SMS करें।"}
+{"id": "benign_hi_004", "label": "benign", "lang": "hi", "category": "bank_txn", "text": "आईसीआईसीआई: खाता XX9021 से अमेज़न ऑर्डर 402-889 के लिए ₹5,499 किए गए। 30-11 तक रद्द करने पर रिफंड।"}
+{"id": "benign_hi_005", "label": "benign", "lang": "hi", "category": "bank_txn", "text": "आक्सिस बैंक: डेबिट कार्ड xx8821 से 26NOV को एटीएम अंधेरी मुंबई में ₹5,000 निकाले। शेष ₹12,340।"}
+{"id": "benign_hi_006", "label": "benign", "lang": "hi", "category": "bank_txn", "text": "फोनपे: श्री साई मेस को ₹450 का यूपीआई भुगतान सफल। रेफ 6123xx881। आपने नहीं किया तो 1930 पर डायल करें।"}
+{"id": "benign_hi_007", "label": "benign", "lang": "hi", "category": "bank_txn", "text": "एसबीआई: आपकी एफडी XX3412 परिपक्व हुई। ₹1,05,000 बचत खाते में जमा हुए। आधिकारिक ऐप पर नवीनीकरण करें।"}
+{"id": "benign_hi_008", "label": "benign", "lang": "hi", "category": "otp_notice", "text": "एचडीएफसी कार्ड से ₹5,000 के लेनदेन के लिए OTP 448210। इसे किसी के साथ शेयर न करें, बैंक स्टाफ को भी नहीं।"}
+{"id": "benign_hi_009", "label": "benign", "lang": "hi", "category": "otp_notice", "text": "आईसीआईसीआई: नेट बैंकिंग लॉगिन के लिए आपका ओटीपी 459023 है। इसे कभी साझा न करें।"}
+{"id": "benign_hi_010", "label": "benign", "lang": "hi", "category": "otp_notice", "text": "एसबीआई: मोबाइल नंबर बदलने के सत्यापन के लिए OTP 771903। इसे किसी को न बताएं।"}
+{"id": "benign_hi_011", "label": "benign", "lang": "hi", "category": "otp_notice", "text": "फोनपे: पैसा पाने के लिए कभी भी OTP शेयर न करें। आपका लेनदेन OTP 551204 है।"}
+{"id": "benign_hi_012", "label": "benign", "lang": "hi", "category": "kyc_official", "text": "एचडीएफसी बैंक: आरबीआई दिशानिर्देशों के अनुसार, खाता XX4412 के लिए 31-12-26 तक केवाईसी दस्तावेज़ दोबारा जमा करें — ब्रांच पर या आधिकारिक ऐप पर।"}
+{"id": "benign_hi_013", "label": "benign", "lang": "hi", "category": "kyc_official", "text": "एयरटेल: मोबाइल सेवाएं जारी रखने के लिए 31-12-26 से पहले केवाईसी अपडेट करें। www.airtel.in/kyc या नजदीकी स्टोर पर जाएं।"}
+{"id": "benign_hi_014", "label": "benign", "lang": "hi", "category": "loan_emi", "text": "बजाज हाउसिंग: आपकी किस्त ₹14,200 01-12-26 को देय है। समय पर भुगतान करें ताकि बाउंस चार्ज न लगे।"}
+{"id": "benign_hi_015", "label": "benign", "lang": "hi", "category": "loan_emi", "text": "एचडीएफसी: व्यक्तिगत लोन किस्त ₹8,740 कल देय है। आज रात ऑटोपे डेबिट कोशिश करेगा।"}
+{"id": "benign_hi_016", "label": "benign", "lang": "hi", "category": "bill_receipt", "text": "उपभोक्ता 0912345 का बिजली बिल ₹860 सफलतापूर्वक भुगतान हुआ। रसीद www.tsspdcl.co.in/rec8821 पर।"}
+{"id": "benign_hi_017", "label": "benign", "lang": "hi", "category": "bill_receipt", "text": "एयरटेल पोस्टपेड बिल ₹799 ऑटो-डेबिट हुआ। अगला बिल 05-12 को।"}
+{"id": "benign_hi_018", "label": "benign", "lang": "hi", "category": "bill_receipt", "text": "इंडेन: 26-11-26 के लिए गैस बुकिंग पुष्ट। डिलीवरी पर ₹905 देय होंगे।"}
+{"id": "benign_hi_019", "label": "benign", "lang": "hi", "category": "bank_fraud_alert", "text": "एसबीआई: आपके कार्ड xx8821 को 3 बार गलत पिन डालने के बाद ब्लॉक कर दिया गया है। खोलने के लिए आधिकारिक ऐप या एटीएम का उपयोग करें। सहायता: 1800 000 111।"}
+{"id": "benign_hi_020", "label": "benign", "lang": "hi", "category": "bank_fraud_alert", "text": "एचडीएफसी: कार्ड xx4412 पर ₹15,000 का लेनदेन अस्वीकृत कर दिया गया। यदि आपने किया है तो कुछ न करें। धोखाधड़ी रिपोर्ट: 1800 000 111।"}
+{"id": "benign_hi_021", "label": "benign", "lang": "hi", "category": "marketing", "text": "त्योहार सेल: सब पर फ्लैट 60% छूट। रविवार आधी रात तक। आधिकारिक ऐप पर खरीदें।"}
+{"id": "benign_hi_022", "label": "benign", "lang": "hi", "category": "marketing", "text": "नए साल ऑफर: इस हफ्ते फिल्म टिकट पर एक के साथ एक मुफ्त। आधिकारिक ऐप पर बुक करें।"}
+{"id": "benign_hi_023", "label": "benign", "lang": "hi", "category": "govt_service", "text": "डिजिलॉकर: आपके खाते में नया दस्तावेज़ आया है — ड्राइविंग लाइसेंस। आधिकारिक ऐप से देखें।"}
+{"id": "benign_hi_024", "label": "benign", "lang": "hi", "category": "govt_service", "text": "आयकर: आपका रिटर्न एवेरिफाई हो गया है। रिफंड, देय होने पर, 4-6 सप्ताह में जमा होगा।"}

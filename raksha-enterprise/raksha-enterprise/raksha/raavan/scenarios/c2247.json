@@ -1,0 +1,98 @@
+{
+  "scenario_id": "C-2247",
+  "name": "Staged Ransom via Vendor Invoice",
+  "case_id": "case-7f3a9c",
+  "framing": "RAAVAN emits detections of its own attacks through the normal verification path. It replays a signed attack corpus; it is not a live adversary.",
+  "steps": [
+    {
+      "id": "S0",
+      "label": "background traffic + integrity probes (1 unsigned, 1 tampered)",
+      "events": [
+        {"event_id": "EV-B01", "ts": "2026-11-26T09:00:30Z", "organ": "netguard", "campaign_id": "", "case_id": "", "leg": "infra", "severity": 1, "entity": "N-BUILD-SRV", "summary": "routine egress summary - within baseline", "payload": {"note": "routine telemetry"}},
+        {"event_id": "EV-B02", "ts": "2026-11-26T09:01:15Z", "organ": "idguard", "campaign_id": "", "case_id": "", "leg": "infra", "severity": 1, "entity": "N-IDENTITY-VAULT", "summary": "routine auth audit - no anomaly", "payload": {"note": "routine telemetry"}},
+        {"event_id": "EV-U01", "ts": "2026-11-26T09:07:50Z", "organ": "fileguard", "campaign_id": "C-2247", "case_id": "case-7f3a9c", "leg": "infra", "severity": 2, "entity": "N-BUILD-SRV", "summary": "unsigned sensor event - unverified source", "payload": {"encrypt_events_per_min": 12, "shadow_delete": 0, "entropy": 3.1}, "unsigned": true},
+        {"event_id": "EV-T01", "ts": "2026-11-26T09:08:10Z", "organ": "netguard", "campaign_id": "C-2247", "case_id": "case-7f3a9c", "leg": "infra", "severity": 3, "entity": "N-VENDOR-AP", "summary": "egress spike to unknown ASN", "payload": {"egress_gb_24h": 2.6, "dest_reputation": 0.21, "beacon_interval_jitter": 0.31}, "tamper": true}
+      ],
+      "expect": {"detections": [], "quarantined": 2}
+    },
+    {
+      "id": "S1",
+      "label": "voice-clone scam call (citizen leg)",
+      "events": [
+        {"event_id": "EV-101", "ts": "2026-11-26T09:03:30Z", "organ": "voiceguard", "campaign_id": "C-2247", "case_id": "case-7f3a9c", "leg": "citizen", "severity": 4, "entity": "N-VICTIM-PHONE", "summary": "synthetic voice on inbound call - high synth score", "payload": {"synth_score": 0.93, "caller_reputation": 0.11, "call_duration_s": 482, "spoofed_cli": 1}},
+        {"event_id": "EV-102", "ts": "2026-11-26T09:03:55Z", "organ": "idguard", "campaign_id": "C-2247", "case_id": "case-7f3a9c", "leg": "citizen", "severity": 3, "entity": "N-IDENTITY-VAULT", "summary": "caller talked past identity quiz - reset request on vault recovery path", "payload": {"privilege_requests_24h": 17, "new_device": 1, "time_of_day_anomaly": 1}},
+        {"event_id": "EV-103", "ts": "2026-11-26T09:04:20Z", "organ": "tier0guard", "campaign_id": "C-2247", "case_id": "case-7f3a9c", "leg": "citizen", "severity": 3, "entity": "N-IDENTITY-VAULT", "summary": "crown-adjacent access attempt from call context", "payload": {"crown_touch_events": 3, "dependency_depth_traversed": 1}}
+      ],
+      "expect": {"detections": [
+        {"organ": "voiceguard", "entity": "N-VICTIM-PHONE"},
+        {"organ": "idguard", "entity": "N-IDENTITY-VAULT"},
+        {"organ": "tier0guard", "entity": "N-IDENTITY-VAULT"}
+      ]}
+    },
+    {
+      "id": "S2",
+      "label": "poisoned vendor invoice (infra leg, fused by case token)",
+      "events": [
+        {"event_id": "EV-201", "ts": "2026-11-26T09:05:40Z", "organ": "docguard", "campaign_id": "C-2247", "case_id": "case-7f3a9c", "leg": "infra", "severity": 4, "entity": "N-INVOICE-DOC", "summary": "vendor invoice with changed bank details - vendor account 19 days old", "payload": {"vendor_age_days": 19, "bank_detail_changed": 1, "amount_z": 4.7, "pdf_metadata_mismatch": 1}},
+        {"event_id": "EV-202", "ts": "2026-11-26T09:06:05Z", "organ": "docguard", "campaign_id": "C-2247", "case_id": "case-7f3a9c", "leg": "infra", "severity": 3, "entity": "N-INVOICE-DOC", "summary": "second invoice same vendor family - under approval threshold", "payload": {"vendor_age_days": 23, "bank_detail_changed": 1, "amount_z": 3.9, "pdf_metadata_mismatch": 0}}
+      ],
+      "expect": {"detections": [{"organ": "docguard", "entity": "N-INVOICE-DOC"}], "decisions": [{"proposal_suffix": "N-INVOICE-DOC", "verdict": "ALLOWED"}]}
+    },
+    {
+      "id": "S3",
+      "label": "session replay (citizen leg)",
+      "events": [
+        {"event_id": "EV-301", "ts": "2026-11-26T09:07:10Z", "organ": "sessionguard", "campaign_id": "C-2247", "case_id": "case-7f3a9c", "leg": "citizen", "severity": 4, "entity": "N-BANK-SESSION", "summary": "session token replayed from second geography within 4 minutes", "payload": {"token_reuse_count": 3, "geo_distance_km": 1420, "ua_change": 1}},
+        {"event_id": "EV-302", "ts": "2026-11-26T09:07:35Z", "organ": "netguard", "campaign_id": "C-2247", "case_id": "case-7f3a9c", "leg": "citizen", "severity": 3, "entity": "N-VICTIM-ACCT", "summary": "payment callback to fresh beneficiary - beacon-like periodicity", "payload": {"egress_gb_24h": 0.4, "dest_reputation": 0.12, "beacon_interval_jitter": 0.03}},
+        {"event_id": "EV-B03", "ts": "2026-11-26T09:02:00Z", "organ": "fileguard", "campaign_id": "", "case_id": "", "leg": "infra", "severity": 1, "entity": "N-BACKUP-TARGET", "summary": "backup index check - nominal", "payload": {"note": "routine telemetry"}}
+      ],
+      "expect": {"detections": [
+        {"organ": "sessionguard", "entity": "N-BANK-SESSION"},
+        {"organ": "netguard", "entity": "N-VICTIM-ACCT"}
+      ], "decisions": [{"proposal_suffix": "N-BANK-SESSION", "verdict": "ALLOWED"}]}
+    },
+    {
+      "id": "S4",
+      "label": "ransomware staging + exfil (infra leg)",
+      "events": [
+        {"event_id": "EV-401", "ts": "2026-11-26T09:09:20Z", "organ": "fileguard", "campaign_id": "C-2247", "case_id": "case-7f3a9c", "leg": "infra", "severity": 5, "entity": "N-BUILD-SRV", "summary": "mass file-encrypt burst on build server - shadow copies deleted", "payload": {"encrypt_events_per_min": 940, "shadow_delete": 1, "entropy": 7.8}},
+        {"event_id": "EV-402", "ts": "2026-11-26T09:09:45Z", "organ": "netguard", "campaign_id": "C-2247", "case_id": "case-7f3a9c", "leg": "infra", "severity": 5, "entity": "N-BUILD-SRV", "summary": "2.9 GB egress to low-reputation ASN in 12 min - staged exfil", "payload": {"egress_gb_24h": 2.9, "dest_reputation": 0.07, "beacon_interval_jitter": 0.02}},
+        {"event_id": "EV-403", "ts": "2026-11-26T09:10:10Z", "organ": "fileguard", "campaign_id": "C-2247", "case_id": "case-7f3a9c", "leg": "infra", "severity": 4, "entity": "N-BACKUP-TARGET", "summary": "backup share enumeration followed by delete attempts", "payload": {"encrypt_events_per_min": 210, "shadow_delete": 1, "entropy": 7.4}}
+      ],
+      "expect": {"detections": [
+        {"organ": "fileguard", "entity": "N-BUILD-SRV"},
+        {"organ": "netguard", "entity": "N-BUILD-SRV"},
+        {"organ": "fileguard", "entity": "N-BACKUP-TARGET"}
+      ], "decisions": [{"proposal_suffix": "ICU-CUT", "verdict": "REFUSED"}, {"proposal_suffix": "N-BUILD-SRV-EGRESS", "verdict": "ALLOWED"}]}
+    },
+    {
+      "id": "S5",
+      "label": "governor probing at the crown (no new containment targets)",
+      "events": [
+        {"event_id": "EV-501", "ts": "2026-11-26T09:11:20Z", "organ": "quorumguard", "campaign_id": "C-2247", "case_id": "case-7f3a9c", "leg": "infra", "severity": 5, "entity": "N-TIER0-CORE", "summary": "rapid-fire containment-API probes - signature anomaly count 3", "payload": {"decision_probe_rate": 0.71, "ledger_gap_events": 0, "signature_anomalies": 3}},
+        {"event_id": "EV-502", "ts": "2026-11-26T09:11:45Z", "organ": "tier0guard", "campaign_id": "C-2247", "case_id": "case-7f3a9c", "leg": "infra", "severity": 4, "entity": "N-TIER0-CORE", "summary": "probe path traverses 2 dependency hops toward crown asset", "payload": {"crown_touch_events": 5, "dependency_depth_traversed": 2}},
+        {"event_id": "EV-503", "ts": "2026-11-26T09:12:10Z", "organ": "idguard", "campaign_id": "C-2247", "case_id": "case-7f3a9c", "leg": "infra", "severity": 4, "entity": "N-TIER0-CORE", "summary": "credential stuffing pattern against containment service account", "payload": {"privilege_requests_24h": 28, "new_device": 1, "time_of_day_anomaly": 1}}
+      ],
+      "expect": {"detections": [
+        {"organ": "quorumguard", "entity": "N-TIER0-CORE"},
+        {"organ": "tier0guard", "entity": "N-TIER0-CORE"},
+        {"organ": "idguard", "entity": "N-TIER0-CORE"}
+      ]}
+    },
+    {
+      "id": "S6",
+      "label": "decision summary (no new events)",
+      "events": [],
+      "expect": {}
+    }
+  ],
+  "expect": {
+    "total_detections": 13,
+    "quarantined": 2,
+    "campaign_fused": true,
+    "allowances": 3,
+    "refusals": 1,
+    "refused_proposal_suffix": "ICU-CUT",
+    "fallback_allowed_suffix": "N-BUILD-SRV-EGRESS"
+  }
+}
