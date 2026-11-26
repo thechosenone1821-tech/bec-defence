@@ -17,6 +17,67 @@ async function api(path, body) {
 
 function esc(s) { const d = document.createElement("div"); d.textContent = String(s); return d.innerHTML; }
 
+/* --- family mode (Part 1, Phase 2) ------------------------------------
+ * Changes presentation only, never a verdict. Stored on this phone only.
+ * ------------------------------------------------------------------- */
+const family = window.RakshaFamily || null;
+let familyState = family ? family.readFamily(window.localStorage) : {enabled: false};
+
+function applyFamilyClass() {
+  document.body.classList.toggle("family-mode", Boolean(familyState.enabled));
+  const chk = document.getElementById("chkFamily");
+  if (chk) chk.checked = Boolean(familyState.enabled);
+  const sev = document.querySelector(".sev");
+  if (sev && family) sev.classList.toggle("hidden", family.hideSeveritySlider(familyState));
+}
+
+/* Present a verdict through family mode. The verdict itself is untouched;
+ * only emphasis and whether the screen demands action can change. */
+function present(verdict) {
+  if (!family) return {cssClasses: ["verdict", String(verdict)], actionable: false};
+  return family.presentVerdict(verdict, familyState);
+}
+
+/* --- panic button (Part 1, Phase 2, task 2.1) -------------------------
+ * Order is the safety property: lock -> stop capture -> dial.
+ * See citizen/app/panic.js for why. Nothing here is optional.
+ * ------------------------------------------------------------------- */
+let activeCapture = null;
+
+function wirePanic() {
+  const btn = document.getElementById("btnPanic");
+  if (!btn || !window.RakshaPanic) return;
+  btn.addEventListener("click", () => {
+    window.RakshaPanic.runPanic({
+      lock: () => window.RakshaPanic.showOverlay(
+        document, lang(),
+        () => { /* Cancel: the overlay removes itself; capture is already off */ }),
+      stopCapture: () => {
+        if (activeCapture && typeof activeCapture.stop === "function") {
+          activeCapture.stop();
+          activeCapture = null;
+        }
+        const ind = document.getElementById("voiceIndicator");
+        if (ind) { ind.textContent = ""; ind.classList.remove("live"); }
+      },
+      dial: () => { window.location.href = "tel:1930"; },
+    });
+  });
+}
+
+document.addEventListener("DOMContentLoaded", applyFamilyClass);
+document.addEventListener("DOMContentLoaded", wirePanic);
+{
+  const chk = document.getElementById("chkFamily");
+  if (chk) {
+    chk.addEventListener("change", () => {
+      familyState = {...familyState, enabled: chk.checked};
+      if (family) family.writeFamily(window.localStorage, chk.checked);
+      applyFamilyClass();
+    });
+  }
+}
+
 /* --- message screening --- */
 const btnMsg = document.getElementById("btnScreenMessage");
 const msgBox = document.getElementById("msgText");
@@ -34,10 +95,11 @@ btnMsg.addEventListener("click", async () => {
     //   (a) broke the spine's own "never show a raw score" rule, and
     //   (b) printed English diagnostics on a Hindi/Telugu screen.
     const ex = v.explanation || {};
-    const band = {CRITICAL: "CRITICAL", HIGH: "HIGH", MODERATE: "MODERATE"}[v.verdict] || "LOW";
-    const icon = {CRITICAL: "⛔", HIGH: "⚠️", MODERATE: "❔", LOW: "✓"}[band];
+    const band = v.verdict || "LOW";
+    const pres = present(band);
+    const icon = {CRITICAL: "⛔", HIGH: "⚠️", MODERATE: "❔", LOW: "✓"}[band] || "❔";
     msgOut.innerHTML = `
-      <div class="verdict ${band}" data-icon="${icon}">${esc(ex.title || v.verdict)}</div>
+      <div class="${pres.cssClasses.join(" ")}" data-icon="${icon}">${esc(ex.title || v.verdict)}</div>
       <div class="voice-action">${esc(ex.action || "Call 1930 if in doubt.")}</div>
       <ul>${(ex.reasons||[]).map(r => `<li>${esc(r)}</li>`).join("")}</ul>
       <div class="helpline">${esc(ex.disclaimer || "Advisory only.")}</div>`;
@@ -73,10 +135,11 @@ function renderVoice(v) {
   const band = v.verdict === "LIKELY_SYNTHETIC" ? "CRITICAL"
              : v.verdict === "SUSPICIOUS" ? "HIGH"
              : v.verdict === "SILENT" ? "LOW" : "MODERATE";
+  const pres = present(band);
   const icon = {CRITICAL: "⛔", HIGH: "⚠️", MODERATE: "❔", LOW: "🔇"}[band];
   voiceOut.classList.remove("hidden");
   voiceOut.innerHTML = `
-    <div class="verdict ${band}" data-icon="${icon}">${esc(ex.title || v.verdict)}</div>
+    <div class="${pres.cssClasses.join(" ")}" data-icon="${icon}">${esc(ex.title || v.verdict)}</div>
     <div class="voice-action">${esc(ex.action || "Call 1930 if in doubt.")}</div>
     ${(ex.reasons || []).length ? `<ul>${ex.reasons.map(r => `<li>${esc(r)}</li>`).join("")}</ul>` : ""}
     <div class="helpline">${esc(ex.disclaimer || "Advisory only.")}</div>
@@ -105,17 +168,18 @@ btnVoice.addEventListener("click", async () => {
       <div>This browser cannot record. Try the bundled sample below, or open the app over http:// or https://.</div>`;
     return;
   }
-  const capture = window.MayaCapture.create({
+  activeCapture = window.MayaCapture.create({
     onState: (st) => {
       if (voiceIndicator) {
         voiceIndicator.textContent = st === "CAPTURING" ? "● Recording (3 s buffer, discarded on stop)" : "";
         voiceIndicator.classList.toggle("live", st === "CAPTURING");
       }
     },
-    onSamples: (buf) => { analyse(Array.from(buf)).then(() => capture.stop()); },
+    onSamples: (buf) => { analyse(Array.from(buf)).then(() => activeCapture && activeCapture.stop()); },
   });
-  capture.setConsent(true);                   // the consent screen gates this in production
-  const state = await capture.start();
+  if (!activeCapture) return;
+  activeCapture.setConsent(true);             // the consent screen gates this in production
+  const state = await activeCapture.start();
   if (state !== "CAPTURING") {
     voiceOut.classList.remove("hidden");
     voiceOut.innerHTML = `<div class="verdict MODERATE" data-icon="❔">Microphone not available</div>

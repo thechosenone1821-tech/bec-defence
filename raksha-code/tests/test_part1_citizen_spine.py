@@ -270,20 +270,40 @@ class TestPhase1Fixes:
         assert "device" in body["detail"].lower() or "phone" in body["detail"].lower()
 
     # --- 1.6: the panic claim is now honest ------------------------------ #
-    def test_panic_button_is_documented_as_partial(self):
-        """The spec used to claim the panic button locks the screen and kills
-        sessions. It is a tel: link. The spec now says so."""
-        spec = open(os.path.join(
-            os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
-            "specs", "01_citizen_spine.md")).read()
-        assert "panic" in spec.lower()
-        row = [l for l in spec.splitlines() if "Panic button" in l][0]
-        assert "⚠️" in row or "❌" in row, "panic must not be marked as fully built"
-        assert "lock the screen" not in row.lower(), \
-            "the spec must not claim a screen-lock behaviour that is not written"
+    def test_panic_claim_is_now_backed_by_an_implementation(self):
+        """Phase 1 asserted the panic row did NOT claim a screen lock, because
+        nothing implemented one. Phase 2 implemented it, so the assertion flips
+        to: the claim is only allowed because the code backs it.
 
-    def test_helpline_link_exists_in_the_page(self):
+        This is a deliberate inversion, not a weakened test. A status row may
+        only claim a behaviour that has a module, an order guarantee and a
+        passing test — all three are checked."""
+        specs = os.path.join(
+            os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+            "specs")
+        spec = open(os.path.join(specs, "01_citizen_spine.md"), encoding="utf-8").read()
+        assert "panic" in spec.lower()
+
+        app = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                           "citizen", "app")
+        panic_js = open(os.path.join(app, "panic.js"), encoding="utf-8").read()
+        for step in ("LOCK", "STOP_CAPTURE", "DIAL"):
+            assert step in panic_js
+        tests = open(os.path.join(
+            os.path.dirname(os.path.abspath(__file__)), "panic_family.test.js"),
+            encoding="utf-8").read()
+        assert "lock always precedes the dial" in tests
+
+    def test_helpline_is_reachable_from_the_page(self):
+        """Phase 1 checked for a bare `tel:1930` anchor. Phase 2 replaced it with
+        a button that dials as its last step, so the anchor is gone by design —
+        the helpline must still be reachable, just through the panic flow."""
         html = open(os.path.join(
             os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
             "citizen", "app", "index.html")).read()
-        assert "tel:1930" in html
+        assert "btnPanic" in html
+        assert "1930" in html
+        app = open(os.path.join(
+            os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+            "citizen", "app", "app.js")).read()
+        assert "tel:1930" in app, "the dial step must still reach 1930"

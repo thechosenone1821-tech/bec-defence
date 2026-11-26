@@ -26,6 +26,12 @@
     <h1>The shield between your family<br>and the scammers.</h1>
     <p class="lede">Paste a suspicious message. Screen a suspicious call.
        Report with one tap. Raksha watches so you don't have to.</p>
+    <div class="family-row">
+      <label class="family-toggle">
+        <input type="checkbox" id="chkFamily">
+        <span><b>Family mode</b> — for elders: louder warnings, fewer questions</span>
+      </label>
+    </div>
     <div class="stats">
       <div class="stat"><b>1930</b><span>National cybercrime helpline</span></div>
       <div class="stat"><b>&lt;2s</b><span>on-device verdict time</span></div>
@@ -72,7 +78,8 @@
     </label>
     <button class="primary" id="btnReport">Send report</button>
     <div id="reportResult" class="result hidden"></div>
-    <a class="panic" href="tel:1930">🆘 Need help now? Call 1930</a>
+    <button class="panic" id="btnPanic" type="button">🆘 Need help now? Call 1930</button>
+    <p class="panic-note">Closes this screen, switches off the microphone, then dials 1930.</p>
   </section>
 </main>
 
@@ -81,6 +88,8 @@
 </footer>
 <script src="maya-capture.js"></script>
 <script src="maya-capture-worklet.js"></script>
+<script src="panic.js"></script>
+<script src="family.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

@@ -23,15 +23,21 @@
 | **Multilingual layer** | Every reason code renders a real sentence in en / hi / te; every non-trivial verdict ends with an action | ✅ built |
 | **Capture & privacy** | 3-second ring buffer, consent gate, visible recording indicator, zero retention | ✅ built |
 | **Report rail** | Signed, tokenised, minimal report into the shared graph | ✅ built |
-| **Panic button** | One tap to 1930 | ⚠️ **partial — helpline link only** |
+| **Panic button** | Lock the screen → stop capture → dial 1930 | ✅ built (Phase 2) |
 | **Family mode** | Stricter defaults and louder warnings for elders | ❌ not built |
 
-**Correction (Phase 1).** This table previously marked the panic button ✅ and
-described it as *"one tap to 1930 with the screen locked behind it"*. The screen
-lock and session-kill were **never written** — `index.html` contains a `tel:1930`
-link and nothing else. Marking an unwritten safety behaviour as built is the
-specific kind of claim this project is supposed to refuse, so it is corrected here
-rather than quietly deleted. The full behaviour is Phase 2, task 2.1.
+**Correction (Phase 1), now resolved (Phase 2).** This table previously marked the
+panic button ✅ and described it as *"one tap to 1930 with the screen locked behind
+it"* when `index.html` contained a `tel:1930` link and nothing else. Phase 2 built
+it for real, in the only safe order: **lock → stop capture → dial**. If the dialler
+opened first, the phone app would cover the scam screen and the user would return
+to an unchanged, still-convincing page.
+
+**What the panic button cannot do, and why.** It cannot end the scammer's call,
+kill other apps, or "close the session". That requires Android accessibility
+permissions, which §8 of this document forbids (no IME or keystroke access).
+The original spec promised it anyway. A privacy rule that is abandoned the moment
+it becomes inconvenient is not a privacy rule.
 
 ---
 
@@ -160,3 +166,24 @@ explain(score_voice_result, lang) → { title, action, reasons[], actionable }
 - It does not detect voices (Part 2) or scam text (Part 3).
 - It does not claim any accuracy — it has none of its own to claim.
 - It does not store, upload, or retain audio under any configuration.
+
+---
+
+## 9. Family mode (Phase 2)
+
+The people who most need this app are the least able to judge a verdict.
+
+| Behaviour | Effect |
+|---|---|
+| **Stricter** | A `MODERATE` band becomes actionable on screen instead of staying advisory |
+| **Louder** | Larger type, roomier targets (≥52 px), no auto-dismiss |
+| **Simpler** | The severity slider is hidden on the report screen |
+
+**The hard rule: family mode changes presentation, never a verdict.** The same
+clip must receive the same answer regardless of who is holding the phone. The
+escalation is *labelled* on screen ("· FAMILY MODE") so the user is never told the
+detector said something it did not.
+
+Stored in `localStorage` only. No account, no sync, no server-side profile — this
+is §8, not a TODO. Default is **off**; a mode that activates without the user
+asking would be its own false claim.

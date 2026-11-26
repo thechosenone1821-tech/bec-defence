@@ -160,7 +160,7 @@ the two things that are genuinely missing.**
 
 ---
 
-# PHASE 2 — COMPLETE THE SPINE
+# PHASE 2 — COMPLETE THE SPINE ✅ COMPLETE
 
 **Goal:** the two behaviours Part 1 claims are still missing.
 
@@ -186,6 +186,74 @@ the user comes back to an unchanged screen, nothing was achieved.
 Android without accessibility permissions that Part 1 §8 forbids. That sentence in
 the original spec was not implementable under this project's own privacy rules —
 which is another reason it should never have been marked ✅.
+
+### Phase 2 result — ✅ COMPLETE
+
+```
+pytest tests/test_part1_phase2.py   → 21 passed
+node --test tests/panic_family.test.js → 23 passed
+pytest tests/ -q                    → 359 passed
+node tests (both suites)            → 53 passed
+```
+
+**412 checks, 0 failures.**
+
+Verified against a live server: `/app/panic.js` and `/app/family.js` both 200,
+and the page loads them before `app.js`.
+
+**Panic, traced end to end in a simulated tap:**
+
+```
+steps   : LOCK -> STOP_CAPTURE -> DIAL
+mic off : true   buffer cleared: true   dialled: 1930
+```
+
+**Family mode on a `MODERATE` verdict:**
+
+| | actionable | band |
+|---|---|---|
+| family off | false | MODERATE |
+| family on | **true** | MODERATE *(unchanged)* |
+
+And `LOW` stays **non-actionable** with family mode on — escalation makes the app
+more cautious, never more accusatory.
+
+### What Phase 2 built
+
+| Task | Outcome |
+|---|---|
+| 2.1 Panic button | `citizen/app/panic.js` — lock → stop capture → dial, order enforced by test |
+| 2.2 Family mode | `citizen/app/family.js` — stricter / louder / simpler, presentation only |
+| 2.3 Storage | `localStorage` boolean only; no account, no sync, no server |
+| 2.4 Voice tab languages | verified present from Phase 1 |
+
+### Design decisions worth recording
+
+1. **No confirmation dialog on panic.** In the situation this button exists for,
+   "are you sure?" costs the seconds that matter. A single large Cancel is
+   offered on the overlay instead.
+2. **Every panic step is attempted even if an earlier one throws.** A failed
+   overlay must not stop the call to 1930; a failed buffer-zero must not stop the
+   overlay. Tested in both directions.
+3. **The overlay is fully opaque.** If any of the scam screen showed through, the
+   scammer's instructions would still be readable, which defeats the purpose.
+   A test asserts `opacity` is absent from the overlay rule.
+4. **Family mode is labelled on screen** ("· FAMILY MODE") so the user is never
+   told the detector said something it did not.
+5. **The panic button still cannot end the caller's session.** That needs Android
+   accessibility permissions, which §8 forbids. The spec now says so explicitly.
+
+### Tests that deliberately inverted
+
+Two Phase 1 tests asserted the panic button was *partial* — that the spec must
+**not** claim a screen lock:
+- `test_panic_button_is_documented_as_partial`
+- `test_helpline_link_exists_in_the_page` (checked for a bare `tel:` anchor)
+
+Phase 2 made both assertions obsolete. Rather than deleting them, they were
+rewritten to assert the *stronger* thing: a status row may only claim a behaviour
+that has a module, an order guarantee and a passing test — all three are now
+checked. A false assertion evolving into a true one is the system working.
 
 ### 2.2 Family mode design
 
@@ -221,7 +289,7 @@ district hospital could hand to a patient.
 | Phase | Status | Tests |
 |---|---|---|
 | 1 — Truth & verification | ✅ **complete** | +40 (368 total) |
-| 2 — Complete the spine | ⬜ not started | — |
+| 2 — Complete the spine | ✅ **complete** | +44 (412 total) |
 | 3 — Harden & ship | ⬜ not started | — |
 
 > Test counts are runner-reported, never aspirational.

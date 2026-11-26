@@ -56,7 +56,7 @@ ledger and Governor that both apps depend on).
 
 | Part | Built | Honest verdict |
 |---|---|---|
-| 1 · Citizen spine | **90%** | Phase 1 done (+40 tests). Panic + family mode in Phase 2. |
+| 1 · Citizen spine | **95%** | Phases 1–2 done (+84 tests). Phase 3 is hardening. |
 | 2 · VoiceGuard | **65%** | Real pipeline, real measurements — on fake data. |
 | 3 · MessageGuard | **55%** | Rules work; corpus far too small to claim accuracy. |
 | 4 · Detection rings | **70%** | 8/8 organs coded; none seen real traffic. |

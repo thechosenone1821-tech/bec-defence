@@ -89,3 +89,86 @@ footer { text-align: center; color: var(--muted); font-size: .6rem; padding: 12p
 
 .case-ref { width: 100%; background: var(--panel); color: var(--text); border: 1px dashed #22304f;
   border-radius: 8px; padding: 10px; font-size: .8rem; margin-bottom: 10px; }
+
+/* --- panic overlay (Part 1, Phase 2) ---------------------------------
+ * Deliberately covers the entire viewport with no dismissal except an explicit
+ * large Cancel. If a scam screen were to remain partly visible behind it, the
+ * scammer's instructions would still be readable, which defeats the purpose.
+ * ------------------------------------------------------------------- */
+.panic-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.2rem;
+  background: #08101d;            /* fully opaque: nothing behind is readable */
+}
+
+.panic-card {
+  max-width: 30rem;
+  width: 100%;
+  text-align: center;
+  padding: 1.6rem 1.2rem;
+  border-radius: 14px;
+  border: 3px solid var(--danger);
+  background: #0f1a2b;
+}
+
+.panic-icon { font-size: 3rem; line-height: 1; }
+.panic-card h2 { margin: 0.6rem 0 0.4rem; font-size: 1.5rem; }
+.panic-card p { margin: 0.35rem 0; opacity: 0.92; line-height: 1.5; }
+.panic-calling { color: var(--danger); font-weight: 700; }
+
+/* Large target: this is pressed in a hurry, often by someone shaking. */
+.panic-cancel {
+  margin-top: 1.2rem;
+  width: 100%;
+  min-height: 56px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  border-radius: 10px;
+  border: 2px solid #2a3b55;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.panic-note { font-size: 0.82rem; opacity: 0.7; margin-top: 0.4rem; }
+
+/* --- family mode (Part 1, Phase 2) ------------------------------------ */
+.family-row { margin: 0.9rem 0 0.2rem; }
+.family-toggle {
+  display: flex;
+  gap: 0.6rem;
+  align-items: flex-start;
+  font-size: 0.92rem;
+  padding: 0.6rem 0.7rem;
+  border: 1px solid #22314a;
+  border-radius: 10px;
+}
+.family-toggle input { width: 22px; height: 22px; margin-top: 0.1rem; flex: none; }
+
+/* Larger type, roomier spacing, no auto-dismiss. Presentation only. */
+body.family-mode { font-size: 18px; }
+body.family-mode .verdict { font-size: 1.75rem; }
+body.family-mode .voice-action { font-size: 1.1rem; line-height: 1.55; }
+body.family-mode button,
+body.family-mode .chip { min-height: 52px; font-size: 1.02rem; }
+body.family-mode .helpline { font-size: 0.95rem; }
+
+/* A MODERATE band that family mode has escalated. It must look like something
+ * that demands attention without claiming the model said something it did not:
+ * the badge says the mode escalated it, not the detector. */
+.verdict.family-escalated {
+  border-left-width: 10px;
+  background: rgba(255, 159, 67, 0.14);
+}
+.verdict.family-escalated::after {
+  content: " · FAMILY MODE";
+  font-size: 0.62em;
+  font-weight: 600;
+  opacity: 0.85;
+  letter-spacing: 0.04em;
+}
