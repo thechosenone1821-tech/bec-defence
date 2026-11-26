@@ -65,7 +65,8 @@ class CookieFluidTurbulence(BaseOrgan):
         return {"mu_baseline": self._baseline_viscosity, "n": len(samples)}
 
     def observe(self, rho_cadence: float, v_cursor: float, l_nav: float,
-                session_id: str = "sess_unknown", user_id: str = "USER_UNKNOWN") -> Dict[str, Any]:
+                session_id: str = "sess_unknown", user_id: str = "USER_UNKNOWN",
+                host_id: Optional[str] = None) -> Dict[str, Any]:
         """Feed one telemetry sample; returns regime + revocation decision."""
         self._cursor_vel.append(v_cursor)
         if len(self._cursor_vel) > self.window:
@@ -93,9 +94,20 @@ class CookieFluidTurbulence(BaseOrgan):
             self.emit(
                 "TURBULENT_SESSION_REPLAY",
                 severity=min(1.0, re_beh / (2 * self.re_crit)),
+                # Part 4 Phase 3: this organ observes *behaviour*, not
+                # location. It genuinely does not know the host, so it says so
+                # with ``None`` rather than stamping a plausible-looking
+                # HOST_UNKNOWN that downstream code then treats as a real
+                # target. The Commander skips host-scoped actions when the
+                # entity is absent (see Orchestrator.plan_actions).
                 entities={"session_id": session_id, "user_id": user_id,
-                          "host_id": "HOST_UNKNOWN", "vlan_id": "VLAN_CORP_IT"},
+                          "host_id": host_id, "vlan_id": "VLAN_CORP_IT"},
                 metrics={"re_beh": round(re_beh, 1), "re_crit": self.re_crit},
+                reason=(f"Re_beh {re_beh:.0f} over critical {self.re_crit:.0f} "
+                        f"(ratio {re_beh / self.re_crit:.2f}): cursor velocity "
+                        f"{v_cursor:.0f} px/s with navigation length {l_nav:.0f} px "
+                        f"departed the calibrated baseline, so the session is "
+                        f"replayed rather than driven by a person"),
             )
         return result
 

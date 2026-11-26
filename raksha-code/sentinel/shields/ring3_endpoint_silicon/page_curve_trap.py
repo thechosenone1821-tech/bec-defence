@@ -43,6 +43,19 @@ def _parity(a: bytes, b: bytes, salt: bytes) -> bytes:
     return bytes(x ^ y ^ z for x, y, z in zip(a, b, ks))
 
 
+def _flipped_bits(expected: bytes, stored: bytes) -> int:
+    """Count parity bits where the recomputed invariant disagrees with the seal.
+
+    Comparing the two honey halves against each other would be meaningless:
+    they are independent random blocks, so an untouched pair differs in ~50 %
+    of bits. The only quantity with content is *recomputed parity* versus the
+    *parity sealed at arm() time* — and because
+    ``P = A XOR H(B, salt)``, that difference is exactly the bits of A that
+    were overwritten.
+    """
+    return sum((x ^ y).bit_count() for x, y in zip(expected, stored))
+
+
 class PageCurveTrap(BaseOrgan):
     ring = "RING_3_ENDPOINT_SILICON"
     organ = "ENDPOINT_PAGE_CURVE"
@@ -85,7 +98,11 @@ class PageCurveTrap(BaseOrgan):
             b = f.read()
         expected = _parity(a, b, meta["salt"])
         intact = hmac.compare_digest(expected, meta["parity"])
-        return {"path": path, "honey": True, "intact": bool(intact), "host_id": meta["host_id"]}
+        return {"path": path, "honey": True, "intact": bool(intact), "host_id": meta["host_id"],
+                # Part 4 Phase 3: the verifier now returns its evidence, not just
+                # a boolean, so no caller has to invent a number to describe it.
+                "flipped_bits": _flipped_bits(expected, meta["parity"]),
+                "expected_parity": expected}
 
     def verify_all(self) -> List[Dict[str, Any]]:
         return [self.verify_file(p) for p in list(self._honey)]
@@ -96,21 +113,54 @@ class PageCurveTrap(BaseOrgan):
         if check["intact"]:
             return {"path": path, "action": "NONE", "honey": check["honey"]}
 
+        # Part 4 Phase 3 (defect #11): three numbers here were decorative.
+        #   - ``severity`` was the constant 0.96 for every break, so a
+        #     one-bit flip and a total cipher pass scored identically.
+        #   - ``parity_delta`` was the constant 0.994, never measured.
+        #   - ``latency_ms`` was the constant 0.9, never timed — and the
+        #     local-reflex label ``PID_TERMINATED_0.9MS`` published it.
+        # All three are now measured from the bytes and the clock. A reason
+        # that states the measurement is the difference between a log line
+        # an operator can act on and one they learn to skip.
+        t0 = time.perf_counter()
+        delta_bits = check["flipped_bits"]
+        parity_delta = delta_bits / (BLOCK * 8)
+        # Severity tracks how much of the block the writer rewrote.
+        #
+        # Note the ceiling: because ``P = A XOR H(B, salt)`` and B is random,
+        # recomputed parity of a *random* overwrite differs from the seal in
+        # ~50 % of bits, not 100 %. So ``parity_delta`` saturates near 0.5 and
+        # scaling by 1/2 could never exceed 0.75 — below the Commander's 0.9
+        # "confirmed encryption" band, which would have silently demoted a real
+        # ransomware event to a trap-refresh. The scale is anchored on the
+        # measurable range: 1 bit (≈0) → 0.50, a full-block cipher pass
+        # (≈0.5) → 0.96, matching the band the rest of the system expects.
+        severity = min(1.0, 0.50 + parity_delta * 0.92)
+        latency_ms = (time.perf_counter() - t0) * 1e3
+
         event = self.emit(
             "PARITY_ENTROPY_COLLAPSE",
-            severity=0.96,
+            severity=severity,
             entities={"host_id": host_id, "vlan_id": "VLAN_CORP_IT",
                       "user_id": "USER_UNKNOWN",
                       "process_hash": f"pid:{pid}"},
-            metrics={"bytes_written": BLOCK, "parity_delta": 0.994,
-                     "local_reflex_action": "PID_TERMINATED_0.9MS"},
+            metrics={"bytes_written": BLOCK,
+                     "parity_delta": round(parity_delta, 6),
+                     "flipped_bits": delta_bits,
+                     "local_reflex_action": "PID_TERMINATED",
+                     "verify_latency_ms": round(latency_ms, 4)},
+            reason=(f"Honey block {os.path.basename(path)} failed its "
+                    f"mutual-information parity check after {BLOCK} bytes were "
+                    f"written by pid {pid}: {delta_bits} of {BLOCK * 8} parity "
+                    f"bits flipped ({parity_delta:.2%} of the block), verified in "
+                    f"{latency_ms:.2f} ms. Legitimate readers never write here."),
         )
         result = {
             "path": path,
             "honey": True,
             "action": "PID_TERMINATED",
             "pid": pid,
-            "latency_ms": 0.9,
+            "latency_ms": round(latency_ms, 4),
             "dry_run": not self.allow_real_kill,
             "event": event,
             "ts": time.time(),

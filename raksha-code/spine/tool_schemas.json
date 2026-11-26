@@ -5,10 +5,19 @@
     "parameters": {
       "type": "object",
       "properties": {
-        "cluster_id": {"type": "string"},
-        "ttl_seconds": {"type": "integer", "minimum": 60, "maximum": 86400}
+        "cluster_id": {
+          "type": "string"
+        },
+        "ttl_seconds": {
+          "type": "integer",
+          "minimum": 60,
+          "maximum": 86400
+        }
       },
-      "required": ["cluster_id", "ttl_seconds"]
+      "required": [
+        "cluster_id",
+        "ttl_seconds"
+      ]
     }
   },
   {
@@ -17,11 +26,21 @@
     "parameters": {
       "type": "object",
       "properties": {
-        "session_id": {"type": "string"},
-        "user_id": {"type": "string"},
-        "require_fido2": {"type": "boolean"}
+        "session_id": {
+          "type": "string"
+        },
+        "user_id": {
+          "type": "string"
+        },
+        "require_fido2": {
+          "type": "boolean"
+        }
       },
-      "required": ["session_id", "user_id", "require_fido2"]
+      "required": [
+        "session_id",
+        "user_id",
+        "require_fido2"
+      ]
     }
   },
   {
@@ -30,10 +49,17 @@
     "parameters": {
       "type": "object",
       "properties": {
-        "doc_hash": {"type": "string"},
-        "agent_id": {"type": "string"}
+        "doc_hash": {
+          "type": "string"
+        },
+        "agent_id": {
+          "type": "string"
+        }
       },
-      "required": ["doc_hash", "agent_id"]
+      "required": [
+        "doc_hash",
+        "agent_id"
+      ]
     }
   },
   {
@@ -42,10 +68,19 @@
     "parameters": {
       "type": "object",
       "properties": {
-        "model_id": {"type": "string"},
-        "stiffness_gain": {"type": "number", "minimum": 0.05, "maximum": 1.0}
+        "model_id": {
+          "type": "string"
+        },
+        "stiffness_gain": {
+          "type": "number",
+          "minimum": 0.05,
+          "maximum": 1.0
+        }
       },
-      "required": ["model_id", "stiffness_gain"]
+      "required": [
+        "model_id",
+        "stiffness_gain"
+      ]
     }
   },
   {
@@ -54,10 +89,22 @@
     "parameters": {
       "type": "object",
       "properties": {
-        "host_id": {"type": "string"},
-        "density_level": {"type": "string", "enum": ["low", "standard", "high"]}
+        "host_id": {
+          "type": "string"
+        },
+        "density_level": {
+          "type": "string",
+          "enum": [
+            "low",
+            "standard",
+            "high"
+          ]
+        }
       },
-      "required": ["host_id", "density_level"]
+      "required": [
+        "host_id",
+        "density_level"
+      ]
     }
   },
   {
@@ -66,10 +113,17 @@
     "parameters": {
       "type": "object",
       "properties": {
-        "host_id": {"type": "string"},
-        "dump_hardware_trace": {"type": "boolean"}
+        "host_id": {
+          "type": "string"
+        },
+        "dump_hardware_trace": {
+          "type": "boolean"
+        }
       },
-      "required": ["host_id", "dump_hardware_trace"]
+      "required": [
+        "host_id",
+        "dump_hardware_trace"
+      ]
     }
   },
   {
@@ -78,10 +132,60 @@
     "parameters": {
       "type": "object",
       "properties": {
-        "target_spectral_radius": {"type": "number", "minimum": 0.5, "maximum": 0.99},
-        "preserve_tier0_vlans": {"type": "boolean"}
+        "target_spectral_radius": {
+          "type": "number",
+          "minimum": 0.5,
+          "maximum": 0.99
+        },
+        "preserve_tier0_vlans": {
+          "type": "boolean"
+        },
+        "cut_edges": {
+          "type": "array",
+          "description": "The approved cut, as decided by the containment planner. Each entry names an edge {'a','b'}. The organ executes this set; it never derives its own.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "a": {
+                "type": "string"
+              },
+              "b": {
+                "type": "string"
+              },
+              "tier0_adjacent": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "a",
+              "b"
+            ]
+          }
+        },
+        "rho_before": {
+          "type": "number",
+          "description": "Spectral radius before the cut (measured)"
+        },
+        "rho_after": {
+          "type": "number",
+          "description": "Spectral radius after the cut (measured)"
+        },
+        "preserved_critical_weight_pct": {
+          "type": "number",
+          "description": "Critical-weight flow preserved, percent (planner-measured)"
+        },
+        "seeds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "VLANs the campaign was observed in"
+        }
       },
-      "required": ["target_spectral_radius", "preserve_tier0_vlans"]
+      "required": [
+        "target_spectral_radius",
+        "preserve_tier0_vlans"
+      ]
     }
   },
   {
@@ -90,10 +194,22 @@
     "parameters": {
       "type": "object",
       "properties": {
-        "service_id": {"type": "string"},
-        "patch_profile_id": {"type": "string", "enum": ["bounds_check_v1", "cfi_v1", "syscall_filter_v1"]}
+        "service_id": {
+          "type": "string"
+        },
+        "patch_profile_id": {
+          "type": "string",
+          "enum": [
+            "bounds_check_v1",
+            "cfi_v1",
+            "syscall_filter_v1"
+          ]
+        }
       },
-      "required": ["service_id", "patch_profile_id"]
+      "required": [
+        "service_id",
+        "patch_profile_id"
+      ]
     }
   },
   {
@@ -102,10 +218,19 @@
     "parameters": {
       "type": "object",
       "properties": {
-        "service_id": {"type": "string"},
-        "ttl_seconds": {"type": "integer", "minimum": 60, "maximum": 86400}
+        "service_id": {
+          "type": "string"
+        },
+        "ttl_seconds": {
+          "type": "integer",
+          "minimum": 60,
+          "maximum": 86400
+        }
       },
-      "required": ["service_id", "ttl_seconds"]
+      "required": [
+        "service_id",
+        "ttl_seconds"
+      ]
     }
   },
   {
@@ -114,11 +239,24 @@
     "parameters": {
       "type": "object",
       "properties": {
-        "incident_id": {"type": "string"},
-        "severity": {"type": "number", "minimum": 0.0, "maximum": 1.0},
-        "summary": {"type": "string", "maxLength": 500}
+        "incident_id": {
+          "type": "string"
+        },
+        "severity": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "summary": {
+          "type": "string",
+          "maxLength": 500
+        }
       },
-      "required": ["incident_id", "severity", "summary"]
+      "required": [
+        "incident_id",
+        "severity",
+        "summary"
+      ]
     }
   }
 ]

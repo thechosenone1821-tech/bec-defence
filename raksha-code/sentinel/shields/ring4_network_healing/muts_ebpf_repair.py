@@ -52,7 +52,8 @@ class MutsEbpfRepair(BaseOrgan):
         }
         return self._invariants[service_id]
 
-    def report_mismatch(self, service_id: str, detail: str = "bounds_violation") -> Dict[str, Any]:
+    def report_mismatch(self, service_id: str, detail: str = "bounds_violation",
+                        host_id: Optional[str] = None) -> Dict[str, Any]:
         """MutS equivalent: freeze + verify. MutL equivalent: splice shield."""
         inv = self._invariants.get(service_id)
         t0 = time.perf_counter()
@@ -83,7 +84,7 @@ class MutsEbpfRepair(BaseOrgan):
             self.emit(
                 "MISMATCH_REPEAT_BLOCKED",
                 severity=0.7,
-                entities={"host_id": "HOST_APP_SRV_07", "vlan_id": "VLAN_CORP_IT",
+                entities={"host_id": host_id, "vlan_id": "VLAN_CORP_IT",
                           "service_id": service_id},
                 metrics={"repeat": True},
                 reason=(f"{service_id} matched a signature already repaired at "
@@ -116,12 +117,34 @@ class MutsEbpfRepair(BaseOrgan):
             "second_attempt_blocked": False,
         }
         self._splices.append(record)
+        # Part 4 Phase 3: this organ runs *inside* a service and was stamping
+        # HOST_APP_SRV_07 — a real topology id — on every splice regardless of
+        # where it actually ran. The host is now an argument; when the caller
+        # has none, the event says None instead of inventing one.
+        #
+        # Severity followed the same pattern: the constant 0.9 regardless of
+        # whether the splice met its latency budget. A splice that blew the
+        # budget by 40x and one that met it scored identically. It now tracks
+        # the overrun.
+        overrun = max(0.0, splice_ms - self.splice_budget_ms)
+        # A zero budget is a legal configuration (the contract suite sets it to
+        # prove ``within_budget`` can fail at all), so the scaling term is
+        # guarded — an organ must never raise on a legal input.
+        scale = 4 * self.splice_budget_ms
+        severity = 0.9 if overrun <= 0.0 else min(1.0, 0.9 + overrun / (scale if scale > 1e-9 else 0.05))
         self.emit(
             "MISMATCH_SHIELD_SPLICED",
-            severity=0.9,
-            entities={"host_id": "HOST_APP_SRV_07", "vlan_id": "VLAN_CORP_IT",
+            severity=severity,
+            entities={"host_id": host_id, "vlan_id": "VLAN_CORP_IT",
                       "service_id": service_id},
-            metrics={"splice_ms": splice_ms, "within_budget": splice_ms <= self.splice_budget_ms},
+            metrics={"splice_ms": splice_ms, "within_budget": within,
+                     "splice_budget_ms": self.splice_budget_ms,
+                     "overrun_ms": round(overrun, 3)},
+            reason=(f"{service_id} tripped invariant {inv['invariant_id']} "
+                    f"({detail}); {inv['profile_id']} spliced in {splice_ms:.3f} ms "
+                    f"against a {self.splice_budget_ms:.1f} ms budget "
+                    f"({'within budget' if within else f'over by {overrun:.3f} ms'}), "
+                    f"freeze window {(frozen_at - t0) * 1e3:.3f} ms"),
         )
         return record
 

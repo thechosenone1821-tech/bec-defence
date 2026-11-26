@@ -80,6 +80,10 @@ class LandauerThermalAudit(BaseOrgan):
                 entities={"host_id": host_id, "vlan_id": "VLAN_CORP_IT"},
                 metrics={"unaccounted_watts": round(residual, 2),
                          "sustain_samples": self.sustain_samples},
+                reason=(f"{residual:.1f} W measured against {predicted:.1f} W "
+                        f"predicted from IPC {ipc:.2f} and die temp {temp_c:.1f} C, "
+                        f"over threshold {self.residual_threshold_w:.1f} W for "
+                        f"{len(self._unaccounted_window)} consecutive samples"),
             )
             result["action"] = "ISOLATE_HOST_RECOMMENDED"
         return result

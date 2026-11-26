@@ -284,6 +284,10 @@ def create_app(policy_path: Optional[str] = None,
             bundle = {"status": "OK", "trigger": trigger, "plan_id": plan.get("plan_id"),
                       "commander_mode": plan.get("commander_mode"),
                       "actions": plan.get("actions", []),
+                      # Part 4 Phase 3: a rule that matched but could not act
+                      # (no target in the event) is now visible to the operator
+                      # instead of dying inside the Commander.
+                      "skipped_actions": plan.get("skipped_actions", []),
                       "decisions": decisions, "results": results,
                       "brief": plan.get("brief", "")}
             if ledger is not None:
@@ -429,20 +433,45 @@ def create_app(policy_path: Optional[str] = None,
             # Dynamic rho_after from the actual proposed cut (measured, clamped
             # to the tool schema's [0.5, 0.99] band for the legacy organ RPC).
             rho_after = 0.99
+            rho_before = 0.99
+            tier0_vlans = []
             try:
                 from sentinel.shields.ring4_network_healing.hashimoto_percolation import spectral_radius
                 topo = containment.load_topology(TOPOLOGY_PATH)
                 nodes = topo["vlans"]
+                tier0_vlans = topo.get("tier0_vlans", [])
                 idx = {v: i for i, v in enumerate(nodes)}
                 cut = {tuple(sorted((e["a"], e["b"]))) for e in plan["cut_edges"]}
-                edges_idx = [(idx[e["a"]], idx[e["b"]]) for e in topo["edges"]
+                all_idx = [(idx[e["a"]], idx[e["b"]]) for e in topo["edges"]]
+                edges_idx = [pair for pair, e in zip(all_idx, topo["edges"])
                              if tuple(sorted((e["a"], e["b"]))) not in cut]
+                rho_before = spectral_radius(len(nodes), all_idx)
                 rho_after = max(0.5, min(0.99, spectral_radius(len(nodes), edges_idx)))
             except Exception:
                 pass
+            # Part 4 Phase 3: this route used to hardcode
+            # ``preserve_tier0_vlans: True`` and ignore whatever the caller
+            # sent — so a request that explicitly asked for False came back
+            # ``status: OK`` / ``APPROVED`` with tier-0 preserved anyway. The
+            # system did the safe thing, but it *reported a decision the caller
+            # had explicitly overridden*, which teaches an operator that their
+            # input is advisory. Honouring it and refusing is honest; silently
+            # substituting it is not. The Governor and the organ both refuse
+            # ``not True``, so this is now a visible refusal, not a rewrite.
+            wants_tier0_preserved = body.get("preserve_tier0_vlans", True)
+            # Part 4 Phase 3: the organ used to be handed only a target radius
+            # and answered with a status string — it never cut anything. The
+            # planner's decision is now passed through so the actuator executes
+            # the approved cut rather than inventing its own.
             action = {"tool": "execute_percolation_cut",
                       "args": {"target_spectral_radius": round(rho_after, 4),
-                               "preserve_tier0_vlans": True},
+                               "preserve_tier0_vlans": wants_tier0_preserved,
+                               "seeds": plan.get("seeds", []),
+                               "cut_edges": plan.get("cut_edges", []),
+                               "rho_before": rho_before,
+                               "rho_after": round(rho_after, 4),
+                               "preserved_critical_weight_pct":
+                                   plan.get("preserved_critical_weight_pct", 0.0)},
                       "rationale": f"containment planner {plan['plan_id']}: severs {plan['cut_size']} access-layer edge(s); ICU untouched; tier0 never cut"}
             decision = governor.evaluate(action, context={"trigger": "containment_planner",
                                                           "expected_preserved_uptime_pct": plan["preserved_critical_weight_pct"]})

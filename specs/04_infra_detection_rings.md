@@ -513,3 +513,327 @@ and the trusted chain, driven through the same app object:
 - `page_curve_trap` is still constructed with `allow_real_kill` False by the bus;
   the capability remains, and Phase 7 owns the kill switch.
 - No fixture corpus, no detection rate. Unchanged from Phase 1.
+
+---
+
+# Phase 3 execution log — the remaining seven organs
+
+**Status: complete.** Every organ in Part 4 now emits a signal the Commander
+acts on, that action passes the Governor, and the organ is reached through a
+signed RPC. Suite: `raksha-code/tests/test_organs_phase3_e2e.py`, 35 tests.
+
+The audit at the start of this phase drove all seven organs with real inputs
+and pushed the resulting events through the real chain
+(bus → sanitiser → Commander → Governor → executor). It produced 6 events and 8
+actions, all APPROVED, 7 executed via `signed_rpc`. That reading was **too
+good**: three of those eight actions were defective, and the tests I had
+intended to write would have blessed them. What follows is what the audit
+actually found.
+
+## 3.1 Defect #11 was systemic, not local
+
+Phase 2 fixed Organ 1's reason from
+
+    BECSpectralFilter reported RANK1_CONDENSATION_DETECTED at severity 0.94
+
+to
+
+    400 of 700 sessions collapse onto one direction (sigma1 share 0.773,
+    threshold 0.72); mean projection gap 8.08 between the two groups
+
+The audit showed `PageCurveTrap` doing the same thing — *"ENDPOINT_PAGE_CURVE
+reported PARITY_ENTROPY_COLLAPSE at severity 0.960"*. Counting `reason=`
+keyword arguments across the organ tree found that **six of the seven remaining
+organs** used the generic `BaseOrgan` fallback. Organ 1 was not a one-off; it
+was the only one anybody had looked at.
+
+Why this matters more than it sounds: the fallback sentence is *true*. Nothing
+is misreported, no assertion can fail on a lie. It is useless, which is worse,
+because it passes every check while telling an operator nothing they could act
+on. A reviewer reading the log learns that the organ fired and nothing else.
+
+All six now state the measurement. Examples taken from an actual run:
+
+| Organ | Reason now emitted (verbatim) |
+|---|---|
+| `COOKIE_FLUID_TURBULENCE` | `Re_beh 1375000 over critical 2300 (ratio 597.83): cursor velocity 4000 px/s with navigation length 2000 px departed the calibrated baseline, so the session is replayed rather than driven by a person` |
+| `BRAGG_FFT_FIREWALL` | `Bragg peak ratio 1.000 against threshold 0.320; Fiedler lambda2 0.000 below 0.050 — periodic instruction structure in sha256:abc, flags ['BRAGG_PEAK', 'FIEDLER_FRACTURE']` |
+| `HESSIAN_LYAPUNOV_GUARD` | `Directional curvature +11.000 exceeded the jailbreak cliff 2.500 at step 8; restoring vector norm 1.540 applied against the adversarial direction` |
+| `LANDAUER_THERMAL_AUDITOR` | `55.0 W measured against 40.0 W predicted from IPC 2.00 and die temp 50.0 C, over threshold 8.0 W for 5 consecutive samples` |
+| `ENDPOINT_PAGE_CURVE` | `Honey block .honey_a_00.bin failed its mutual-information parity check after 4096 bytes were written by pid 777: 16272 of 32768 parity bits flipped (49.66% of the block), verified in 0.20 ms. Legitimate readers never write here.` |
+| `MUTS_EBPF_REPAIR` | `svc_web tripped invariant inv_svc_web_1795672236193 (bounds_violation); bounds_check_v1 spliced in 0.013 ms against a 50.0 ms budget (within budget), freeze window 0.021 ms` |
+
+## 3.2 Constants wearing the costume of measurements
+
+Chasing the reasons turned up numbers that were never measured. Each was a
+constant in production code, presented to the operator as an observation:
+
+| Location | Was | Is now |
+|---|---|---|
+| `PageCurveTrap.on_write` | `parity_delta: 0.994`, always | counted from recomputed vs sealed parity (`flipped_bits / 32768`) |
+| `PageCurveTrap.on_write` | `latency_ms: 0.9` | `time.perf_counter()`, and the label `PID_TERMINATED_0.9MS` no longer publishes it |
+| `PageCurveTrap.on_write` | `severity: 0.96`, always | derived from measured parity delta (§3.2.1) |
+| `HashimotoPercolation` | `severity: 0.85`, always | derived from `rho_before - rho_after` |
+| `HashimotoPercolation` | `tier0_edges_cut: 0` (literal) | counted against the organ's own tier-0 set |
+| `MutsEbpfRepair` | `severity: 0.9`, always | derived from splice overrun against budget |
+| `CookieFluidTurbulence` | `reason` | states `Re_beh`, critical value, ratio, and the observed cadence |
+
+### 3.2.1 The severity scale has to match the measurement's range
+
+The first attempt scaled PageCurve severity as `0.5 + parity_delta / 2`. That
+looks reasonable and is wrong, because of the organ's own arithmetic:
+`P = A XOR H(B, salt)` with random `B` means an overwrite of an *entire* block
+changes only ~50 % of parity bits, not 100 %. So `parity_delta` saturates near
+0.5 and the formula could never exceed 0.75.
+
+The Commander escalates to a human at severity ≥ 0.9. A full 4 KB cipher pass
+would therefore have been filed as a *trap refresh* instead of ransomware. The
+regression appeared immediately as a dropped action in the end-to-end drive —
+8 actions became 7 — and that is how it was caught. The scale is now anchored
+on the measurable range: 1 bit → 0.500, 512 B → 0.559, full block → 0.960.
+
+Measured over five independent runs. The honey blocks are fresh random bytes
+each time, so the exact bit counts vary within a band — the ranges below are
+the observed spread, not one lucky sample:
+
+| Overwrite | `flipped_bits` (5 runs) | severity range |
+|---|---|---|
+| 1 bit | `1` every run | 0.500 – 0.500 |
+| first 512 B | 1961 – 2023 | 0.555 – 0.557 |
+| full 4096 B | 16257 – 16510 | 0.956 – 0.964 |
+
+A one-bit break is exactly one bit, deterministically: because
+`P = A XOR H(B, salt)`, the parity difference is precisely the bits of `A` that
+changed. Only the *cipher* rows have spread, and that spread is the measurement
+working — it is `~50 %` of a random overwrite, as the arithmetic predicts.
+
+## 3.3 Fabricated attribution — organs inventing hosts
+
+Five organs stamped a host id they had no way to know:
+
+| Organ | Stamped | Why it is wrong |
+|---|---|---|
+| `CookieFluidTurbulence` | `HOST_UNKNOWN` | behaviour telemetry has no host at all |
+| `BraggFFTFirewall` | `HOST_APP_SRV_07` | reads a *document*; nothing has opened it |
+| `HessianLyapunovGuard` | `HOST_APP_SRV_07` | a hidden-state trajectory belongs to a model, not a machine |
+| `MutsEbpfRepair` | `HOST_APP_SRV_07` | runs *inside* a service, unknown to itself |
+| `HashimotoPercolation` | `VLAN_FABRIC` | a VLAN id placed in a host field |
+
+`HOST_APP_SRV_07` is a **real id from `company_topology.json`**, which is what
+made this invisible: nothing in the log said "guessed", and a plausible id
+reads as evidence. All five now take `host_id` as an argument defaulting to
+`None`; the sanitiser's whitelist drops `None`, so a host the organ does not
+know becomes an *absent key* rather than an invented one. Verified directly:
+`sanitize_event` on `{"host_id": None, "vlan_id": ..., "session_id": ...}`
+returns an entity dict without `host_id`.
+
+### 3.3.1 `HOST_UNKNOWN` was being dispatched as a successful action
+
+The worse half of the same defect. `Orchestrator._fallback_rules` fell back to
+`"HOST_UNKNOWN"` / `"SESS_UNKNOWN"` when an event carried no entity, so:
+
+    arm_page_curve_traps   args={'host_id': 'HOST_UNKNOWN', 'density_level': 'high'}
+                           -> TRAP_DENSITY_BOOSTED  signed_rpc
+
+The organ armed traps on a host that does not exist, reported success, and the
+action consumed blast-radius budget. The Commander now refuses to propose a
+target it does not have, and records why:
+
+    actions: [escalate_human_stepup]
+    skipped_actions: [{tool: arm_page_curve_traps,
+                       reason: "no host_id in the event; traps cannot be armed on an unknown host"}]
+
+`skipped_actions` is part of the `/api/orchestrate` bundle. A rule that wanted
+to act and could not is not the same as a rule that matched nothing, and the
+two were previously indistinguishable in the response.
+
+## 3.4 Ring 4's only RPC was a status string
+
+`HashimotoPercolation._rpc_execute_cut` returned
+`{"status": "PERCOLATION_CUT_APPROVED"}`. It did not cut anything and did not
+emit an event. In the running system `containment_plan()` — the method that
+does the work and emits `PERCOLATION_CUT_EXECUTED` — **is never called by
+anything except tests**; the bus uses its own exhaustive planner in
+`spine/containment.py`. So the organ was reachable, signed, gated, and inert.
+
+Two things were deliberately *not* done:
+
+* **It does not compute its own cut.** The first attempt had the RPC re-derive
+  a cut from the topology. That put policy in the actuator, and it produced a
+  *different, more disruptive* cut than the one the Governor approved —
+  including `VLAN_CORP_IT↔VLAN_CORE_AUTH`, an edge incident to a crown jewel.
+  An actuator executes the approved plan; it does not improve on it. The edges
+  arrive in `args["cut_edges"]`.
+* **It does not take the protected set from the caller.** A list of crown
+  jewels supplied as an argument is a list the caller can shorten. The organ
+  reads tier-0 from its own `company_topology.json` and fails closed.
+
+It now executes the plan and emits what it did:
+
+    Severed 3 edge(s): VLAN_MAINT_03<->VLAN_GUEST_WIFI, VLAN_GUEST_WIFI<->VLAN_CORP_IT,
+    VLAN_CORP_IT<->VLAN_LAB_DEV; spectral radius 2.423 -> 0.990, 100.0% of
+    critical-weight flow preserved, 0 tier-0 edges cut, 0 tier-0-adjacent edge(s) severed
+
+Recursion check: `emit()` appends to the organ's local buffer and calls
+`event_sink` only if one exists. `create_app` constructs
+`HashimotoPercolation()` bare, so an event emitted inside an RPC cannot
+re-enter the pipeline. Asserted by
+`test_the_rpc_executes_the_approved_cut_and_emits`.
+
+## 3.5 `/api/containment`: a silently overridden safety request
+
+The route hardcoded `preserve_tier0_vlans: True` and ignored the body. So:
+
+    POST /api/containment {"seeds": ["VLAN_GUEST_WIFI"], "preserve_tier0_vlans": false}
+    -> status: OK | governor: APPROVED | executor: PERCOLATION_CUT_APPROVED
+
+The system did the safe thing and **reported a decision the caller had
+explicitly overridden**. That teaches an operator that their input is advisory,
+which is the opposite of what a safety flag is for. It now honours the request
+and refuses visibly:
+
+    -> status: HELD_EXECUTION_BLOCKED | governor: BLOCKED
+       reason: execute_percolation_cut requires preserve_tier0_vlans=true
+
+The refusal ladder, measured on a live server (port 8124) across all nine VLANs:
+
+| Seed | Outcome | Reason |
+|---|---|---|
+| `VLAN_CORE_AUTH`, `VLAN_ICU_CLINICAL`, `VLAN_COLDCHAIN_TELEMETRY` | `REFUSED` | seed sits on Tier-0 — no cut can protect a breached crown asset |
+| `VLAN_CORE_DB` | `INFEASIBLE` | no cut severs reachability without cutting it |
+| `VLAN_ER_OPS` | `HELD_EXECUTION_BLOCKED` | preserved uptime 44.44 % below floor 90 % |
+| `VLAN_CORP_IT` | `HELD_EXECUTION_BLOCKED` | tier-0-adjacent edge (`VLAN_CORE_AUTH`) in the plan; human step-up required |
+| `VLAN_GUEST_WIFI`, `VLAN_LAB_DEV` | `OK` / `APPROVED` | 3 edges cut, 100 % critical-weight flow preserved |
+
+Live HTTP, `VLAN_GUEST_WIFI`:
+
+    status: OK | gov: APPROVED
+    executor: PERCOLATION_CUT_APPROVED | edges_cut: 3 | dispatch: signed_rpc
+    rho: 2.4227 -> 0.99
+
+## 3.6 The Phase 3 suite
+
+`raksha-code/tests/test_organs_phase3_e2e.py` — 35 tests, 8 classes, one per
+organ plus `TestFleetInvariants`. Mechanism assertions only: each end-to-end
+test patches `BaseOrgan.handle_rpc`, records entry, and asserts a `signature`
+was present on the envelope. No test asserts `dispatch == "signed_rpc"`; the
+Phase 2 mutant that proved that label worthless is the reason.
+
+### 3.6.1 Three bugs found in the suite itself, by running it
+
+The suite failed 11 times on first run. Every failure was a defect in the
+*test*, not the code — which is the outcome that should be expected, and the
+reason a green first run is not evidence of anything:
+
+1. **A callable object does not bind as a method.** `GateSpy` was an instance
+   whose `__call__` was assigned to `BaseOrgan.handle_rpc`. A callable instance
+   has no descriptor protocol, so Python did not pass `self` and every call
+   raised `missing 1 required positional argument`. Returning `self.__call__`
+   failed the same way because it is already bound. The fixture now returns a
+   plain closure.
+2. **`CookieFluidTurbulence` emits per sample, not per session.** The organ
+   emits on *every* turbulent sample, so a 6-sample window yields several
+   events. The test asserted exactly one. It now asserts the set of signal
+   types.
+3. **The Lyapunov fixture did not deflect.** `kappa = <v_t - v_prev, v_t> /
+   |v_t|²` measures how sharply the velocity turns; a sequence of equal steps
+   gives kappa = 2.0, below the 2.5 cliff. The organ was right and the fixture
+   was wrong. A *deceleration* (a long move then a near-stop) is the shape that
+   trips it: kappa = 3.17 and 179 for the two fixtures.
+
+## 3.7 Mutation testing — 10 mutants, 10 killed
+
+`/tmp/mut_p3.py` reintroduced each defect into production code and verified the
+pattern matched exactly once before running the suite (a `str.replace` that
+does not match is a silent no-op, and a mutant that never applied is not a
+killed mutant).
+
+| # | Mutant | Killed by |
+|---|---|---|
+| M1 | executor calls the organ directly, bypassing `handle_rpc` | all 7 mechanism tests |
+| M2 | `CookieFluidTurbulence` emits a different signal type | Ring 1 test |
+| M3 | `PageCurveTrap` reverts to the generic reason | `test_the_reason_states_the_measurement` |
+| M4 | `BraggFFTFirewall` re-invents `HOST_APP_SRV_07` | `test_the_organ_does_not_invent_a_host` |
+| M5 | `parity_delta` reverts to the constant `0.994` | `test_a_one_bit_break_is_measured_as_one_bit` |
+| M6 | the organ invents a cut instead of executing the plan | `test_the_organ_refuses_a_cut_it_was_not_given` |
+| M7 | the tier-0 guard is removed from the cut RPC | `test_the_organ_refuses_a_cut_that_would_touch_tier0` |
+| M8 | the route overrides the caller's tier-0 opt-out again | `test_the_api_path_honours_an_explicit_tier0_opt_out` |
+| M9 | a hostless event is dispatched as `HOST_UNKNOWN` | `test_a_hostless_event_is_skipped_visibly_not_dispatched` |
+| M10 | MUTS severity is a constant again | `test_a_zero_budget_does_not_raise` |
+
+Result: **10/10 killed.**
+
+## 3.8 Live verification
+
+Server: `uvicorn spine.bus:create_app --factory`, port 8124, fresh process.
+Eleven events were produced by driving six organs with real inputs, signed with
+the bus key, and POSTed to `/api/ingest` over HTTP (`accepted: 1, received: 1,
+unverified: 0`). `/api/orchestrate`, over HTTP:
+
+    7 actions
+      revoke_turbulent_session     -> SESSION_REVOKED        [signed_rpc]
+      quarantine_ai_document       -> DOCUMENT_QUARANTINED   [signed_rpc]
+      clamp_lyapunov_steering      -> STEERING_CLAMPED       [signed_rpc]
+      isolate_thermal_anomaly_host -> HOST_ISOLATED          [signed_rpc]
+      arm_page_curve_traps         -> TRAP_DENSITY_BOOSTED   [signed_rpc]
+      escalate_human_stepup        -> HUMAN_STEPUP_REQUESTED [platform_local]
+      deploy_muts_ebpf_shield      -> SHIELD_DEPLOYED        [signed_rpc]
+
+Six of seven through the signed gate; `escalate_human_stepup` is correctly
+`platform_local` (it notifies a human, it does not command an organ).
+
+**A defect I found and did not fix, because it is not a defect:**
+before the clean run I POSTed *unsigned* events to the same server. They were
+held (`HELD_UNVERIFIED_EVIDENCE`, `unverified_events: 11`) — correctly. But the
+two forged severity-0.99 events had also tripped the FORTRESS tripwire, which
+then froze the AI path:
+
+    revoke_turbulent_session -> BLOCKED
+      FORTRESS tripwire frozen — 2 unverified disruptive-action requests inside
+      60s; human step-up required
+
+Every subsequent action was blocked. That is the tripwire doing exactly its
+job: unverified disruptive traffic freezes autonomous action. It is recorded
+here because a reader who saw only the second run would not know why a fresh
+process was required.
+
+## 3.9 Full-suite state
+
+| Check | Result |
+|---|---|
+| `pytest tests/` | **1071 passed, 1 skipped, 1 xfailed** |
+| `pytest tests/ --collect-only` | **1073 collected** (1071 + 1 + 1) |
+| `test_organs_phase3_e2e.py` | 35 passed |
+| `node --test tests/*.test.js` | **90 pass, 0 fail** |
+
+The Phase 2 baseline was 1036 passed / 1038 collected. Phase 3 adds 35 tests:
+1036 + 35 = 1071, and 1038 + 35 = 1073. Both reconcile.
+
+Also re-pinned: `spine/config/manifest.json`. `tool_schemas.json` gained the
+five optional arguments `execute_percolation_cut` now takes (`cut_edges`,
+`rho_before`, `rho_after`, `preserved_critical_weight_pct`, `seeds`), so the
+FORTRESS integrity check correctly reported `TAMPERED` until the manifest was
+re-sealed with `python3 spine/boot_manifest.py --pin spine/config/manifest.json`
+and verified with `--check` (`INTEGRITY OK — 4 security-critical file(s)
+verified`). The check working is the point; re-pinning after a deliberate
+change is the documented workflow.
+
+## 3.10 Not done, and not pretended
+
+* **No detection rate is quoted anywhere in this log.** Phase 4 owns the
+  fixture corpus and the published rates. Every number above is a measurement
+  of a *mechanism* (bits flipped, milliseconds, spectral radius), not a claim
+  about detection efficacy.
+* **The Commander is still `fallback_rules`.** `/api/health` reports
+  `commander_mode: fallback_rules` on every run. The SLM path remains untested.
+* **`PageCurveTrap` still does not kill.** `allow_real_kill` stays `False`;
+  every `on_write` returns `dry_run: True`. Phase 7 owns real enforcement.
+* **The RPC secret is still the dev default.** The signature is an in-process
+  integrity tag, not a cryptographic boundary against a local attacker.
+* **`HashimotoPercolation.containment_plan()` is still test-only.** The bus
+  plans via `spine/containment.py`; the organ plans nothing in production and
+  that is now explicit rather than accidental. Whether the two should be
+  reconciled into one implementation is a Phase 5/7 question, not a Phase 3 one.
+* **The tripwire freeze is per-process and time-based** (60 s window). It has
+  no operator reset endpoint; a fresh process was needed to continue. That is
+  arguably correct for Phase 3 and is left for Phase 6 (fatigue/drift).

@@ -96,7 +96,8 @@ class BraggFFTFirewall(BaseOrgan):
         return _fiedler_lambda2(A)
 
     def screen(self, text: str, agent_id: str = "agent_unknown",
-               doc_hash: str = "sha256:unknown") -> Dict[str, Any]:
+               doc_hash: str = "sha256:unknown",
+               host_id: Optional[str] = None) -> Dict[str, Any]:
         peak = self.bragg_peak_ratio(text)
         lam2 = self.fiedler_lambda2(text)
         flags: List[str] = []
@@ -117,9 +118,20 @@ class BraggFFTFirewall(BaseOrgan):
             self.emit(
                 "INDIRECT_INJECTION_BLOCKED",
                 severity=min(1.0, 0.5 + peak),
+                # Part 4 Phase 3: the screen reads a *document*. It used to
+                # stamp HOST_APP_SRV_07 and VLAN_CORP_IT on every block — real
+                # ids from the topology, which is exactly what made the
+                # fabrication invisible: nothing in the log said "guessed".
+                # A document has no host until something opens it.
                 entities={"doc_hash": doc_hash, "agent_id": agent_id,
-                          "host_id": "HOST_APP_SRV_07", "vlan_id": "VLAN_CORP_IT"},
+                          "host_id": host_id, "vlan_id": "VLAN_CORP_IT"},
                 metrics={"bragg_peak_ratio": round(peak, 4), "fiedler_lambda2": round(lam2, 4)},
+                reason=(f"Bragg peak ratio {peak:.3f} against threshold "
+                        f"{self.bragg_peak_threshold:.3f}"
+                        + (f"; Fiedler lambda2 {lam2:.3f} below {self.fiedler_threshold:.3f}"
+                           if lam2 < self.fiedler_threshold else "")
+                        + f" — periodic instruction structure in {doc_hash[:19]}, "
+                          f"flags {flags}"),
             )
             result["quarantine"] = self._rpc_quarantine({"doc_hash": doc_hash, "agent_id": agent_id})
         return result

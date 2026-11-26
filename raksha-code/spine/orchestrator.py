@@ -142,6 +142,10 @@ class Orchestrator:
     # ------------------------------------------------------------------ #
     def _fallback_rules(self, events: List[Dict[str, Any]]) -> Dict[str, Any]:
         actions: List[Dict[str, Any]] = []
+        # Part 4 Phase 3: actions the rules wanted to propose but refused to,
+        # and why. A silently dropped action and a never-proposed one look
+        # identical in a log, and only one of them is a bug.
+        skipped: List[Dict[str, Any]] = []
         stages: List[str] = []
         hosts, users, sessions = set(), set(), set()
 
@@ -163,11 +167,22 @@ class Orchestrator:
                 stages.append("recon")
 
             elif sig == "TURBULENT_SESSION_REPLAY" and sev >= 0.5:
-                actions.append({"tool": "revoke_turbulent_session",
-                                "args": {"session_id": sess or "SESS_UNKNOWN",
-                                         "user_id": user or "USER_UNKNOWN",
-                                         "require_fido2": True},
-                                "rationale": "Laminar->turbulent transition on replayed cookie"})
+                # Part 4 Phase 3: without a session id there is nothing to revoke.
+                # The old code proposed `revoke_turbulent_session` on
+                # SESS_UNKNOWN, which the organ happily "revoked" and reported as
+                # success. An action against a target that does not exist uses up
+                # a blast-radius budget and a human's attention, and leaves the
+                # log looking like something was handled.
+                if sess:
+                    actions.append({"tool": "revoke_turbulent_session",
+                                    "args": {"session_id": sess,
+                                             "user_id": user or "USER_UNKNOWN",
+                                             "require_fido2": True},
+                                    "rationale": "Laminar->turbulent transition on replayed cookie"})
+                    stages.append("initial_access")
+                else:
+                    skipped.append({"tool": "revoke_turbulent_session",
+                                    "reason": "no session_id in the event; nothing to revoke"})
                 stages.append("initial_access")
                 # Pre-arm downstream ransomware traps for the affected user's hosts
                 if host:
@@ -190,9 +205,13 @@ class Orchestrator:
                 stages.append("execution")
 
             elif sig == "PARITY_ENTROPY_COLLAPSE" and sev >= 0.9:
-                actions.append({"tool": "arm_page_curve_traps",
-                                "args": {"host_id": host or "HOST_UNKNOWN", "density_level": "high"},
-                                "rationale": "Honey-block parity collapsed; reinforce trap density"})
+                if host:
+                    actions.append({"tool": "arm_page_curve_traps",
+                                    "args": {"host_id": host, "density_level": "high"},
+                                    "rationale": "Honey-block parity collapsed; reinforce trap density"})
+                else:
+                    skipped.append({"tool": "arm_page_curve_traps",
+                                    "reason": "no host_id in the event; traps cannot be armed on an unknown host"})
                 actions.append({"tool": "escalate_human_stepup",
                                 "args": {"incident_id": f"inc_{uuid.uuid4().hex[:8]}",
                                          "severity": sev,
@@ -201,9 +220,13 @@ class Orchestrator:
                 stages.append("impact")
 
             elif sig == "UNACCOUNTED_POWER_RESIDUAL":
-                actions.append({"tool": "isolate_thermal_anomaly_host",
-                                "args": {"host_id": host or "HOST_UNKNOWN", "dump_hardware_trace": True},
-                                "rationale": "Sustained unattributed Joule dissipation"})
+                if host:
+                    actions.append({"tool": "isolate_thermal_anomaly_host",
+                                    "args": {"host_id": host, "dump_hardware_trace": True},
+                                    "rationale": "Sustained unattributed Joule dissipation"})
+                else:
+                    skipped.append({"tool": "isolate_thermal_anomaly_host",
+                                    "reason": "no host_id in the event; cannot isolate an unknown host"})
                 stages.append("persistence")
 
             elif sig == "MISMATCH_SHIELD_SPLICED":
@@ -231,6 +254,9 @@ class Orchestrator:
             "kill_chain_stage": stage,
             "correlated_entities": correlated[:50],
             "actions": unique_actions[:8],
+            # Surfaced, not buried: a rule that wanted to act and could not is
+            # different from a rule that matched nothing.
+            "skipped_actions": skipped,
         }
 
     # ------------------------------------------------------------------ #

@@ -48,7 +48,8 @@ class HessianLyapunovGuard(BaseOrgan):
         a_t = v_t - v_prev
         return float(np.dot(a_t, v_t) / denom)
 
-    def step(self, h_t: Any, model_id: str = "agent_llm_local") -> Dict[str, Any]:
+    def step(self, h_t: Any, model_id: str = "agent_llm_local",
+             host_id: Optional[str] = None) -> Dict[str, Any]:
         h = np.asarray(h_t, dtype=np.float64).ravel()
         self._history.append(h)
         if len(self._history) > self.max_history:
@@ -76,9 +77,17 @@ class HessianLyapunovGuard(BaseOrgan):
                 self.emit(
                     "JAILBREAK_TRAJECTORY_DEFLECTED",
                     severity=min(1.0, abs(kappa) / (2 * self.cliff_threshold)),
-                    entities={"host_id": "HOST_APP_SRV_07", "vlan_id": "VLAN_CORP_IT",
+                    # Part 4 Phase 3: a hidden-state trajectory is a property
+                    # of a model, not of a machine. Host passed in, or None.
+                    entities={"host_id": host_id, "vlan_id": "VLAN_CORP_IT",
                               "agent_id": model_id},
-                    metrics={"kappa": round(kappa, 4), "cliff_threshold": self.cliff_threshold},
+                    metrics={"kappa": round(kappa, 4), "cliff_threshold": self.cliff_threshold,
+                             "restoring_norm": round(float(np.linalg.norm(restore)), 4)},
+                    reason=(f"Directional curvature {kappa:+.3f} exceeded the "
+                            f"jailbreak cliff {self.cliff_threshold:.3f} at step "
+                            f"{len(self._history)}; restoring vector norm "
+                            f"{float(np.linalg.norm(restore)):.3f} applied against "
+                            f"the adversarial direction"),
                 )
         return result
 
