@@ -38,7 +38,7 @@ def _display_lang(detected: str, override: Optional[str]) -> str:
 def main(argv: Optional[List[str]] = None) -> int:
     parser = argparse.ArgumentParser(
         prog="python -m apps.citizen.messageguard",
-        description="Deterministic offline MessageGuard operator CLI (no AI models).",
+        description="Deterministic offline MessageGuard operator CLI.",
         epilog="Operator diagnostics only; no raw score or matched phrase is printed.",
     )
     parser.add_argument("text", nargs="+", help="the message text to assess")

@@ -1,8 +1,8 @@
-"""Phase 3 — one MSG-* / reason-code catalogue.
+"""Phase 3 — one MSG-* reason-code catalogue.
 
-The Citizen MessageGuard package and its frozen i18n presentation layer now
-consume this catalogue through compatibility re-exports. No package imports
-VoiceGuard logic; reason *sentences* remain in the frozen i18n module.
+The Citizen MessageGuard package and the app-owned presentation layer consume
+this catalogue through compatibility re-exports. Reason sentences stay in the
+Citizen copy table; shared contracts never import an app or model package.
 """
 from __future__ import annotations
 

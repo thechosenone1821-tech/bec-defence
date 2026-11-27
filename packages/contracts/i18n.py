@@ -1,9 +1,9 @@
-"""Phase 4 — shared language/copy rendering contract.
+"""Shared language/copy rendering contract.
 
-The logic for normalising languages, recording translation fallbacks and
-selecting a citizen sentence lives here. The sentences themselves are owned by
-the Citizen app and passed in as a catalogue; shared contracts never import app
-code, VoiceGuard/MAYA code, or an AI model.
+Language normalisation, fallback accounting and sentence selection live here.
+The sentences are owned by the Citizen app and passed in as a catalogue; shared
+contracts never import app code, the VIGIL model package or a live-executor
+implementation.
 """
 from __future__ import annotations
 
@@ -16,16 +16,7 @@ CONTRACT_VERSION = "raksha-citizen-i18n-v1"
 LANGUAGES = ("en", "hi", "te")
 DEFAULT_LANGUAGE = "en"
 HELPLINE = "1930"
-
-# Wire-level voice verdict/reason constants are data, not model imports.
-LIKELY_SYNTHETIC = "LIKELY_SYNTHETIC"
-SUSPICIOUS = "SUSPICIOUS"
-INCONCLUSIVE = "INCONCLUSIVE"
-SILENT = "SILENT"
 R_LOW_CONFIDENCE = "R_LOW_CONFIDENCE"
-
-VOICE_VERDICTS = (SILENT, INCONCLUSIVE, SUSPICIOUS, LIKELY_SYNTHETIC)
-ACTIONABLE_VERDICTS = (SUSPICIOUS, LIKELY_SYNTHETIC)
 MESSAGE_ACTIONABLE_VERDICTS = ("HIGH", "CRITICAL")
 
 _FALLBACK_LIMIT = 200
@@ -133,20 +124,6 @@ class CitizenRenderer:
                 pass
         return text
 
-    def render_verdict(self, verdict: str, lang: str = DEFAULT_LANGUAGE) -> Dict[str, str]:
-        lang = normalise_language(lang)
-        table = self._table("verdicts")
-        entry = table.get(str(verdict)) or table.get(INCONCLUSIVE) or {}
-        body = self._lang_value(entry, lang, str(verdict)) if isinstance(entry, Mapping) else {}
-        return {
-            "verdict": str(verdict),
-            "title": str((body or {}).get("title") or ""),
-            "action": str((body or {}).get("action") or ""),
-            "helpline": HELPLINE,
-            "disclaimer": str(self._lang_value(self._table("disclaimer"), lang, "disclaimer") or ""),
-            "lang": lang,
-        }
-
     def render_family(self, family: str, lang: str = DEFAULT_LANGUAGE) -> str:
         lang = normalise_language(lang)
         table = self._table("families")
@@ -240,19 +217,19 @@ class CitizenRenderer:
                 out["title"], out["detail"] = str(fallback_body[0]), str(fallback_body[1])
         return out
 
-    def voice_tab_copy(self, lang: str = DEFAULT_LANGUAGE) -> Dict[str, Any]:
+    def privacy_tab_copy(self, lang: str = DEFAULT_LANGUAGE) -> Dict[str, Any]:
         lang = normalise_language(lang)
-        table = self._table("voice_tab")
+        table = self._table("privacy_tab")
         entry = table.get(lang) or table.get(DEFAULT_LANGUAGE) or {}
         return {
-            "enabled": False,
-            "status": "not integrated yet",
-            "title": str(entry.get("title") or "Voice check — not integrated yet"),
-            "detail": str(entry.get("detail") or "No audio is recorded or scored. Call 1930 if in doubt."),
+            "enabled": True,
+            "status": "active",
+            "title": str(entry.get("title") or "Image privacy — VIGIL"),
+            "detail": str(entry.get("detail") or "VIGIL image privacy is available. Call 1930 if in doubt."),
             "helpline": HELPLINE,
             "lang": lang,
-            "model_invoked": False,
-            "no_ai_models": True,
+            "model_backed": True,
+            "privacy_efficacy": "UNMEASURED",
         }
 
     def catalogue_codes(self) -> List[str]:
@@ -267,8 +244,7 @@ class CitizenRenderer:
 
 __all__ = [
     "CONTRACT_VERSION", "LANGUAGES", "DEFAULT_LANGUAGE", "HELPLINE",
-    "LIKELY_SYNTHETIC", "SUSPICIOUS", "INCONCLUSIVE", "SILENT",
-    "R_LOW_CONFIDENCE", "VOICE_VERDICTS", "ACTIONABLE_VERDICTS",
-    "MESSAGE_ACTIONABLE_VERDICTS", "FallbackLog", "CitizenRenderer",
-    "normalise_language", "reason_family", "message_reason_codes",
+    "R_LOW_CONFIDENCE", "MESSAGE_ACTIONABLE_VERDICTS", "FallbackLog",
+    "CitizenRenderer", "normalise_language", "reason_family",
+    "message_reason_codes",
 ]

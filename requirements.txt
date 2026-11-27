@@ -1,14 +1,19 @@
-# Deterministic combined-system runtime and test dependencies.
-# No AI, SLM, Commander, Ollama, VoiceGuard/MAYA inference or model dependency.
+# RAKSHA active runtime and test dependencies.
+# Citizen hosts the VIGIL TorchScript image-privacy model; Infra remains deterministic.
 fastapi>=0.115,<1
 starlette>=0.40,<2
 httpx>=0.27,<1
 uvicorn>=0.30,<1
 websockets>=12,<20
 pydantic>=2,<3
+python-multipart>=0.0.9,<1
 PyYAML>=6,<7
 networkx>=3,<4
 numpy>=1.26,<3
 scipy>=1.11,<2
+opencv-python-headless>=4.9,<5
+torch>=2.2,<3
+torchvision>=0.17,<1
+psutil>=5.9,<6
 pytest>=8,<10
 python-dotenv>=1,<2

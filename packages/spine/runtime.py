@@ -3,8 +3,8 @@
 This is the active app factory behind ``apps.infra.backend.app``. It wires the
 single detector contract, one Governor/planner/executor/ledger safety path,
 scoped tokens, dedupe, rate limits, quarantine, metrics, one WebSocket stream
-and read-only state surfaces. It imports no AI model, Commander client, legacy
-``spine.bus``, frozen VoiceGuard/MAYA asset, or real containment executor.
+and read-only state surfaces. It does not import Citizen, VIGIL, a Commander/SLM
+client, the legacy ``spine.bus`` or a real containment executor.
 """
 from __future__ import annotations
 
@@ -483,7 +483,7 @@ class SafetyRuntime:
         return {
             "app": "infra", "contract": SPINE_CONTRACT,
             "runtime_contract": RUNTIME_CONTRACT_VERSION,
-            "dry_run": True, "no_ai_models": True,
+            "dry_run": True, "model_backed": False, "deterministic": True,
             "commander": dict(self.commander),
             "campaigns": campaigns, "topology": self.topology.to_dict(),
             "detections": detections, "timeline": timeline,
@@ -606,16 +606,41 @@ def create_app(*, detector: Callable[..., Any], sensor_key: Any = None,
     app.state.policy_path = policy_path
     app.state.topology_path = str(topology_path or DEFAULT_TOPOLOGY)
     app.state.commander_model_requested = model or "disabled"
-    app.state.no_ai_models = True
+    app.state.model_backed = False
 
-    def bearer_token(request: Request) -> str:
+    def token_candidate(request: Request, *, allow_query: bool) -> tuple[str, str]:
+        """Return one scoped token and its source.
+
+        Preview proxies sometimes strip Authorization headers. The read cookie
+        and a read-only query token keep the console navigable without ever
+        widening write/admin scopes.
+        """
         header = request.headers.get("authorization", "")
         if header.lower().startswith("bearer "):
-            return header[7:].strip()
-        return request.headers.get("x-api-token", "").strip()
+            return header[7:].strip(), "header"
+        header = request.headers.get("x-api-token", "").strip()
+        if header:
+            return header, "header"
+        cookie = request.cookies.get("raksha_read_token", "").strip()
+        if cookie:
+            return cookie, "cookie"
+        if allow_query:
+            query = request.query_params.get("access_token", "").strip()
+            if query:
+                return query, "query"
+        return "", "none"
 
-    def auth(request: Request, scope: str) -> TokenRecord:
-        record = token_store.authenticate(bearer_token(request))
+    def auth(request: Request, scope: str, *, allow_query: bool = False) -> TokenRecord:
+        candidate, source = token_candidate(request, allow_query=allow_query)
+        record = token_store.authenticate(candidate)
+        if source == "query":
+            if (scope != "read" or "read" not in record.scopes
+                    or "admin" in record.scopes
+                    or "telemetry:write" in record.scopes):
+                raise AuthError(
+                    403,
+                    "query token is read-only; use a scoped header or cookie",
+                )
         TokenStore.authorize(record, scope)
         return record
 
@@ -634,7 +659,8 @@ def create_app(*, detector: Callable[..., Any], sensor_key: Any = None,
     def health() -> dict[str, Any]:
         return {"status": "ok", "version": RUNTIME_CONTRACT_VERSION,
                 "contract": SPINE_CONTRACT, "dry_run": True,
-                "no_ai_models": True, "commander": dict(runtime.commander)}
+                "model_backed": False, "deterministic": True,
+                "commander": dict(runtime.commander)}
 
     @app.post("/v1/telemetry")
     @app.post("/api/ingest")
@@ -645,7 +671,7 @@ def create_app(*, detector: Callable[..., Any], sensor_key: Any = None,
     @app.get("/v1/state")
     @app.get("/api/state")
     def get_state(request: Request) -> dict[str, Any]:
-        auth(request, "read")
+        auth(request, "read", allow_query=True)
         return runtime.state_snapshot()
 
     @app.get("/v1/campaigns")
@@ -653,12 +679,12 @@ def create_app(*, detector: Callable[..., Any], sensor_key: Any = None,
     @app.post("/api/orchestrate")
     @app.post("/v1/campaigns")
     def get_campaigns(request: Request) -> dict[str, Any]:
-        auth(request, "read")
+        auth(request, "read", allow_query=True)
         return runtime.campaigns_snapshot()
 
     @app.get("/v1/decisions")
     def get_decisions(request: Request) -> dict[str, Any]:
-        auth(request, "read")
+        auth(request, "read", allow_query=True)
         return runtime.decisions_snapshot()
 
     @app.post("/v1/decisions/{proposal_id}/override")
@@ -672,14 +698,14 @@ def create_app(*, detector: Callable[..., Any], sensor_key: Any = None,
 
     @app.get("/v1/ledger/head")
     def ledger_head(request: Request) -> dict[str, Any]:
-        auth(request, "read")
+        auth(request, "read", allow_query=True)
         head = runtime.ledger.head()
         return {"height": runtime.ledger.height(), "head": head["hash"],
                 "seq": head["seq"], "ts": head["ts"]}
 
     @app.get("/v1/ledger/verify")
     def ledger_verify(request: Request) -> dict[str, Any]:
-        auth(request, "read")
+        auth(request, "read", allow_query=True)
         return runtime.ledger.verify()
 
     @app.post("/v1/ledger/entries")
@@ -692,12 +718,12 @@ def create_app(*, detector: Callable[..., Any], sensor_key: Any = None,
 
     @app.get("/v1/quarantine")
     def quarantine(request: Request) -> dict[str, Any]:
-        auth(request, "read")
+        auth(request, "read", allow_query=True)
         return runtime.quarantine_snapshot()
 
     @app.get("/v1/metrics")
     def get_metrics(request: Request) -> dict[str, Any]:
-        auth(request, "read")
+        auth(request, "read", allow_query=True)
         return runtime.metrics_snapshot()
 
     @app.websocket("/v1/telemetry/stream")

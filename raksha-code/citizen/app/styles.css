@@ -64,7 +64,7 @@ textarea { width: 100%; background: var(--panel); color: var(--text); border: 1p
 /* Low-confidence must never look like a clean bill of health. */
 .verdict.MODERATE { font-style: italic; }
 
-.voice-action { margin: 0.6rem 0 0.2rem; font-weight: 600; }
+.action-copy { margin: 0.6rem 0 0.2rem; font-weight: 600; }
 .engine-note { margin-top: 0.6rem; font-size: 0.78rem; opacity: 0.75; }
 .privacy-note {
   display: flex; gap: 0.5rem; align-items: flex-start;
@@ -153,7 +153,7 @@ footer { text-align: center; color: var(--muted); font-size: .6rem; padding: 12p
 /* Larger type, roomier spacing, no auto-dismiss. Presentation only. */
 body.family-mode { font-size: 18px; }
 body.family-mode .verdict { font-size: 1.75rem; }
-body.family-mode .voice-action { font-size: 1.1rem; line-height: 1.55; }
+body.family-mode .action-copy { font-size: 1.1rem; line-height: 1.55; }
 body.family-mode button,
 body.family-mode .chip { min-height: 52px; font-size: 1.02rem; }
 body.family-mode .helpline { font-size: 0.95rem; }

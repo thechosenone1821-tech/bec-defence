@@ -14,3 +14,5 @@ Archived MessageGuard test directories are ignored by `conftest.py` and
 `tools/run_phase4_pytest.py`; other archived trees are outside the configured
 pytest `testpaths`. Internal docstrings and imports in provenance trees are
 historical text and must not be repaired into active runtime imports.
+
+See the [retired code note](RETIRED.md) for the executable-code purge boundary.

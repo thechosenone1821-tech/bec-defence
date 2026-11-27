@@ -1,3 +1,5 @@
+> Historical provenance: the retired voice-scorer code was removed from executable paths. Active status lives in [docs/STATUS.md](../docs/STATUS.md); see the [retired code note](../archive/provenance/RETIRED.md). Real-world privacy efficacy remains UNMEASURED.
+
 # RAKSHA — Project Context for AI Collaborators
 
 > **Read this first. Then `AI_HANDOFF.md`. Then your task file.**

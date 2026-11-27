@@ -4,33 +4,39 @@
       "health",
       "features",
       "manifest",
-      "root_redirect"
+      "root_redirect",
+      "vigil_dashboard",
+      "vigil_overview",
+      "vigil_static"
     ],
     "condition": "fixture / sandbox",
-    "no_ai_models": true,
+    "model_backed": true,
     "source": "apps/citizen/api.py",
-    "voiceguard_integrated": false
+    "vigil_integrated": true
   },
   "claim_policy": {
     "allowed_conditions": [
       "fixture",
       "synthetic",
       "sandbox",
+      "local training",
       "hand-authored",
       "real-world UNMEASURED"
     ],
+    "model_backed": true,
     "real_world": "UNMEASURED",
-    "voiceguard_evals_included": false,
-    "voiceguard_reentry": "future Phase Eleven only"
+    "real_world_privacy_efficacy": "UNMEASURED",
+    "vigil_integrated": true
   },
   "conditions": {
     "citizen": "fixture / sandbox",
     "governance": "sandbox",
     "messageguard": "hand-authored / in-distribution; real-world UNMEASURED",
     "organs": "synthetic / sandbox",
-    "replay": "sandbox"
+    "replay": "sandbox",
+    "vigil": "local training / fixture; real-world UNMEASURED"
   },
-  "contract": "raksha-unified-corpus-v1",
+  "contract": "raksha-unified-corpus-v2",
   "generated_by": "evals/corpus.py",
   "governance": {
     "blast_cap": 3,
@@ -175,6 +181,8 @@
     "campaign_id": "C-P9-REPLAY",
     "case_id": "CASE-P9-REPLAY",
     "condition": "sandbox",
+    "deterministic_infra": true,
+    "executor_mode": "dry-run only",
     "live_executor_called": false,
     "source": "evals/replay.py",
     "steps": [
@@ -194,7 +202,7 @@
             "session_count": 12
           },
           "severity": 4,
-          "summary": "phase 9 replay fixture EV-P9-01",
+          "summary": "active replay fixture EV-P9-01",
           "ts": "2026-11-26T09:00:00Z"
         },
         "stage": "initial_access"
@@ -215,7 +223,7 @@
             "reynolds_number": 3100.0
           },
           "severity": 4,
-          "summary": "phase 9 replay fixture EV-P9-02",
+          "summary": "active replay fixture EV-P9-02",
           "ts": "2026-11-26T09:00:00Z"
         },
         "stage": "execution"
@@ -236,7 +244,7 @@
             "fiedler_value": 0.04
           },
           "severity": 4,
-          "summary": "phase 9 replay fixture EV-P9-03",
+          "summary": "active replay fixture EV-P9-03",
           "ts": "2026-11-26T09:00:00Z"
         },
         "stage": "execution"
@@ -257,7 +265,7 @@
             "lyapunov_exponent": 0.62
           },
           "severity": 4,
-          "summary": "phase 9 replay fixture EV-P9-04",
+          "summary": "active replay fixture EV-P9-04",
           "ts": "2026-11-26T09:00:00Z"
         },
         "stage": "execution"
@@ -278,7 +286,7 @@
             "parity_break": 1
           },
           "severity": 4,
-          "summary": "phase 9 replay fixture EV-P9-05",
+          "summary": "active replay fixture EV-P9-05",
           "ts": "2026-11-26T09:00:00Z"
         },
         "stage": "execution"
@@ -298,7 +306,7 @@
             "power_residual_w": 18.5
           },
           "severity": 4,
-          "summary": "phase 9 replay fixture EV-P9-06",
+          "summary": "active replay fixture EV-P9-06",
           "ts": "2026-11-26T09:00:00Z"
         },
         "stage": "impact"
@@ -318,7 +326,7 @@
             "spectral_radius": 1.42
           },
           "severity": 4,
-          "summary": "phase 9 replay fixture EV-P9-07",
+          "summary": "active replay fixture EV-P9-07",
           "ts": "2026-11-26T09:00:00Z"
         },
         "stage": "impact"
@@ -339,7 +347,7 @@
             "repeat_mismatch": 0
           },
           "severity": 4,
-          "summary": "phase 9 replay fixture EV-P9-08",
+          "summary": "active replay fixture EV-P9-08",
           "ts": "2026-11-26T09:00:00Z"
         },
         "stage": "impact"
@@ -360,7 +368,7 @@
             "fiedler_value": 0.55
           },
           "severity": 2,
-          "summary": "phase 9 replay fixture EV-P9-BENIGN",
+          "summary": "active replay fixture EV-P9-BENIGN",
           "ts": "2026-11-26T09:00:00Z"
         },
         "stage": "defense_evasion"
@@ -380,7 +388,7 @@
             "entropy": 8.0
           },
           "severity": 2,
-          "summary": "phase 9 replay fixture EV-P9-MISSING",
+          "summary": "active replay fixture EV-P9-MISSING",
           "ts": "2026-11-26T09:00:00Z"
         },
         "stage": "defense_evasion"
@@ -401,7 +409,7 @@
             "parity_break": 1
           },
           "severity": 4,
-          "summary": "phase 9 replay fixture EV-P9-UNSIGNED",
+          "summary": "active replay fixture EV-P9-UNSIGNED",
           "ts": "2026-11-26T09:00:00Z"
         },
         "stage": "defense_evasion"
@@ -422,7 +430,7 @@
             "parity_break": 1
           },
           "severity": 4,
-          "summary": "phase 9 replay fixture EV-P9-TAMPERED",
+          "summary": "active replay fixture EV-P9-TAMPERED",
           "ts": "2026-11-26T09:00:00Z"
         },
         "stage": "defense_evasion"
@@ -443,7 +451,7 @@
             "parity_break": 1
           },
           "severity": 4,
-          "summary": "phase 9 replay fixture EV-P9-FORGED",
+          "summary": "active replay fixture EV-P9-FORGED",
           "ts": "2026-11-26T09:00:00Z"
         },
         "stage": "defense_evasion"
@@ -464,12 +472,26 @@
             "parity_break": 1
           },
           "severity": 4,
-          "summary": "phase 9 replay fixture EV-P9-UNKNOWN",
+          "summary": "active replay fixture EV-P9-UNKNOWN",
           "ts": "2026-11-26T09:00:00Z"
         },
         "stage": "defense_evasion"
       }
+    ]
+  },
+  "vigil": {
+    "claims_not_made": [
+      "deepfake prevention",
+      "modern face-recognition defeat",
+      "anonymity guarantee"
     ],
-    "voiceguard_excluded": true
+    "condition": "local training / fixture; real-world UNMEASURED",
+    "local_metrics_only": true,
+    "privacy_efficacy": "UNMEASURED",
+    "sources": [
+      "packages/vigil/model_manifest.json",
+      "packages/vigil/privacynet_history.json",
+      "packages/vigil/models/privacy_net.py"
+    ]
   }
 }

@@ -15,7 +15,7 @@ unguarded executor.
         executor + adversarial     + the Governor-side injection suite in
         suite                      tests/
 
-Deterministic. No AI inside the Governor. No ML in the planner. No
+Deterministic Governor and planner. No Commander/SLM client. No
 randomness anywhere. Readable by a hospital IT generalist.
 """
 from .budgets import BudgetConfig, BudgetWindow

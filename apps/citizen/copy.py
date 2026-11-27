@@ -1,8 +1,8 @@
-"""Phase 4 — Citizen-owned sentences, rendered by the shared i18n contract.
+"""Citizen-owned sentences, rendered by the shared i18n contract.
 
 This module owns **what citizens read**. ``packages.contracts.i18n`` owns the
-language-normalisation, fallback and rendering logic. No frozen VoiceGuard
-source, MAYA model, capture worklet, voice test or AI model is imported.
+language-normalisation, fallback and rendering logic. The one active
+model-backed capability is VIGIL image privacy.
 """
 from __future__ import annotations
 
@@ -15,8 +15,9 @@ from packages.contracts.i18n import (
 )
 from packages.contracts.reasons import REASON_CATALOGUE
 
-NO_AI_MODELS = True
-VOICEGUARD_ENABLED = False
+ACTIVE_MODEL = "VIGIL PrivacyNet TorchScript"
+VIGIL_ENABLED = True
+VIGIL_MODEL_BACKED = True
 
 CITIZEN_COPY: Dict[str, Any] = {'advisory': {'en': 'Judgement-based weighting, not calibrated against real fraud outcomes — an '
                     'aid to your decision, not a verdict.',
@@ -168,51 +169,24 @@ CITIZEN_COPY: Dict[str, Any] = {'advisory': {'en': 'Judgement-based weighting, n
                        'hi': 'यहाँ कोई ज्ञात धोखाधड़ी शब्द नहीं मिला — यह सुरक्षित होने का सबूत '
                              'नहीं है।',
                        'te': 'ఇక్కడ తెలిసిన మోసపు పదాలు లేవు — ఇది సురక్షితమని రుజువు కాదు.'},
- 'reasons': {'CLIPPED_AUDIO': {'en': 'Voice screening is not integrated yet.',
-                               'hi': 'ध्वनि जाँच अभी एकीकृत नहीं है।',
-                               'te': 'వాయిస్ తనిఖీ ఇంకా అనుసంధానం కాలేదు.'},
-             'INTERNAL_ERROR': {'en': 'Voice screening is not integrated yet.',
-                                'hi': 'ध्वनि जाँच अभी एकीकृत नहीं है।',
-                                'te': 'వాయిస్ తనిఖీ ఇంకా అనుసంధానం కాలేదు.'},
-             'INVALID_PAYLOAD': {'en': 'Voice screening is not integrated yet.',
-                                 'hi': 'ध्वनि जाँच अभी एकीकृत नहीं है।',
-                                 'te': 'వాయిస్ తనిఖీ ఇంకా అనుసంధానం కాలేదు.'},
-             'LOW_CONFIDENCE': {'en': 'Voice screening is not integrated yet.',
-                                'hi': 'ध्वनि जाँच अभी एकीकृत नहीं है।',
-                                'te': 'వాయిస్ తనిఖీ ఇంకా అనుసంధానం కాలేదు.'},
-             'MECHANICAL_PAUSES': {'en': 'Voice screening is not integrated yet.',
-                                   'hi': 'ध्वनि जाँच अभी एकीकृत नहीं है।',
-                                   'te': 'వాయిస్ తనిఖీ ఇంకా అనుసంధానం కాలేదు.'},
-             'MODEL_FLAGGED_SYNTHETIC': {'en': 'Voice screening is not integrated yet.',
-                                         'hi': 'ध्वनि जाँच अभी एकीकृत नहीं है।',
-                                         'te': 'వాయిస్ తనిఖీ ఇంకా అనుసంధానం కాలేదు.'},
-             'MODEL_FOUND_NOTHING': {'en': 'Voice screening is not integrated yet.',
-                                     'hi': 'ध्वनि जाँच अभी एकीकृत नहीं है।',
-                                     'te': 'వాయిస్ తనిఖీ ఇంకా అనుసంధానం కాలేదు.'},
-             'MONOTONE_PITCH': {'en': 'Voice screening is not integrated yet.',
-                                'hi': 'ध्वनि जाँच अभी एकीकृत नहीं है।',
-                                'te': 'వాయిస్ తనిఖీ ఇంకా అనుసంధానం కాలేదు.'},
-             'NO_BREATH_SOUNDS': {'en': 'Voice screening is not integrated yet.',
-                                  'hi': 'ध्वनि जाँच अभी एकीकृत नहीं है।',
-                                  'te': 'వాయిస్ తనిఖీ ఇంకా అనుసంధానం కాలేదు.'},
-             'NO_TRAINED_MODEL': {'en': 'Voice screening is not integrated yet.',
-                                  'hi': 'ध्वनि जाँच अभी एकीकृत नहीं है।',
-                                  'te': 'వాయిస్ తనిఖీ ఇంకా అనుసంధానం కాలేదు.'},
-             'PURE_TONE': {'en': 'Voice screening is not integrated yet.',
-                           'hi': 'ध्वनि जाँच अभी एकीकृत नहीं है।',
-                           'te': 'వాయిస్ తనిఖీ ఇంకా అనుసంధానం కాలేదు.'},
-             'SILENT_AUDIO': {'en': 'Voice screening is not integrated yet.',
-                              'hi': 'ध्वनि जाँच अभी एकीकृत नहीं है।',
-                              'te': 'వాయిస్ తనిఖీ ఇంకా అనుసంధానం కాలేదు.'},
-             'SPECTRAL_REGULARITY': {'en': 'Voice screening is not integrated yet.',
-                                     'hi': 'ध्वनि जाँच अभी एकीकृत नहीं है।',
-                                     'te': 'వాయిస్ తనిఖీ ఇంకా అనుసంధానం కాలేదు.'},
-             'TOO_SHORT': {'en': 'Voice screening is not integrated yet.',
-                           'hi': 'ध्वनि जाँच अभी एकीकृत नहीं है।',
-                           'te': 'వాయిస్ తనిఖీ ఇంకా అనుసంధానం కాలేదు.'},
-             'WHITE_NOISE': {'en': 'Voice screening is not integrated yet.',
-                             'hi': 'ध्वनि जाँच अभी एकीकृत नहीं है।',
-                             'te': 'వాయిస్ తనిఖీ ఇంకా అనుసంధానం కాలేదు.'}},
+ 'privacy_tab': {'en': {'detail': 'VIGIL redacts selected image regions and reports local '
+                                  'pixel-change metrics. It does not claim deepfake prevention, '
+                                  'modern facial recognition defeat or anonymity. Call 1930 if in '
+                                  'doubt.',
+                        'title': 'Image privacy — VIGIL'},
+                 'hi': {'detail': 'VIGIL चुने हुए छवि क्षेत्रों को बदलता है और स्थानीय '
+                                  'पिक्सेल-परिवर्तन माप देता है। यह डीपफेक रोकथाम, आधुनिक '
+                                  'चेहरा-पहचान पराजय या गुमनामी का दावा नहीं करता। संदेह हो तो '
+                                  '1930 पर कॉल करें।',
+                        'title': 'छवि गोपनीयता — VIGIL'},
+                 'te': {'detail': 'VIGIL ఎంచుకున్న చిత్ర ప్రాంతాలను మారుస్తుంది మరియు స్థానిక '
+                                  'పిక్సెల్ మార్పు కొలతలు ఇస్తుంది. ఇది డీప్\u200cఫేక్ నివారణ, '
+                                  'ఆధునిక ముఖ గుర్తింపు ఓటమి లేదా అజ్ఞాతత్వానికి హామీ ఇవ్వదు. '
+                                  'సందేహమైతే 1930కి కాల్ చేయండి.',
+                        'title': 'చిత్ర గోప్యత — VIGIL'}},
+ 'reasons': {'R_LOW_CONFIDENCE': {'en': 'Not enough information to judge.',
+                                  'hi': 'पर्याप्त जानकारी नहीं है।',
+                                  'te': 'సరిపడా సమాచారం లేదు.'}},
  'report_copy': {'failed': {'en': ['Report not sent',
                                    'Call 1930 instead. Your data did not leave this phone.'],
                             'hi': ['रिपोर्ट नहीं भेजी गई',
@@ -242,7 +216,7 @@ CITIZEN_COPY: Dict[str, Any] = {'advisory': {'en': 'Judgement-based weighting, n
                                     'పరికరం నుండి బయటకు పోలేదు.']},
                  'sent': {'en': ['Report sent',
                                  'Only the category, a severity band and a random token were sent. '
-                                 'No audio, message text or phone number left your phone.'],
+                                 'No image data, message text or phone number left your phone.'],
                           'hi': ['रिपोर्ट भेज दी गई',
                                  'केवल श्रेणी, गंभीरता और एक यादृच्छिक टोकन भेजा गया। आपका ऑडियो, '
                                  'संदेश या फ़ोन नंबर नहीं भेजा गया।'],
@@ -267,66 +241,7 @@ CITIZEN_COPY: Dict[str, Any] = {'advisory': {'en': 'Judgement-based weighting, n
                                          'te': 'వారు కొద్ది సమయంలో మీతో పలుమార్లు సంప్రదించారు.'},
                       'user_doubt': {'en': 'You felt something was wrong about this contact.',
                                      'hi': 'आपको इस संपर्क में कुछ गड़बड़ लगी।',
-                                     'te': 'ఈ సంపర్కంలో ఏదో తప్పు ఉందని మీరు భావించారు.'},
-                      'voice:LIKELY_SYNTHETIC': {'en': 'Voice screening is not integrated yet.',
-                                                 'hi': 'ध्वनि जाँच अभी एकीकृत नहीं है।',
-                                                 'te': 'వాయిస్ తనిఖీ ఇంకా అనుసంధానం కాలేదు.'},
-                      'voice:SUSPICIOUS': {'en': 'Voice screening is not integrated yet.',
-                                           'hi': 'ध्वनि जाँच अभी एकीकृत नहीं है।',
-                                           'te': 'వాయిస్ తనిఖీ ఇంకా అనుసంధానం కాలేదు.'}},
- 'verdicts': {'ERROR': {'en': {'action': 'No audio is recorded or scored. Call 1930 if in doubt.',
-                               'title': 'Voice screening is not integrated yet.'},
-                        'hi': {'action': 'कोई ऑडियो रिकॉर्ड या स्कोर नहीं किया जाता। संदेह हो तो '
-                                         '1930 पर कॉल करें।',
-                               'title': 'ध्वनि जाँच अभी एकीकृत नहीं है।'},
-                        'te': {'action': 'ఆడియో రికార్డ్ లేదా స్కోర్ చేయబడదు. సందేహమైతే 1930కి '
-                                         'కాల్ చేయండి.',
-                               'title': 'వాయిస్ తనిఖీ ఇంకా అనుసంధానం కాలేదు.'}},
-              'INCONCLUSIVE': {'en': {'action': 'No audio is recorded or scored. Call 1930 if in '
-                                                'doubt.',
-                                      'title': 'Voice screening is not integrated yet.'},
-                               'hi': {'action': 'कोई ऑडियो रिकॉर्ड या स्कोर नहीं किया जाता। संदेह '
-                                                'हो तो 1930 पर कॉल करें।',
-                                      'title': 'ध्वनि जाँच अभी एकीकृत नहीं है।'},
-                               'te': {'action': 'ఆడియో రికార్డ్ లేదా స్కోర్ చేయబడదు. సందేహమైతే '
-                                                '1930కి కాల్ చేయండి.',
-                                      'title': 'వాయిస్ తనిఖీ ఇంకా అనుసంధానం కాలేదు.'}},
-              'LIKELY_SYNTHETIC': {'en': {'action': 'No audio is recorded or scored. Call 1930 if '
-                                                    'in doubt.',
-                                          'title': 'Voice screening is not integrated yet.'},
-                                   'hi': {'action': 'कोई ऑडियो रिकॉर्ड या स्कोर नहीं किया जाता। '
-                                                    'संदेह हो तो 1930 पर कॉल करें।',
-                                          'title': 'ध्वनि जाँच अभी एकीकृत नहीं है।'},
-                                   'te': {'action': 'ఆడియో రికార్డ్ లేదా స్కోర్ చేయబడదు. సందేహమైతే '
-                                                    '1930కి కాల్ చేయండి.',
-                                          'title': 'వాయిస్ తనిఖీ ఇంకా అనుసంధానం కాలేదు.'}},
-              'SILENT': {'en': {'action': 'No audio is recorded or scored. Call 1930 if in doubt.',
-                                'title': 'Voice screening is not integrated yet.'},
-                         'hi': {'action': 'कोई ऑडियो रिकॉर्ड या स्कोर नहीं किया जाता। संदेह हो तो '
-                                          '1930 पर कॉल करें।',
-                                'title': 'ध्वनि जाँच अभी एकीकृत नहीं है।'},
-                         'te': {'action': 'ఆడియో రికార్డ్ లేదా స్కోర్ చేయబడదు. సందేహమైతే 1930కి '
-                                          'కాల్ చేయండి.',
-                                'title': 'వాయిస్ తనిఖీ ఇంకా అనుసంధానం కాలేదు.'}},
-              'SUSPICIOUS': {'en': {'action': 'No audio is recorded or scored. Call 1930 if in '
-                                              'doubt.',
-                                    'title': 'Voice screening is not integrated yet.'},
-                             'hi': {'action': 'कोई ऑडियो रिकॉर्ड या स्कोर नहीं किया जाता। संदेह हो '
-                                              'तो 1930 पर कॉल करें।',
-                                    'title': 'ध्वनि जाँच अभी एकीकृत नहीं है।'},
-                             'te': {'action': 'ఆడియో రికార్డ్ లేదా స్కోర్ చేయబడదు. సందేహమైతే '
-                                              '1930కి కాల్ చేయండి.',
-                                    'title': 'వాయిస్ తనిఖీ ఇంకా అనుసంధానం కాలేదు.'}}},
- 'voice_tab': {'en': {'detail': 'VoiceGuard/MAYA is frozen. No audio is recorded, no AI model is '
-                                'run, and no clone-detection claim is made. Call 1930 if in doubt.',
-                      'title': 'Voice check — not integrated yet'},
-               'hi': {'detail': 'VoiceGuard/MAYA को फ़्रीज़ रखा गया है। कोई ऑडियो रिकॉर्ड नहीं, '
-                                'कोई AI मॉडल नहीं, और क्लोन-पहचान का कोई दावा नहीं। संदेह हो तो '
-                                '1930 पर कॉल करें।',
-                      'title': 'ध्वनि जाँच — अभी एकीकृत नहीं है'},
-               'te': {'detail': 'VoiceGuard/MAYA ని ఫ్రీజ్ చేశాం. ఆడియో రికార్డ్ లేదు, AI మోడల్ '
-                                'లేదు, క్లోన్ గుర్తింపు వాదన లేదు. సందేహమైతే 1930కి కాల్ చేయండి.',
-                      'title': 'వాయిస్ తనిఖీ — ఇంకా అనుసంధానం కాలేదు'}}}
+                                     'te': 'ఈ సంపర్కంలో ఏదో తప్పు ఉందని మీరు భావించారు.'}}}
 
 MSG_REASON_FAMILY = {code: reason_family(code) for code in REASON_CATALOGUE}
 _FALLBACK_LOG = FallbackLog()
@@ -350,10 +265,6 @@ def render_reason(code: str, lang: str = DEFAULT_LANGUAGE,
     return renderer.render_reason(code, lang, params)
 
 
-def render_verdict(verdict: str, lang: str = DEFAULT_LANGUAGE):
-    return renderer.render_verdict(verdict, lang)
-
-
 def render_family(family: str, lang: str = DEFAULT_LANGUAGE) -> str:
     return renderer.render_family(family, lang)
 
@@ -375,8 +286,8 @@ def explain_report(result: Optional[Dict[str, Any]], lang: str = DEFAULT_LANGUAG
     return renderer.explain_report(result, lang, state)
 
 
-def voice_tab_copy(lang: str = DEFAULT_LANGUAGE):
-    return renderer.voice_tab_copy(lang)
+def privacy_tab_copy(lang: str = DEFAULT_LANGUAGE):
+    return renderer.privacy_tab_copy(lang)
 
 
 def catalogue_codes() -> List[str]:
@@ -397,10 +308,10 @@ def message_reason_codes() -> List[str]:
 
 __all__ = [
     "CITIZEN_COPY", "CONTRACT_VERSION", "DEFAULT_LANGUAGE", "HELPLINE",
-    "LANGUAGES", "MSG_REASON_FAMILY", "NO_AI_MODELS", "VOICEGUARD_ENABLED",
+    "LANGUAGES", "MSG_REASON_FAMILY", "ACTIVE_MODEL", "VIGIL_ENABLED", "VIGIL_MODEL_BACKED",
     "catalogue_codes", "explain_message", "explain_report", "fallbacks",
     "message_reason_codes", "normalise_language", "reason_family",
     "render_advisory", "render_band", "render_band_reason", "render_family",
     "render_message_reason", "render_reason", "render_source",
-    "render_verdict", "reset_fallbacks", "voice_tab_copy",
+    "reset_fallbacks", "privacy_tab_copy",
 ]

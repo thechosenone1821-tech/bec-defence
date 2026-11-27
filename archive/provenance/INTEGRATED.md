@@ -42,3 +42,5 @@ generated in [`../../EVALS.md`](../../EVALS.md).
   future Phase Eleven with the re-entry gate in `docs/STATUS.md`.
 
 Each provenance tree carries its own `INTEGRATED.md` note.
+
+See the [retired code note](RETIRED.md) for the executable-code purge boundary.

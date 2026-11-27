@@ -1,39 +1,25 @@
 /* RAKSHA Citizen — offline shell cache.
  *
- * Phase 3 fix. This list had drifted from index.html: panic.js, family.js and
- * both capture modules were missing. Offline, that meant the panic button did
- * nothing at all — the safety feature silently became a dead control on the one
- * screen where it matters.
- *
- * The list below is now kept honest by two mechanisms:
- *   1. `tests/test_part1_phase3.py` derives the required asset set from
- *      index.html and fails if anything is missing here.
- *   2. `CACHE` carries a version; bump it on every asset change so an installed
- *      phone actually re-fetches instead of serving a stale shell forever.
- *
- * Never cache anything under /api/ — verdicts and reports are computed, never
- * stored on a shared cache.
+ * The asset list is derived from index.html by the Python/Node tests. Bump the
+ * cache version whenever that list changes so installed phones re-fetch.
+ * Never cache API responses: a stale verdict or audit is worse than none.
  */
 
-const CACHE = "raksha-citizen-v0.4.1";
+const CACHE = "raksha-citizen-v0.4.2";
 
 const ASSETS = [
   "./",
   "./index.html",
   "./styles.css",
   "./manifest.json",
-  "./maya-capture.js",
-  "./maya-capture-worklet.js",
   "./panic.js",
   "./send-state.js",
   "./queue.js",
   "./family.js",
   "./app.js",
+  "./phase4.js",
 ];
 
-/* Install: fetch and cache the whole shell. If ANY asset 404s, the install must
- * fail loudly rather than silently caching a partial shell — a half-cached app
- * is how you get "the panic button does nothing, but only offline". */
 self.addEventListener("install", e => {
   e.waitUntil(
     caches.open(CACHE).then(async c => {
@@ -43,20 +29,6 @@ self.addEventListener("install", e => {
   );
 });
 
-/* Activate: delete every previous cache version. Without this, a phone keeps a
- * v0.3 shell forever and the new files never arrive.
- *
- * Part Four, task 4.4. This used to call clients.claim() unconditionally, which
- * let a new worker take over a page that was *already open*: that page keeps
- * running the old scripts, but the caches its old scripts expect were just
- * deleted. Mid-session, offline, the next asset request finds nothing.
- *
- * A page with no controller is a first install — claim it, there is nothing to
- * disrupt. A page that already has a controller is mid-update: leave it alone
- * and let the next navigation pick up the new shell, which is the boring and
- * correct behaviour for an app whose whole promise is "the panic button works
- * offline".
- */
 self.addEventListener("activate", e => {
   e.waitUntil(
     caches.keys()
@@ -80,14 +52,14 @@ self.addEventListener("activate", e => {
 self.addEventListener("fetch", e => {
   const url = new URL(e.request.url);
 
-  /* API responses are never cached: a stale verdict is worse than no verdict. */
-  if (url.pathname.startsWith("/api/")) return;
+  /* Recovery link: bypass the offline shell entirely when ?nosw=1 is used. */
+  if (url.searchParams.has("nosw")) return;
 
-  /* Only same-origin GETs are cacheable. */
+  /* MessageGuard, reporting and VIGIL API responses are never cached. */
+  if (url.pathname.startsWith("/api/") || url.pathname.startsWith("/vigil/api/")) return;
+
   if (e.request.method !== "GET" || url.origin !== self.location.origin) return;
 
-  /* Navigation requests fall back to the cached shell so the app opens with no
-   * network at all. */
   if (e.request.mode === "navigate") {
     e.respondWith(
       caches.match("./index.html").then(r => r || fetch(e.request))
@@ -97,8 +69,6 @@ self.addEventListener("fetch", e => {
 
   e.respondWith(
     caches.match(e.request).then(r => r || fetch(e.request).catch(() =>
-      /* Offline and not cached: fail explicitly so the caller can report it,
-       * rather than resolving to an empty 200 that looks like success. */
       new Response("", {status: 504, statusText: "offline and not cached"})
     ))
   );

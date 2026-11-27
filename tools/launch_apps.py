@@ -1,10 +1,14 @@
 #!/usr/bin/env python3
-"""One deterministic process launcher for exactly two RAKSHA apps.
+"""One process launcher for exactly two RAKSHA apps.
 
 The Infra/SOC console and the Citizen PWA are started as separate uvicorn
 processes. Both app entrypoints bind all interfaces for the Arena preview.
-This launcher adds no third app, no AI model/Commander endpoint, no live
-executor and no real containment action.
+This launcher adds no third app, no Commander endpoint, no live executor
+and no real containment action. VIGIL runs inside the Citizen process.
+
+Port overrides are read from ``RAKSHA_INFRA_PORT`` and
+``RAKSHA_CITIZEN_PORT`` so a fresh preview mapping can be used without
+editing either boot manifest.
 """
 from __future__ import annotations
 
@@ -26,10 +30,15 @@ def _port(path: pathlib.Path) -> int:
     return int(json.loads(path.read_text(encoding="utf-8"))["default_port"])
 
 
+def _env_port(name: str, path: pathlib.Path) -> int:
+    raw = os.environ.get(name, "").strip()
+    return int(raw) if raw else _port(path)
+
+
 def _apps() -> tuple[tuple[str, str, int], ...]:
     return (
-        ("infra", "apps.infra", _port(INFRA_MANIFEST)),
-        ("citizen", "apps.citizen", _port(CITIZEN_MANIFEST)),
+        ("infra", "apps.infra", _env_port("RAKSHA_INFRA_PORT", INFRA_MANIFEST)),
+        ("citizen", "apps.citizen", _env_port("RAKSHA_CITIZEN_PORT", CITIZEN_MANIFEST)),
     )
 
 
@@ -37,6 +46,8 @@ def main(argv: list[str] | None = None) -> int:
     apps = _apps()
     env = dict(os.environ)
     env["PYTHONUNBUFFERED"] = "1"
+    env["RAKSHA_INFRA_PORT"] = str(apps[0][2])
+    env["RAKSHA_CITIZEN_PORT"] = str(apps[1][2])
     env["PYTHONPATH"] = os.pathsep.join(
         [str(ROOT), str(ROOT / "raksha-code"), env.get("PYTHONPATH", "")]
     ).rstrip(os.pathsep)
@@ -61,7 +72,9 @@ def main(argv: list[str] | None = None) -> int:
                 command, cwd=ROOT, env=env, start_new_session=True,
             ))
         print(f"Infra console: /app/console on port {apps[0][2]}", flush=True)
+        print(f"Infra status: /api/infra/status on port {apps[0][2]}", flush=True)
         print(f"Citizen PWA: /app/ on port {apps[1][2]}", flush=True)
+        print(f"Citizen VIGIL status: /api/citizen/vigil/status on port {apps[1][2]}", flush=True)
         while True:
             for process in processes:
                 code = process.poll()

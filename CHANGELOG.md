@@ -1,27 +1,7 @@
 # Changelog
 
-## Current — Phase Ten release
+## Current
 
-- Unified the whole repository behind one root README, one status board, one
-  changelog and one document map.
-- Delivered one install command, one test command, one eval command and one
-  process launcher for the two-app system.
-- Added CI gates for Python suites, browser suites, eval drift, ledger verify,
-  boot manifests, no secrets and no live-executor imports.
-- Replaced the historical evaluation sprawl with one deterministic corpus
-  generator, one replay player, one eval runner, one generated `EVALS.md`, one
-  claims ledger and one drift check.
-- Conditioned every measured number and kept real-world accuracy, latency,
-  uptime, recall and false-positive rate UNMEASURED.
-- Moved retired standalone projects and historical uploads under
-  `archive/provenance/` with integration notes.
-- Froze the ten-phase board and wrote the VoiceGuard re-entry gate for a
-  separate future Phase Eleven.
-- Added the root [`summary.md`](summary.md) AI handoff and future-integration
-  playbook, covered by the claims ledger and integration gates.
+VIGIL active: the Citizen app now mounts the TorchScript PrivacyNet image-privacy runtime. The Citizen backend also exposes a same-origin VIGIL status endpoint and app-state model flags. The boot manifest, requirements, continuous integration workflow, evaluation runner, claims ledger, runtime tests, HTTP smoke, weight gate and purge gate were aligned with the active model-backed build. Infra stays deterministic and dry-run, and now exposes owned status, capability and detector cards, a navigation-ready read-only console, read-token fallbacks for preview proxies, and an HTTP smoke gate. A functional fake-hospital attack exercise now drives a series of synthetic attacks through the Infra UI and the deterministic detector/Governor/ledger/dry-run path, with a dedicated smoke gate. No real patient data or live containment is used. The retired voice-scorer code, capture assets, synthetic corpora, model-dependent tests and frozen hash pins were removed from executable paths. Real-world accuracy, recall, false-positive rate and privacy efficacy remain UNMEASURED.
 
-Historical phase-by-phase detail remains in
-[`raksha/CHANGELOG.md`](raksha/CHANGELOG.md). Earlier counts in that file are
-labelled historical and are not current release evidence. The final Phase Nine
-and Ten validation snapshot is in
-[`raksha/PHASE910_UNIFIED_RELEASE.md`](raksha/PHASE910_UNIFIED_RELEASE.md).
+See the [generated evaluation report](EVALS.md), [status](docs/STATUS.md), [release summary](summary.md) and [retired code note](archive/provenance/RETIRED.md).

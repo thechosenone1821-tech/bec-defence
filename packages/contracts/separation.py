@@ -1,7 +1,14 @@
-"""Machine-readable Phase 2/3 separation and no-bypass contract."""
+"""Machine-readable app-separation and no-bypass contract.
+
+Two apps share one `packages/` layer. The Citizen app owns the VIGIL
+model-backed image-privacy capability; Infra stays deterministic and read-only.
+A live executor, legacy Commander/SLM client or legacy spine bus is never an
+active import surface.
+"""
 from __future__ import annotations
 
 APP_NAMES = ("citizen", "infra")
+VIGIL_RUNTIME_ROOT = "packages/vigil"
 
 FORBIDDEN_CROSS_APP_ROOTS = {
     "citizen": ("apps.infra", "apps.infra.backend", "apps.infra.detectors", "sentinel", "raavan", "corpora", "evals", "spine"),
@@ -14,28 +21,21 @@ FORBIDDEN_APP_BYPASS_ROOTS = (
     "sentinel.shields.base_organ.handle_rpc",
 )
 
-# Phase 4: no Citizen app module may reach an AI/ML model or the Commander.
-FORBIDDEN_AI_MODEL_ROOTS = (
-    "spine.slm_client", "spine.orchestrator", "spine.orchestrator.SLMClient",
-    "citizen.voiceguard.model", "citizen.voiceguard.voiceguard",
-    "citizen.voiceguard.train", "citizen.voiceguard.corpus",
-    "ollama", "transformers", "torch", "tensorflow",
+FORBIDDEN_LIVE_EXECUTOR_ROOTS = (
+    "spine.slm_client", "spine.orchestrator", "ollama", "transformers",
+    "tensorflow",
 )
 
-# The only app-owned file allowed to import the frozen VoiceGuard seam.
-CITIZEN_VOICEGUARD_ADAPTER = "apps/citizen/legacy_voiceguard.py"
-
-FROZEN_SEAM_ROOTS = ("citizen.voiceguard",)
 LEGACY_IMPORT_ROOTS = ("spine", "sentinel", "raavan", "corpora", "evals")
 
 ALLOWED_IMPORT_ROOTS = {
-    "apps/citizen": ("apps.citizen", "packages", "citizen.voiceguard"),
+    "apps/citizen": ("apps.citizen", "packages"),
     "apps/infra": ("apps.infra", "packages", "sentinel"),
     "packages": ("packages", "spine", "sentinel", "raavan", "corpora", "evals"),
 }
 
 __all__ = [
-    "APP_NAMES", "FORBIDDEN_CROSS_APP_ROOTS", "FORBIDDEN_APP_BYPASS_ROOTS",
-    "FROZEN_SEAM_ROOTS", "LEGACY_IMPORT_ROOTS", "ALLOWED_IMPORT_ROOTS",
-    "FORBIDDEN_AI_MODEL_ROOTS", "CITIZEN_VOICEGUARD_ADAPTER",
+    "APP_NAMES", "VIGIL_RUNTIME_ROOT", "FORBIDDEN_CROSS_APP_ROOTS",
+    "FORBIDDEN_APP_BYPASS_ROOTS", "FORBIDDEN_LIVE_EXECUTOR_ROOTS",
+    "LEGACY_IMPORT_ROOTS", "ALLOWED_IMPORT_ROOTS",
 ]

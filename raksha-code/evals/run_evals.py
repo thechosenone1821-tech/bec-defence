@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-"""Phase 10 compatibility shim for the retired legacy M6 eval runner.
+"""Compatibility shim for the legacy eval runner.
 
 The one active runner is root ``evals/run_evals.py``. This module preserves the
-historical ``evals.run_evals.sign_event`` identity used by the Phase 3 contract
-test and delegates the CLI to the canonical runner. It imports no model, legacy
-spine bus, Commander endpoint or frozen VoiceGuard/MAYA eval.
+historical ``evals.run_evals.sign_event`` identity used by the contract tests
+and delegates the CLI to the canonical runner.
 """
 from __future__ import annotations
 

@@ -1,3 +1,5 @@
+> Historical provenance: the retired voice-scorer code was removed from executable paths. Active status lives in [docs/STATUS.md](../docs/STATUS.md); see the [retired code note](../archive/provenance/RETIRED.md). Real-world privacy efficacy remains UNMEASURED.
+
 # Phase 5 — Make MessageGuard single-source
 
 > **Status:** implemented on `arena/3b136fd9-bec-defence` · **Date:** 2026-11-26

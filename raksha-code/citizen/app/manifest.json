@@ -1,7 +1,7 @@
 {
   "name": "RAKSHA Citizen",
   "short_name": "Raksha",
-  "description": "Open-source AI-defence for Indian citizens: scam screening, voice-clone warning signs, one-tap reporting to the 1930 national cybercrime helpline.",
+  "description": "Open-source defence for Indian citizens: scam-message screening, VIGIL image privacy, one-tap reporting to the 1930 national cybercrime helpline.",
   "start_url": "./index.html",
   "display": "standalone",
   "orientation": "portrait",

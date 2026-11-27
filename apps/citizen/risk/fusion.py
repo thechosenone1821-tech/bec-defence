@@ -1,41 +1,18 @@
-"""Citizen Risk Engine — Signal Fusion Core (Part One).
+"""Citizen Risk Engine — Signal Fusion Core.
 
-This module decides **only** how signals combine into a score and a band. It
-contains no sentences, no languages, no HTTP, and no I/O. That separation is the
-whole point of the split:
+This module decides only how signals combine into a score and a band. It contains
+no sentences, no languages, no HTTP and no I/O. Citizen copy renders the result.
 
-    Part 1 (this file)  decides *how much* evidence there is
-    Part 2 (i18n)       decides *what to say* about it
-    Part 4 (api/app)    decides *where it goes*
-
-If you find yourself wanting to add a string to this file, it belongs in Part 2.
-If you want to add a weight to Part 2, it belongs here.
-
-Design notes worth keeping:
-
-* **Rules are data.** Each input source is one entry in ``RULES``, so adding a
-  signal is a table edit rather than another branch in a function that is already
-  the most safety-critical code in the app. A reviewer reads the table; they do
-  not have to trace control flow.
-* **Every result is auditable.** ``fired`` and ``skipped`` both come back, with a
-  human-readable reason for each skip. "Why did this not fire?" is the question an
-  audit asks, and it previously had no answer in the payload at all.
-* **Absence of evidence is not evidence of absence.** ``INCONCLUSIVE`` and
-  ``SILENT`` voice readings, an unknown message verdict, and unparseable input all
-  produce *no* contribution — never a negative one, and never a reassuring band.
+The retired scorer is gone: MessageGuard, campaign linkage, repeat contacts
+and explicit user doubt are the remaining independent signals. Absence of
+evidence never becomes a negative contribution or a reassuring band.
 """
-
 from __future__ import annotations
 
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
-from packages.contracts import i18n as VC
 from .. import copy as i18n  # language normalisation only; sentences stay in the app
 
-# --------------------------------------------------------------------------- #
-# Bands, in increasing severity. LOW_CONFIDENCE sorts below LOW on purpose:
-# "we cannot tell" is a weaker statement than "we looked and found little".
-# --------------------------------------------------------------------------- #
 BAND_LOW_CONFIDENCE = "LOW_CONFIDENCE"
 BAND_LOW = "LOW"
 BAND_ELEVATED = "ELEVATED"
@@ -52,15 +29,11 @@ _BAND_TABLE: Tuple[Tuple[float, str], ...] = (
     (1.01, BAND_CRITICAL),
 )
 
-# "Nothing found" must never be reported as "nothing wrong".
-_MIN_MEANINGFUL = 0.10     # fused score must clear this to leave LOW_CONFIDENCE
-_MIN_SIGNAL_COUNT = 2      # ... or be corroborated by at least two signals
-_STANDALONE_SOURCES = frozenset({"voice", "message", "campaign"})
+_MIN_MEANINGFUL = 0.10
+_MIN_SIGNAL_COUNT = 2
+_STANDALONE_SOURCES = frozenset({"message", "campaign"})
 
 
-# --------------------------------------------------------------------------- #
-# Coercion — never raise, and never let junk masquerade as evidence
-# --------------------------------------------------------------------------- #
 def safe_float(v: Any, default: float = 0.0) -> float:
     try:
         f = float(v)
@@ -80,12 +53,6 @@ def safe_int(v: Any, default: int = 0) -> int:
 
 
 def safe_bool(v: Any) -> bool:
-    """Only real truthy *values* count — not merely truthy *strings*.
-
-    `campaign_linked="nope"` used to add the full campaign weight because a
-    non-empty string is truthy. That is an accusation produced from a type error,
-    so it is excluded here by naming the accepted spellings explicitly.
-    """
     if isinstance(v, bool):
         return v
     if isinstance(v, int):
@@ -99,30 +66,10 @@ def clamp01(v: Any) -> float:
     return max(0.0, min(1.0, safe_float(v, 0.0)))
 
 
-# --------------------------------------------------------------------------- #
-# The rule table
-# --------------------------------------------------------------------------- #
-# Each rule: (source, weight, predicate, why-not-fired explanation)
-# A predicate returns True only when that source contributes real evidence.
-# --------------------------------------------------------------------------- #
-RuleResult = Tuple[str, float, str]      # source, weight, detail
+RuleResult = Tuple[float, Optional[str], str]
 
 
-def _voice_rule(payload: Any) -> Tuple[float, Optional[str], str]:
-    """Returns (weight, detail, skip_reason)."""
-    if not isinstance(payload, dict):
-        return 0.0, None, "no voice reading supplied"
-    verdict = payload.get("verdict")
-    if verdict == VC.LIKELY_SYNTHETIC:
-        return 0.65, verdict, ""
-    if verdict == VC.SUSPICIOUS:
-        return 0.40, verdict, ""
-    if verdict in (VC.INCONCLUSIVE, VC.SILENT):
-        return 0.0, None, f"voice reading was {verdict} — absence of evidence"
-    return 0.0, None, "voice verdict not recognised"
-
-
-def _message_rule(payload: Any) -> Tuple[float, Optional[str], str]:
+def _message_rule(payload: Any) -> RuleResult:
     if not isinstance(payload, dict):
         return 0.0, None, "no message reading supplied"
     verdict = str(payload.get("verdict") or "").upper()
@@ -135,13 +82,13 @@ def _message_rule(payload: Any) -> Tuple[float, Optional[str], str]:
     return 0.0, None, "message verdict not recognised"
 
 
-def _campaign_rule(payload: Any, *_safe) -> Tuple[float, Optional[str], str]:
+def _campaign_rule(payload: Any, *_safe) -> RuleResult:
     if safe_bool(payload):
         return 0.45, "same pattern already reported", ""
     return 0.0, None, "no campaign linkage"
 
 
-def _repeat_rule(payload: Any) -> Tuple[float, Optional[str], str]:
+def _repeat_rule(payload: Any) -> RuleResult:
     n = safe_int(payload, 0)
     if n >= 3:
         return 0.20, f"{n} attempts", ""
@@ -150,23 +97,20 @@ def _repeat_rule(payload: Any) -> Tuple[float, Optional[str], str]:
     return 0.0, None, f"{n} attempt(s) is below the threshold of 3"
 
 
-def _doubt_rule(payload: Any, *_safe) -> Tuple[float, Optional[str], str]:
+def _doubt_rule(payload: Any, *_safe) -> RuleResult:
     if safe_bool(payload):
         return 0.15, "user reported unease", ""
     return 0.0, None, "user did not report doubt"
 
 
-RULES: Dict[str, Callable[..., Tuple[float, Optional[str], str]]] = {
-    "voice": _voice_rule,
+RULES: Dict[str, Callable[..., RuleResult]] = {
     "message": _message_rule,
     "campaign": _campaign_rule,
     "repeat_contact": _repeat_rule,
     "user_doubt": _doubt_rule,
 }
 
-# Public, for reviewers and for tests that pin the arithmetic.
 SOURCE_WEIGHTS: Dict[str, Dict[str, float]] = {
-    "voice": {"LIKELY_SYNTHETIC": 0.65, "SUSPICIOUS": 0.40},
     "message": {"CRITICAL": 0.60, "HIGH": 0.35},
     "campaign": {"linked": 0.45},
     "repeat_contact": {"three_or_more": 0.20},
@@ -174,11 +118,7 @@ SOURCE_WEIGHTS: Dict[str, Dict[str, float]] = {
 }
 
 
-# --------------------------------------------------------------------------- #
-# Fusion maths
-# --------------------------------------------------------------------------- #
 def noisy_or(weights: List[float]) -> float:
-    """Bounded union of independent evidence. Never exceeds 1.0."""
     remaining = 1.0
     for w in weights:
         remaining *= (1.0 - clamp01(w))
@@ -187,13 +127,6 @@ def noisy_or(weights: List[float]) -> float:
 
 def band_for(score: float, n_signals: int,
              sources: Optional[List[str]] = None) -> Tuple[str, str]:
-    """Map a fused score to a band. Returns (band, why).
-
-    A band above LOW_CONFIDENCE requires either one standalone source or at least
-    ``_MIN_SIGNAL_COUNT`` contributing signals. The second return value explains
-    the decision, because "why is this only LOW_CONFIDENCE" is a question a
-    support engineer will ask and previously could not answer.
-    """
     if n_signals == 0:
         return BAND_LOW_CONFIDENCE, "no signals contributed"
     if score < _MIN_MEANINGFUL:
@@ -208,47 +141,33 @@ def band_for(score: float, n_signals: int,
     return BAND_CRITICAL, f"fused score {score:.3f} exceeds every threshold"
 
 
-# --------------------------------------------------------------------------- #
-# The entry point
-# --------------------------------------------------------------------------- #
-def evaluate(voice: Optional[Dict[str, Any]] = None,
-             message: Optional[Dict[str, Any]] = None,
+def evaluate(message: Optional[Dict[str, Any]] = None,
              campaign_linked: Any = False,
              repeat_contacts: Any = 0,
              user_doubt: Any = False) -> Dict[str, Any]:
-    """Fuse signals into a score, a band, and a full audit trail.
-
-    No text, no language, no I/O. Callers render this (Part 2) and deliver it
-    (Part 4).
-    """
     payloads = {
-        "voice": voice,
         "message": message,
         "campaign": campaign_linked,
         "repeat_contact": repeat_contacts,
         "user_doubt": user_doubt,
     }
-
     fired: List[Dict[str, Any]] = []
     skipped: List[Dict[str, Any]] = []
     weights: List[float] = []
-
     for source, fn in RULES.items():
         try:
             weight, detail, skip_reason = fn(payloads.get(source))
-        except Exception as exc:      # a broken rule must never break the screen
+        except Exception as exc:
             skipped.append({"source": source, "reason": f"rule error: {type(exc).__name__}"})
             continue
         if weight > 0:
             weights.append(weight)
-            fired.append({"source": source, "weight": round(weight, 3),
-                          "detail": detail})
+            fired.append({"source": source, "weight": round(weight, 3), "detail": detail})
         else:
             skipped.append({"source": source, "reason": skip_reason or "no evidence"})
 
     score = round(noisy_or(weights), 4)
     band, band_reason = band_for(score, len(weights), [f["source"] for f in fired])
-
     return {
         "band": band,
         "band_reason": band_reason,
@@ -263,5 +182,4 @@ def evaluate(voice: Optional[Dict[str, Any]] = None,
 
 
 def normalise_language(lang: Any) -> str:
-    """Kept here so Part 4 has one import; delegates to the Part 2 catalogue."""
     return i18n.normalise_language(lang)

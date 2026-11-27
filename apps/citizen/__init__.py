@@ -1,9 +1,8 @@
-"""Phase 2 boundary for the RAKSHA Citizen app.
+"""Boundary for the RAKSHA Citizen app.
 
-The editable Citizen implementation lives here. The frozen VoiceGuard/MAYA tree
-and the existing PWA assets remain under ``raksha-code/citizen``; this package
-adds that legacy directory to its search path so the frozen seam is importable
-without moving or editing any VoiceGuard/MAYA file.
+The editable Citizen implementation lives here. The physical PWA assets are
+served through the ``raksha-code/citizen`` compatibility tree; VIGIL is a shared
+package mounted by the one Citizen service. There is no second Citizen process.
 """
 from __future__ import annotations
 
@@ -21,14 +20,13 @@ if str(_LEGACY_CITIZEN_DIR) not in __path__:
     __path__.append(str(_LEGACY_CITIZEN_DIR))
 
 APP_NAME = "citizen"
-FROZEN_SEAMS = (
-    "raksha-code/citizen/voiceguard/",
-    "raksha-code/citizen/app/maya-capture*.js",
-    "raksha-code/citizen/voiceguard/MODEL_CARD.md",
-    "raksha-code/citizen/voiceguard/maya_lr_v1.json",
+ACTIVE_SURFACES = (
+    "apps/citizen/api.py",
+    "apps/citizen/app/",
+    "packages/vigil/",
 )
 
-__all__ = ["APP_NAME", "FROZEN_SEAMS", "build_app", "score_message", "assess"]
+__all__ = ["APP_NAME", "ACTIVE_SURFACES", "build_app", "score_message", "assess"]
 
 
 def __getattr__(name: str) -> Any:

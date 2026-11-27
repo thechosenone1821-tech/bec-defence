@@ -1,15 +1,12 @@
-"""Phase 4 — Citizen feature flags and capability card.
-
-The maintainer asked for the next phase without running AI models. This module
-is the single place where that instruction is made executable: VoiceGuard/MAYA,
-the MAYA classifier, and the local Commander/SLM are all disabled by default.
-"""
+"""Citizen feature flags and capability card for the VIGIL-integrated build."""
 from __future__ import annotations
 
 from typing import Any, Dict
 
-NO_AI_MODELS = True
-PHASE = 4
+ACTIVE_MODEL = "VIGIL PrivacyNet TorchScript"
+MODEL_BACKED = True
+PHASE = 11
+VIGIL_STATUS_PATH = "/api/citizen/vigil/status"
 
 FEATURE_FLAGS: Dict[str, bool] = {
     "messageguard": True,
@@ -19,19 +16,29 @@ FEATURE_FLAGS: Dict[str, bool] = {
     "panic_1930": True,
     "family_mode": True,
     "retention": True,
-    "voiceguard": False,
-    "maya_capture": False,
+    "vigil": True,
     "commander_model": False,
 }
 
 
-def voiceguard_enabled() -> bool:
-    """VoiceGuard is frozen behind a hard-disabled flag. No env override."""
-    return False
+def vigil_enabled() -> bool:
+    """VIGIL is an in-process model-backed Citizen capability."""
+    return FEATURE_FLAGS["vigil"]
 
 
-def no_ai_models() -> bool:
-    return True
+def vigil_card() -> Dict[str, Any]:
+    return {
+        "enabled": vigil_enabled(),
+        "route": "/vigil/",
+        "api_prefix": "/vigil/api",
+        "status_path": VIGIL_STATUS_PATH,
+        "active_model": ACTIVE_MODEL,
+        "weights": "cloakpixel_privacynet_384.torchscript.pt",
+        "model_backed": MODEL_BACKED,
+        "executor": "none",
+        "privacy_efficacy": "UNMEASURED",
+        "claims_not_made": ["deepfake prevention", "modern face-recognition defeat", "anonymity guarantee"],
+    }
 
 
 def capability_card() -> Dict[str, Any]:
@@ -41,7 +48,9 @@ def capability_card() -> Dict[str, Any]:
         "service": "apps.citizen.api",
         "pwa_shell": "/app/",
         "features": dict(FEATURE_FLAGS),
-        "no_ai_models": NO_AI_MODELS,
+        "model_backed": MODEL_BACKED,
+        "active_model": ACTIVE_MODEL,
+        "vigil_status_path": VIGIL_STATUS_PATH,
         "invariants": {
             "no_raw_score_to_citizen": True,
             "no_safe_verdict": True,
@@ -49,13 +58,11 @@ def capability_card() -> Dict[str, Any]:
             "signature_required": True,
             "governor_required": True,
         },
-        "voiceguard": {
-            "enabled": False,
-            "status": "not integrated yet",
-            "model_invoked": False,
-        },
+        "vigil": vigil_card(),
     }
 
 
-__all__ = ["FEATURE_FLAGS", "NO_AI_MODELS", "PHASE", "capability_card",
-           "no_ai_models", "voiceguard_enabled"]
+__all__ = [
+    "ACTIVE_MODEL", "FEATURE_FLAGS", "MODEL_BACKED", "PHASE", "VIGIL_STATUS_PATH",
+    "capability_card", "vigil_card", "vigil_enabled",
+]

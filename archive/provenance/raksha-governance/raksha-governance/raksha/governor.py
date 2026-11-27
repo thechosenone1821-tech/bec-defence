@@ -1,7 +1,7 @@
 """The Governor: deterministic safety gate between a proposal and any action.
 
 This is the single most important component in RAKSHA, and it contains
-no AI. Every arrow into it is a place an action can stop.
+deterministic. Every arrow into it is a place an action can stop.
 
 The decision pipeline, in order (an action that fails any step stops there):
 

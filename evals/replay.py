@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
-"""Phase 9 — the one deterministic end-to-end replay player.
+"""The one deterministic Infra end-to-end replay player.
 
 The player POSTs the committed sandbox corpus into the active Infra API, then
 reads state, ledger verification, decisions, quarantine and metrics. It signs
-events with the shared envelope contract, never imports a model or legacy spine
-bus, and proves that the only executor mode is dry-run. No host, VLAN, process,
-session or network is changed. VoiceGuard is excluded from this runner.
+events with the shared envelope contract and proves that the only executor mode
+is dry-run. Citizen's VIGIL model is not part of this Infra replay.
 """
 from __future__ import annotations
 
@@ -108,11 +107,12 @@ def replay(corpus: dict[str, Any] | None = None) -> dict[str, Any]:
         and verify.get("valid") is True
         and real_action_count == 0
         and unsafe_decision_count == 0
-        and state.get("no_ai_models") is True
+        and state.get("model_backed") is False
+        and state.get("deterministic") is True
         and state.get("dry_run") is True
         and model_invoked is False
         and override.status_code == 403
-        and health.get("no_ai_models") is True
+        and health.get("model_backed") is False
     )
     return {
         "condition": corpus["conditions"]["replay"],
@@ -131,10 +131,11 @@ def replay(corpus: dict[str, Any] | None = None) -> dict[str, Any]:
         "executor_real_action_count": real_action_count,
         "unsafe_decision_count": unsafe_decision_count,
         "admin_override_status_code": override.status_code,
-        "no_ai_models": bool(state.get("no_ai_models")),
+        "model_backed": bool(state.get("model_backed")),
+        "deterministic": bool(state.get("deterministic")),
         "commander_model_invoked": model_invoked,
         "dry_run": bool(state.get("dry_run")),
-        "voiceguard_included": False,
+        "executor_mode": "dry-run only",
         "status": "ok" if ok else "fail",
     }
 
@@ -150,12 +151,12 @@ def main(argv: list[str] | None = None) -> int:
         return 0 if current["status"] == "ok" else 1
     committed = json.loads(RESULTS_PATH.read_text(encoding="utf-8")) if RESULTS_PATH.exists() else {}
     if committed.get("sections", {}).get("replay") != current:
-        print("FAIL: committed replay result is stale; rerun make eval", file=sys.stderr)
+        print("FAIL: committed replay result is stale; rerun make eval-generate", file=sys.stderr)
         return 1
     if current["status"] != "ok":
         print("FAIL: replay invariants did not hold", file=sys.stderr)
         return 1
-    print("OK: one end-to-end sandbox replay is green; dry-run only")
+    print("OK: one end-to-end sandbox replay is green; deterministic, dry-run only")
     return 0
 
 

@@ -2,7 +2,7 @@
 """Phase 9/10 — the one eval drift gate.
 
 Runs the canonical runner in --check mode, then verifies the claims ledger.
-No files are written and no AI/model-dependent test is loaded.
+No files are written and no live executor or network service is loaded.
 """
 from __future__ import annotations
 

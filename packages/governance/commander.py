@@ -14,7 +14,7 @@ COMMANDER_CONTRACT = {
     "fallback_only": True,
     "model_invoked": False,
     "ai_model_loaded": False,
-    "reason": "Phase 6–8 uses the deterministic Governor; no AI models are run",
+    "reason": "Infra uses the deterministic Governor; no Commander inference is run",
     "live_endpoint": None,
 }
 

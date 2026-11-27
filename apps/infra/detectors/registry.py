@@ -7,8 +7,8 @@ only rules whose required features are present. Missing features degrade to
 ``no_detection``; unsigned, tampered, forged, malformed and unknown-organ
 events are quarantined and never become findings.
 
-This module is deterministic and import-safe. It does not import frozen Citizen
-VoiceGuard/MAYA assets, an AI model, the legacy spine bus, or an executor.
+This module is deterministic and import-safe. It does not import the VIGIL model,
+the legacy spine bus, an executor or a cross-app Citizen module.
 """
 from __future__ import annotations
 
@@ -233,7 +233,6 @@ ORGAN_ALIASES.update({
     "idguard": "muts_ebpf_repair",
     "quorumguard": "hessian_lyapunov_guard",
     "tier0guard": "landauer_thermal_audit",
-    "voiceguard": "cookie_fluid_turbulence",  # Infra alias only; NOT Citizen VoiceGuard
 })
 ORGAN_FIXTURES: dict[str, dict[str, dict[str, Any]]] = {
     spec.name: {
@@ -334,7 +333,6 @@ def detector_card() -> dict[str, Any]:
         "fixtures": {name: sorted(bundle) for name, bundle in ORGAN_FIXTURES.items()},
         "quarantine_before_detection": True,
         "missing_features": "no_detection",
-        "frozen_voiceguard_integrated": False,
     }
 
 

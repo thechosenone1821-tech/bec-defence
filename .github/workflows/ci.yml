@@ -1,4 +1,4 @@
-name: RAKSHA deterministic CI
+name: RAKSHA VIGIL CI
 
 on:
   push:
@@ -8,7 +8,7 @@ permissions:
   contents: read
 
 jobs:
-  deterministic-gates:
+  active-runtime-gates:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -27,6 +27,18 @@ jobs:
         run: python3 tools/run_phase4_pytest.py
       - name: Browser tests
         run: python3 tools/run_phase4_node_tests.py
+      - name: Infra HTTP smoke
+        run: python3 tools/run_infra_smoke.py
+      - name: Fake-hospital demo smoke
+        run: python3 tools/run_hospital_demo_smoke.py
+      - name: VIGIL runtime tests
+        run: python3 tools/run_vigil_tests.py
+      - name: VIGIL HTTP smoke
+        run: python3 tools/run_vigil_smoke.py
+      - name: Weights manifest
+        run: python3 tools/check_vigil_assets.py
+      - name: Retired-code purge
+        run: python3 tools/check_code_purge.py
       - name: Eval drift
         run: python3 tools/check_eval_drift.py
       - name: Ledger verify
@@ -39,5 +51,7 @@ jobs:
         run: python3 tools/check_no_live_executor.py
       - name: Claims ledger verify
         run: python3 tools/check_claims_ledger.py
-      - name: Full deterministic integration gate
+      - name: Local links
+        run: python3 tools/check_local_links.py
+      - name: Full active integration gate
         run: make ci

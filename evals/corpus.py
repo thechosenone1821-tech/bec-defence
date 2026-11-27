@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Phase 9 — the one deterministic corpus generator.
+"""The one active RAKSHA corpus generator.
 
-All replay/eval fixtures are produced here from committed hand-authored rows,
-the one active detector registry and sandbox topology. There is no wall clock,
-randomness, network capture, model inference or VoiceGuard/MAYA corpus in this
-generator. ``python -m evals.corpus --check`` verifies the committed corpus.
+Replay and eval fixtures are produced from committed hand-authored rows, the one
+Infra detector registry and sandbox topology. VIGIL local metrics are read from
+the committed model manifest and training history; real-world privacy efficacy
+is never inferred from those artifacts.
 """
 from __future__ import annotations
 
@@ -29,6 +29,7 @@ CONDITIONS = {
     "organs": "synthetic / sandbox",
     "governance": "sandbox",
     "replay": "sandbox",
+    "vigil": "local training / fixture; real-world UNMEASURED",
 }
 REPLAY_CASE = "CASE-P9-REPLAY"
 REPLAY_CAMPAIGN = "C-P9-REPLAY"
@@ -45,17 +46,14 @@ def _raw(event_id: str, organ: str, payload: dict[str, Any], *, leg: str = "infr
         "leg": leg,
         "severity": severity,
         "entity": entity,
-        "summary": f"phase 9 replay fixture {event_id}",
+        "summary": f"active replay fixture {event_id}",
         "payload": dict(payload),
     }
 
 
 def _replay_steps() -> list[dict[str, Any]]:
-    """One sandbox RAAVAN-style campaign, derived from the one organ registry."""
+    """One sandbox campaign derived from the one active Infra organ registry."""
     steps: list[dict[str, Any]] = []
-    # A citizen leg followed by every organ's firing fixture: one end-to-end
-    # signed campaign through the active API, detector, planner, Governor,
-    # dry-run executor and append-only ledger.
     for index, spec in enumerate(ORGAN_SPECS, start=1):
         leg = "citizen" if index == 1 else "infra"
         entity = "N-VICTIM-PHONE" if leg == "citizen" else f"HOST_EVAL_{index:02d}"
@@ -68,7 +66,6 @@ def _replay_steps() -> list[dict[str, Any]]:
                         ORGAN_FIXTURES[spec.name]["firing"], leg=leg,
                         entity=entity),
         })
-    # Benign / missing-feature evidence must never become an accusation.
     steps.append({
         "id": "R-BENIGN", "stage": "defense_evasion", "kind": "signed_no_detection",
         "expected": "no_detection",
@@ -83,7 +80,6 @@ def _replay_steps() -> list[dict[str, Any]]:
                     ORGAN_FIXTURES["page_curve_trap"]["missing"], severity=2,
                     entity="HOST_EVAL_MISSING"),
     })
-    # Quarantine-before-detection semantics: unsigned, tampered, forged, unknown.
     for event_id, kind in (
         ("EV-P9-UNSIGNED", "unsigned"),
         ("EV-P9-TAMPERED", "tampered"),
@@ -110,14 +106,15 @@ def build_corpus() -> dict[str, Any]:
         for spec in ORGAN_SPECS
     }
     return {
-        "contract": "raksha-unified-corpus-v1",
+        "contract": "raksha-unified-corpus-v2",
         "generated_by": "evals/corpus.py",
         "conditions": CONDITIONS,
         "claim_policy": {
             "real_world": "UNMEASURED",
-            "voiceguard_evals_included": False,
-            "voiceguard_reentry": "future Phase Eleven only",
-            "allowed_conditions": ["fixture", "synthetic", "sandbox",
+            "model_backed": True,
+            "vigil_integrated": True,
+            "real_world_privacy_efficacy": "UNMEASURED",
+            "allowed_conditions": ["fixture", "synthetic", "sandbox", "local training",
                                    "hand-authored", "real-world UNMEASURED"],
         },
         "messageguard": {
@@ -129,9 +126,10 @@ def build_corpus() -> dict[str, Any]:
         "citizen": {
             "condition": CONDITIONS["citizen"],
             "source": "apps/citizen/api.py",
-            "cases": ["health", "features", "manifest", "root_redirect"],
-            "voiceguard_integrated": False,
-            "no_ai_models": True,
+            "cases": ["health", "features", "manifest", "root_redirect",
+                      "vigil_dashboard", "vigil_overview", "vigil_static"],
+            "model_backed": True,
+            "vigil_integrated": True,
         },
         "organs": {
             "condition": CONDITIONS["organs"],
@@ -153,8 +151,21 @@ def build_corpus() -> dict[str, Any]:
             "campaign_id": REPLAY_CAMPAIGN,
             "case_id": REPLAY_CASE,
             "steps": _replay_steps(),
-            "voiceguard_excluded": True,
+            "deterministic_infra": True,
+            "executor_mode": "dry-run only",
             "live_executor_called": False,
+        },
+        "vigil": {
+            "condition": CONDITIONS["vigil"],
+            "sources": [
+                "packages/vigil/model_manifest.json",
+                "packages/vigil/privacynet_history.json",
+                "packages/vigil/models/privacy_net.py",
+            ],
+            "local_metrics_only": True,
+            "privacy_efficacy": "UNMEASURED",
+            "claims_not_made": ["deepfake prevention", "modern face-recognition defeat",
+                                "anonymity guarantee"],
         },
     }
 
@@ -172,9 +183,9 @@ def main(argv: list[str] | None = None) -> int:
     current = CORPUS_PATH.read_text(encoding="utf-8") if CORPUS_PATH.exists() else ""
     if args.check:
         if current != expected:
-            print("FAIL: evals/corpus.json is stale; rerun make eval", file=sys.stderr)
+            print("FAIL: evals/corpus.json is stale; rerun make eval-generate", file=sys.stderr)
             return 1
-        print("OK: one deterministic corpus generator is current")
+        print("OK: one active corpus generator is current")
         return 0
     CORPUS_PATH.write_text(expected, encoding="utf-8")
     print(f"wrote {CORPUS_PATH.relative_to(ROOT).as_posix()}")

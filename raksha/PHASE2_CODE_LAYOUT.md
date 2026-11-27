@@ -1,3 +1,5 @@
+> Historical provenance: the retired voice-scorer code was removed from executable paths. Active status lives in [docs/STATUS.md](../docs/STATUS.md); see the [retired code note](../archive/provenance/RETIRED.md). Real-world privacy efficacy remains UNMEASURED.
+
 # RAKSHA — Phase 2 Code Layout: Separate but Integrated
 
 > **Status:** Phase 2 code scaffold implemented; Phase 3 contracts and Phase 4 Citizen consolidation later implemented · **Date:** 2026-11-26 · **Branch:** `arena/3b136fd9-bec-defence`

@@ -1,4 +1,4 @@
-"""Legacy-cwd Phase 5 compatibility tests (deterministic, no AI models)."""
+"""Compatibility-cwd MessageGuard tests for the active build."""
 from __future__ import annotations
 
 import importlib.util
@@ -21,11 +21,6 @@ ARCHIVE = ROOT / "archive" / "provenance"
 
 def _env():
     env = dict(os.environ)
-    env.update({
-        "OLLAMA_HOST": "http://127.0.0.1:9",
-        "EIGENSHIELD_MODEL": "disabled",
-        "RAKSHA_PHASE4_NO_AI_MODELS": "1",
-    })
     env["PYTHONPATH"] = os.pathsep.join([
         str(ROOT), str(CODE_ROOT), env.get("PYTHONPATH", ""),
     ]).rstrip(os.pathsep)
@@ -39,14 +34,10 @@ def test_compat_import_resolves_to_canonical():
     assert pathlib.Path(spec.origin).resolve() == CANONICAL_INIT.resolve()
     assert mg.SUPPORTED_LANGS == ("auto", "en", "hi", "te", "hinglish")
     assert "538 hand-authored/in-distribution fixtures" in mg.ENGINE
-    assert not hasattr(mg, "assess")
-    assert not hasattr(mg, "SignalFamilyScorer")
+    assert "real-world UNMEASURED" in mg.ENGINE
 
 
 def test_no_second_scorer_importable_from_legacy_cwd():
-    # A clean subprocess avoids cross-test sys.path pollution from model-dependent
-    # frozen tests that add raksha-code/evals to sys.path when the entire legacy
-    # suite is run outside the canonical no-AI runner.
     proc = subprocess.run(
         [sys.executable, "-c",
          "import importlib.util; "
@@ -103,7 +94,7 @@ def test_cli_compat_module_help_and_sanitized_json():
     assert data["citizen"]["helpline"] == "1930"
 
 
-def test_eval_check_and_provenance_ignores_from_legacy_cwd():
+def test_eval_check_and_active_test_paths():
     proc = subprocess.run(
         [sys.executable, "evals/messageguard/run_evals.py", "--check"],
         cwd=CODE_ROOT, env=_env(), capture_output=True, text=True,
@@ -113,7 +104,7 @@ def test_eval_check_and_provenance_ignores_from_legacy_cwd():
     assert (ARCHIVE / "conftest.py").is_file()
     assert (ARCHIVE / "messageguard-alternative" / "PROVENANCE.md").is_file()
     assert (ARCHIVE / "messageguard-snapshot" / "PROVENANCE.md").is_file()
+    assert "packages/vigil/tests" in run_phase4_pytest.ACTIVE_PYTEST_PATHS
     assert len(run_phase4_pytest.PROVENANCE_IGNORE_DIRS) == 2
     assert all("archive/provenance/" in rel
                for rel in run_phase4_pytest.PROVENANCE_IGNORE_DIRS)
-    assert len(run_phase4_pytest.NO_AI_TEST_FILES) == 22

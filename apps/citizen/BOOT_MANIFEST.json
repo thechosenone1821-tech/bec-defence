@@ -1,5 +1,5 @@
 {
-  "contract": "raksha-boot-manifest-v1",
+  "contract": "raksha-boot-manifest-v2",
   "app": "citizen",
   "app_count": 2,
   "entrypoint": "python -m apps.citizen",
@@ -8,8 +8,11 @@
   "root_redirect": "/app/",
   "health_path": "/api/citizen/health",
   "manifest_path": "/app/manifest.json",
-  "no_ai_models": true,
-  "voiceguard_integrated": false,
-  "dry_run": true,
+  "model_backed": true,
+  "active_model": "VIGIL PrivacyNet TorchScript",
+  "vigil_integrated": true,
+  "vigil_route": "/vigil/",
+  "vigil_status_path": "/api/citizen/vigil/status",
+  "weights_manifest": "packages/vigil/model_manifest.json",
   "executor": "none"
 }

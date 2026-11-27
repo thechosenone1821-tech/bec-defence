@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VIGIL — Visual Integrity &amp; Generative Interference Lab</title>
+  <link rel="stylesheet" href="./static/styles.css" />
+</head>
+<body>
+  <header class="top-header">
+    <div class="brand-block">
+      <span class="brand-title">VIGIL 2.0</span>
+      <span class="brand-subtitle">Visual Integrity &amp; Generative Interference Lab — Privacy Transformation &amp; Evaluation Platform</span>
+    </div>
+    <div class="telemetry-strip">
+      <div class="telemetry-item">SESSION: <span id="hdr-session-id">NONE</span></div>
+      <div class="telemetry-item">MODE: <span id="hdr-model-mode">INITIALIZING</span></div>
+      <div class="telemetry-item">CPU THREADS: <span id="hdr-cpu-threads">2</span></div>
+      <div class="telemetry-item">RSS RAM: <span id="hdr-rss-mb">--</span> MB</div>
+    </div>
+  </header>
+
+  <div id="fallback-banner" class="fallback-banner hidden">
+    <span id="fallback-banner-text">
+      NEURAL WEIGHTS ACTIVE: VIGIL uses the pinned TorchScript PrivacyNet checkpoint. Fallback geometric priors run only if that checkpoint is unavailable.
+    </span>
+    <span class="mono">Honest Reporting Enforced</span>
+  </div>
+
+  <nav class="nav-bar">
+    <div class="nav-tabs">
+      <button class="nav-tab active" data-view="view-overview">1. Overview</button>
+      <button class="nav-tab" data-view="view-workspace">2. Workspace</button>
+      <button class="nav-tab" data-view="view-detection">3. Detection</button>
+      <button class="nav-tab" data-view="view-lab">4. VIGIL Lab</button>
+      <button class="nav-tab" data-view="view-audit">5. Audit</button>
+      <button class="nav-tab" data-view="view-export">6. Export</button>
+    </div>
+    <div class="workflow-steps">
+      <span id="wf-1" class="wf-step">1.Upload</span>
+      <span id="wf-2" class="wf-step">2.Analyse</span>
+      <span id="wf-3" class="wf-step">3.Regions</span>
+      <span id="wf-4" class="wf-step">4.Transform</span>
+      <span id="wf-5" class="wf-step">5.Evaluate</span>
+      <span id="wf-6" class="wf-step">6.Audit/Export</span>
+    </div>
+  </nav>
+
+  <main class="main-container">
+    <div id="global-alert" class="panel hidden" style="border-color: var(--status-fail); color: var(--status-fail-text);"></div>
+
+    <!-- VIEW 1: OVERVIEW -->
+    <section id="view-overview" class="view-section active">
+      <div class="grid-4" style="margin-bottom: 16px;">
+        <div class="metric-box">
+          <div class="metric-label">Segmentation Mode</div>
+          <div class="metric-value" id="ov-system-mode">--</div>
+          <div class="metric-sub" id="ov-model-arch">--</div>
+        </div>
+        <div class="metric-box">
+          <div class="metric-label">Model Parameters</div>
+          <div class="metric-value" id="ov-param-count">0</div>
+          <div class="metric-sub">Ceiling: &lt; 100,000,000 params</div>
+        </div>
+        <div class="metric-box">
+          <div class="metric-label">Hardware Profile</div>
+          <div class="metric-value" id="ov-cpu-profile">CPU-First</div>
+          <div class="metric-sub" id="ov-dim-cap">Max Dim: 1600px | Threads: 2</div>
+        </div>
+        <div class="metric-box">
+          <div class="metric-label">Active Sessions in RAM</div>
+          <div class="metric-value" id="ov-active-sessions">0 / 3</div>
+          <div class="metric-sub" id="ov-rss-detail">Process RSS: -- MB</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="panel">
+          <div class="panel-header">
+            <span class="panel-title">Recent VIGIL Sessions &amp; Evaluation Summaries</span>
+            <button id="btn-refresh-overview" class="btn">Refresh Telemetry</button>
+          </div>
+          <table class="data-table">
+            <thead>
+              <tr><th>Session ID</th><th>File</th><th>Res</th><th>Regions</th><th>Method</th><th>Full SSIM</th><th>Audit</th></tr>
+            </thead>
+            <tbody id="ov-sessions-tbody">
+              <tr><td colspan="7" class="mono">No sessions recorded yet. Go to Workspace to upload an image.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title">Evaluation Test Registry &amp; Scientific Scope</span></div>
+          <table class="data-table">
+            <thead><tr><th>Test Identifier</th><th>Status</th><th>Scope &amp; Explicit Limitations</th></tr></thead>
+            <tbody id="ov-registry-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 2: WORKSPACE -->
+    <section id="view-workspace" class="view-section">
+      <div class="workspace-grid">
+        <div>
+          <div class="panel">
+            <div class="panel-header"><span class="panel-title">Step 1–2: Image Ingestion &amp; Analysis</span></div>
+            <div class="form-group">
+              <label class="form-label" for="file-upload-input">Select Image (PNG, JPEG, WebP &le; 12 MB)</label>
+              <input type="file" id="file-upload-input" class="form-input" accept="image/png,image/jpeg,image/webp" />
+            </div>
+            <label class="checkbox-row">
+              <input type="checkbox" id="chk-auto-resize" checked />
+              <span>Auto-bound resolution to 1600px (8 GB RAM protection)</span>
+            </label>
+            <button id="btn-upload-analyze" class="btn btn-primary btn-block" style="margin-top: 8px;">
+              Upload &amp; Analyse Image
+            </button>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header"><span class="panel-title">Step 5–7: VIGIL Privacy Transformation</span></div>
+            <div class="form-group">
+              <label class="form-label" for="sel-policy">Protection Policy Profile</label>
+              <select id="sel-policy" class="form-select">
+                <option value="policy_strict">Strict Sensitive Region Protection (All)</option>
+                <option value="policy_biometric_only">Facial Features &amp; Identifiers Only</option>
+                <option value="policy_document_text">Text, Licence Plates &amp; QR Codes Only</option>
+                <option value="policy_manual">Manual Selection Only</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="sel-method">Transformation Method</label>
+              <select id="sel-method" class="form-select">
+                <option value="gaussian_noise">Seeded Gaussian Noise Perturbation</option>
+                <option value="structured_freq">Structured Frequency Interference</option>
+                <option value="pixelate">Deterministic Block Pixelation</option>
+                <option value="blur">Gaussian Kernel Blur</option>
+                <option value="solid">Solid RGB Redaction</option>
+                <option value="composite_redact_and_noise">Composite (Redact Text/QR + Noise Faces)</option>
+                <option value="none">None (Baseline Reference Pass)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label"><span>Gaussian Noise Sigma (σ)</span><span id="lbl-noise-sigma" class="mono">18.0</span></label>
+              <input type="range" id="rng-noise-sigma" class="form-range" min="0" max="75" step="1" value="18" />
+            </div>
+            <div class="form-group">
+              <label class="form-label"><span>Frequency Interference Strength</span><span id="lbl-freq-strength" class="mono">12.0</span></label>
+              <input type="range" id="rng-freq-strength" class="form-range" min="0" max="45" step="1" value="12" />
+            </div>
+            <div class="form-group">
+              <label class="form-label"><span>Pixelation Block Size (px)</span><span id="lbl-pixel-block" class="mono">14</span></label>
+              <input type="range" id="rng-pixel-block" class="form-range" min="2" max="48" step="2" value="14" />
+            </div>
+            <div class="form-group">
+              <label class="form-label"><span>Blur Kernel Size (px)</span><span id="lbl-blur-kernel" class="mono">31</span></label>
+              <input type="range" id="rng-blur-kernel" class="form-range" min="3" max="81" step="2" value="31" />
+            </div>
+            <div class="form-group">
+              <label class="form-label"><span>Mask Boundary Dilation (px)</span><span id="lbl-mask-dilation" class="mono">3</span></label>
+              <input type="range" id="rng-mask-dilation" class="form-range" min="0" max="20" step="1" value="3" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="inp-random-seed">Reproducible PRNG Seed</label>
+              <input type="number" id="inp-random-seed" class="form-input mono" value="42" min="0" max="2147483647" />
+            </div>
+            <button id="btn-execute-vigil" class="btn btn-primary btn-block" disabled>
+              Execute VIGIL Transformation &amp; Evaluation
+            </button>
+          </div>
+        </div>
+
+        <div>
+          <div class="grid-4" style="margin-bottom: 12px;">
+            <div class="metric-box">
+              <div class="metric-label">Detected / Active Regions</div>
+              <div class="metric-value" id="ws-region-summary">0 / 0</div>
+              <div class="metric-sub">Click 'Detection' tab to edit</div>
+            </div>
+            <div class="metric-box">
+              <div class="metric-label">Full-Image SSIM / PSNR</div>
+              <div class="metric-value" id="ws-ssim-summary">--</div>
+              <div class="metric-sub" id="ws-psnr-summary">Human visual similarity</div>
+            </div>
+            <div class="metric-box">
+              <div class="metric-label">Protected Region L1 Diff</div>
+              <div class="metric-value" id="ws-l1-summary">--</div>
+              <div class="metric-sub" id="ws-coverage-summary">Target pixel mod ratio: --</div>
+            </div>
+            <div class="metric-box">
+              <div class="metric-label">Audit Status</div>
+              <div class="metric-value" id="ws-audit-badge">--</div>
+              <div class="metric-sub" id="ws-time-summary">Latency: -- ms</div>
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="panel">
+              <div class="panel-header"><span class="panel-title">Original Input Image</span><span id="ws-orig-dims" class="mono">--</span></div>
+              <div class="viewport-frame">
+                <img id="img-ws-original" alt="Upload an image to begin" class="hidden" />
+                <span id="placeholder-ws-orig" class="mono" style="color: var(--text-muted);">No image loaded</span>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="panel-header">
+                <span class="panel-title">VIGIL Output / Diagnostic View</span>
+                <select id="sel-ws-view-mode" class="form-select" style="width: auto; padding: 3px 8px;">
+                  <option value="transformed">Transformed Output PNG</option>
+                  <option value="mask">Effective Protection Mask</option>
+                  <option value="heatmap">L1 Perturbation Heatmap (4x)</option>
+                  <option value="segmentation">7-Class Semantic Overlay</option>
+                </select>
+              </div>
+              <div class="viewport-frame">
+                <img id="img-ws-output" alt="Execute VIGIL to view output" class="hidden" />
+                <span id="placeholder-ws-out" class="mono" style="color: var(--text-muted);">Run VIGIL to generate output</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 3: DETECTION -->
+    <section id="view-detection" class="view-section">
+      <div class="workspace-grid">
+        <div>
+          <div class="panel">
+            <div class="panel-header"><span class="panel-title">7-Class Facial Semantic Filter</span></div>
+            <p style="font-size: 11px; color: var(--text-secondary); margin-bottom: 8px;">
+              Select which semantic sub-regions inside active Face bounding boxes are included in the protection mask:
+            </p>
+            <label class="checkbox-row"><input type="checkbox" class="sem-cls-chk" value="1" checked /> <span>1: Facial Skin</span></label>
+            <label class="checkbox-row"><input type="checkbox" class="sem-cls-chk" value="2" checked /> <span>2: Eyes &amp; Eyebrows</span></label>
+            <label class="checkbox-row"><input type="checkbox" class="sem-cls-chk" value="3" checked /> <span>3: Nose</span></label>
+            <label class="checkbox-row"><input type="checkbox" class="sem-cls-chk" value="4" checked /> <span>4: Mouth &amp; Lips</span></label>
+            <label class="checkbox-row"><input type="checkbox" class="sem-cls-chk" value="5" checked /> <span>5: Ears</span></label>
+            <label class="checkbox-row"><input type="checkbox" class="sem-cls-chk" value="6" checked /> <span>6: Hair &amp; Head Boundary</span></label>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header"><span class="panel-title">Manual Region Annotation</span></div>
+            <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 10px;">
+              Click and drag directly on the Detection Canvas to draw a custom protection bounding box.
+            </p>
+            <div style="display: flex; gap: 8px;">
+              <button id="btn-clear-manual" class="btn btn-block">Clear Manual Boxes</button>
+              <button id="btn-save-regions" class="btn btn-primary btn-block">Apply Region Changes</button>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="panel">
+            <div class="panel-header">
+              <span class="panel-title">Interactive Region Canvas (Drag to Add Manual Box)</span>
+              <span id="det-canvas-status" class="mono">0 regions</span>
+            </div>
+            <div class="viewport-frame"><canvas id="detection-canvas" width="800" height="500"></canvas></div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header"><span class="panel-title">Detected &amp; Manual Regions Inventory</span></div>
+            <table class="data-table">
+              <thead>
+                <tr><th>Protect</th><th>ID</th><th>Category</th><th>Bounding Box (x1, y1, x2, y2)</th><th>Confidence</th><th>Detector Source</th><th>Semantic Sub-Classes</th></tr>
+              </thead>
+              <tbody id="det-regions-tbody">
+                <tr><td colspan="7" class="mono">Upload an image in Workspace to inspect detected regions.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 4: VIGIL LAB -->
+    <section id="view-lab" class="view-section">
+      <div class="grid-3">
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title">Experimental Perturbation Scope</span></div>
+          <div class="form-group">
+            <label class="form-label" for="sel-noise-target">Apply Perturbation To</label>
+            <select id="sel-noise-target" class="form-select">
+              <option value="selected_regions">Selected Sensitive Regions Only (Default)</option>
+              <option value="unredacted_background">Unredacted Background Only</option>
+              <option value="full_image">Full Image Canvas</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="inp-solid-rgb">Solid Redaction RGB (R,G,B)</label>
+            <input type="text" id="inp-solid-rgb" class="form-input mono" value="24,24,24" />
+          </div>
+          <label class="checkbox-row"><input type="checkbox" id="chk-watermark" /><span>Embed Visible VIGIL Attribution Watermark</span></label>
+          <div style="display: flex; gap: 8px; margin-top: 12px;">
+            <button id="btn-lab-execute" class="btn btn-primary btn-block">Execute Lab Configuration</button>
+            <button id="btn-lab-reeval" class="btn btn-block">Re-Run Evaluation</button>
+          </div>
+        </div>
+
+        <div class="panel" style="grid-column: span 2;">
+          <div class="panel-header">
+            <span class="panel-title">Visual Similarity &amp; Perturbation Intensity Breakdown</span>
+            <span id="lab-exp-id" class="mono">Experiment: --</span>
+          </div>
+          <table class="data-table">
+            <thead>
+              <tr><th>Spatial Partition</th><th>SSIM</th><th>PSNR (dB)</th><th>Mean L1 Pixel Delta</th><th>Scientific Interpretation</th></tr>
+            </thead>
+            <tbody id="lab-similarity-tbody">
+              <tr><td colspan="5" class="mono">Execute VIGIL to compute partition similarity metrics.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title">Empirical Pre/Post Local Detector Retention</span></div>
+          <table class="data-table">
+            <thead>
+              <tr><th>Category</th><th>Evaluation Detector</th><th>Before</th><th>After</th><th>Matched</th><th>Retained Ratio</th><th>Assessment</th></tr>
+            </thead>
+            <tbody id="lab-retention-tbody">
+              <tr><td colspan="7" class="mono">No evaluation results available yet.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title">Controlled Image Transformation Stability (JPEG / Resize / Blur)</span></div>
+          <table class="data-table">
+            <thead>
+              <tr><th>Controlled Transform</th><th>SSIM vs Output</th><th>PSNR (dB)</th><th>Perturbation Retention</th><th>Post-Transform Faces</th></tr>
+            </thead>
+            <tbody id="lab-transforms-tbody">
+              <tr><td colspan="5" class="mono">No controlled transformation metrics available yet.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 5: AUDIT -->
+    <section id="view-audit" class="view-section">
+      <div class="grid-3">
+        <div class="panel">
+          <div class="panel-header">
+            <span class="panel-title">Audit Status &amp; Verification Checks</span>
+            <span id="aud-overall-badge" class="badge">--</span>
+          </div>
+          <table class="data-table" style="margin-bottom: 12px;">
+            <thead><tr><th>Audit Check</th><th>Result</th></tr></thead>
+            <tbody id="aud-checks-tbody"></tbody>
+          </table>
+          <div class="panel-title" style="margin-bottom: 6px; font-size: 11px;">Status Reasons:</div>
+          <ul id="aud-reasons-list" class="disclaimer-list"></ul>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title">Coverage &amp; PNG Binary Sanitisation</span></div>
+          <table class="data-table">
+            <tbody id="aud-coverage-tbody">
+              <tr><td class="mono">Run a VIGIL transformation to populate audit metrics.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title">Explicit Evaluation Limitations</span></div>
+          <ul id="aud-limitations-list" class="disclaimer-list">
+            <li>Execute a session to inspect run-specific scientific and model limitations.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title">Session Transformation History</span></div>
+          <table class="data-table">
+            <thead>
+              <tr><th>#</th><th>Method</th><th>Policy</th><th>Seed</th><th>Active Regs</th><th>Mask Ratio</th><th>SSIM</th><th>Status</th><th>Time (ms)</th></tr>
+            </thead>
+            <tbody id="aud-history-tbody"></tbody>
+          </table>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title">Machine-Readable Audit Report (JSON)</span></div>
+          <pre id="aud-json-viewer" class="code-block">No audit report generated yet.</pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 6: EXPORT -->
+    <section id="view-export" class="view-section">
+      <div class="grid-2">
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title">Step 10: Export Transformed Image &amp; Reproducible Reports</span></div>
+          <p style="color: var(--text-secondary); margin-bottom: 14px;">
+            All exported PNG files are reconstructed from a fresh RGB buffer with ancillary metadata chunks stripped (allowing only <span class="mono">IHDR</span>, <span class="mono">IDAT</span>, and <span class="mono">IEND</span>).
+          </p>
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            <a id="lnk-export-png" class="btn btn-primary" href="#" target="_blank">Download Sanitized Transformed Image (.png)</a>
+            <a id="lnk-export-json" class="btn" href="#" target="_blank">Download Machine-Readable Audit Report (.json)</a>
+            <a id="lnk-export-zip" class="btn" href="#" target="_blank">Download Complete Reproducible Experiment Bundle (.zip)</a>
+          </div>
+
+          <hr style="border: none; border-top: 1px solid var(--border-color); margin: 18px 0;" />
+
+          <div class="panel-header"><span class="panel-title">Session Memory Isolation &amp; Cleanup</span></div>
+          <p style="color: var(--text-secondary); margin-bottom: 10px;">
+            Purge the current session's image and mask buffers from system RAM immediately:
+          </p>
+          <button id="btn-purge-session" class="btn btn-danger">Purge Current Session from RAM</button>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title">Standalone PNG Binary Chunk &amp; CRC32 Inspector</span></div>
+          <p style="color: var(--text-secondary); margin-bottom: 10px;">
+            Upload any exported PNG file to independently verify that no EXIF/tEXt/iTXt chunks exist and all chunk CRC32 checksums are valid:
+          </p>
+          <div class="form-group"><input type="file" id="inp-verify-png" class="form-input" accept="image/png" /></div>
+          <button id="btn-verify-png" class="btn">Verify PNG Binary Structure</button>
+          <pre id="pre-verify-png-result" class="code-block" style="margin-top: 12px;">Select a PNG file above to inspect its raw chunk structure.</pre>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="./static/app.js"></script>
+</body>
+</html>

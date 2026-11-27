@@ -280,7 +280,7 @@ def main():
         "audit; all fixture texts are committed under "
         "`raksha-code/citizen/fixtures/messageguard/`. The one reason catalogue "
         "is `packages/contracts/reasons.py`; the one generated document is this "
-        "file. No model, no network and no AI inference are used."
+        "file. No model and no network inference are used."
     )
     lines.append("")
     lines.append(
@@ -302,7 +302,7 @@ def main():
     lines.append("")
     lines.append("## 7. Definition of done — status after this run")
     lines.append("")
-    lines.append("- [x] Deterministic and offline (stdlib only; asserted by tests; no AI model invoked)")
+    lines.append("- [x] Deterministic and offline (stdlib only; asserted by tests; no model invoked)")
     lines.append("- [x] Reasons name the family that fired (one `MSG-*` catalogue, no matched phrases in citizen copy)")
     lines.append("- [x] Works in en / hi / te plus an explicit Hinglish-Latin port (measured separately above)")
     lines.append("- [x] One corpus, one generated eval document, one reason catalogue, one detector interface")

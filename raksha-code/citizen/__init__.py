@@ -1,8 +1,8 @@
-"""RAKSHA Citizen compatibility alias for the Phase 2 modular layout.
+"""RAKSHA Citizen compatibility alias for the modular layout.
 
-`citizen.*` imports now resolve to `apps.citizen.*`. The frozen VoiceGuard/MAYA
-tree and PWA assets remain in this legacy directory and are appended to
-`apps.citizen.__path__`; they are not moved or edited.
+`citizen.*` imports now resolve to `apps.citizen.*`. The authored provenance
+Markdown files and PWA assets remain in this compatibility tree and are appended
+to `apps.citizen.__path__`; no second Citizen service is created.
 """
 from __future__ import annotations
 

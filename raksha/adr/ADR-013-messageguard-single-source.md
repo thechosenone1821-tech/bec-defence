@@ -1,3 +1,5 @@
+> Historical provenance: the retired voice-scorer code was removed from executable paths. Active status lives in [docs/STATUS.md](../../docs/STATUS.md); see the [retired code note](../../archive/provenance/RETIRED.md). Real-world privacy efficacy remains UNMEASURED.
+
 # ADR-013 — One MessageGuard scorer and one measurement corpus
 
 > **Status:** Accepted for Phase 5 code scaffold · **Date:** 2026-11-26

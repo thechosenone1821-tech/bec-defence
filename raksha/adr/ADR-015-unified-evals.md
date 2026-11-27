@@ -1,3 +1,5 @@
+> Historical provenance: the retired voice-scorer code was removed from executable paths. Active status lives in [docs/STATUS.md](../../docs/STATUS.md); see the [retired code note](../../archive/provenance/RETIRED.md). Real-world privacy efficacy remains UNMEASURED.
+
 # ADR-015 — one deterministic eval runner, claims ledger and drift check
 
 **Status:** Accepted / implemented in Phase 9

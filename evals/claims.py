@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""Phase 9 — one claims ledger and one measurement-claim verifier.
+"""One claims ledger and one measurement-claim verifier for the active build.
 
 Every measured number in ``EVALS.md`` resolves to a numeric leaf in
-``evals/results.json`` with a fixture / synthetic / sandbox / hand-authored
-condition. Every number in the outward-facing static docs must have an explicit
-row in ``evals/claims_sources.json`` before it can appear in a README, status
-page or changelog. Real-world accuracy, latency and uptime remain UNMEASURED.
+``evals/results.json`` with a fixture, synthetic, sandbox, hand-authored,
+local-training or real-world UNMEASURED condition. Every number in an
+outward-facing static document requires a row in ``evals/claims_sources.json``.
+Real-world accuracy, latency, uptime and privacy efficacy remain UNMEASURED.
 """
 from __future__ import annotations
 
@@ -36,7 +36,8 @@ STATIC_DOCS = (
     "raksha/MESSAGEGUARD_EVALS.md",
 )
 ALLOWED_CONDITIONS = (
-    "fixture", "synthetic", "sandbox", "hand-authored", "real-world UNMEASURED",
+    "fixture", "synthetic", "sandbox", "hand-authored", "local training",
+    "real-world UNMEASURED",
 )
 LINK_RE = re.compile(r"!?\[[^\]]*\]\([^)]*\)")
 FENCE_RE = re.compile(r"```.*?```", re.S)
@@ -77,6 +78,8 @@ def _walk_numbers(obj: Any, pointer: str = "") -> Iterator[tuple[str, int | floa
 def _condition_for(pointer: str) -> str:
     if pointer.startswith("/sections/citizen"):
         return "fixture / sandbox"
+    if pointer.startswith("/sections/infra"):
+        return "fixture / sandbox"
     if pointer.startswith("/sections/messageguard"):
         return "hand-authored / in-distribution; real-world UNMEASURED"
     if pointer.startswith("/sections/organs"):
@@ -85,6 +88,8 @@ def _condition_for(pointer: str) -> str:
         return "sandbox"
     if pointer.startswith("/sections/replay"):
         return "sandbox"
+    if pointer.startswith("/sections/vigil"):
+        return "local training / fixture; real-world UNMEASURED"
     return "hand-authored"
 
 
@@ -113,9 +118,6 @@ def _resolve_pointer(results: dict[str, Any], pointer: str) -> Any:
 
 
 def build_ledger(results: dict[str, Any], sources: dict[str, Any]) -> dict[str, Any]:
-    # Canonicalise key order before walking: generation receives an in-memory
-    # dict while verification receives sort_keys JSON from disk. Both must yield
-    # the same deterministic measurement-row order.
     results = json.loads(json.dumps(results, sort_keys=True))
     static_rows = [dict(row, kind="documentation") for row in sources["rows"]]
     measurement_rows: list[dict[str, Any]] = []
@@ -131,11 +133,12 @@ def build_ledger(results: dict[str, Any], sources: dict[str, Any]) -> dict[str, 
                 "kind": "measurement",
             })
     return {
-        "contract": "raksha-claims-ledger-v1",
+        "contract": "raksha-claims-ledger-v2",
         "generated_by": "evals/claims.py",
         "allowed_conditions": list(ALLOWED_CONDITIONS),
         "real_world_claims": "UNMEASURED",
-        "voiceguard_evals_included": False,
+        "model_backed": True,
+        "vigil_integrated": True,
         "rows": static_rows + measurement_rows,
     }
 
@@ -144,7 +147,7 @@ def _check_real_world_sentences(text: str, label: str) -> None:
     for sentence in re.split(r"(?<=[.!?])\s+", text):
         lowered = sentence.lower()
         if "real-world" in lowered or "real world" in lowered:
-            measured = re.search(r"accuracy|latency|uptime|fpr|recall|false-positive", lowered)
+            measured = re.search(r"accuracy|latency|uptime|fpr|recall|false-positive|privacy efficacy", lowered)
             negative_claim = (
                 re.search(r"\bno real[- ]world\b", lowered)
                 and re.search(r"claim|action", lowered)
@@ -172,7 +175,7 @@ def verify() -> None:
     committed = json.loads(LEDGER_PATH.read_text(encoding="utf-8"))
     expected = build_ledger(results, sources)
     if committed != expected:
-        raise RuntimeError("evals/claims_ledger.json is stale; rerun make eval")
+        raise RuntimeError("evals/claims_ledger.json is stale; rerun make eval-generate")
 
     static_values: dict[str, set[str]] = {doc: set() for doc in STATIC_DOCS}
     for row in sources["rows"]:
@@ -209,14 +212,18 @@ def verify() -> None:
             if missing:
                 raise RuntimeError(f"{rel} numbers without a claims source row: {missing}")
 
-    if results["measurement_policy"]["real_world"] != "UNMEASURED":
-        raise RuntimeError("measurement policy does not mark real-world claims UNMEASURED")
-    if results["voiceguard"]["included_in_runner"] is not False:
-        raise RuntimeError("VoiceGuard evals must stay out of the Phase 9 runner")
-    if results["voiceguard"]["future_phase"] != "Eleven":
-        raise RuntimeError("VoiceGuard re-entry must be future Phase Eleven")
-    if "run_maya" in RUNNER_PATH.read_text(encoding="utf-8"):
-        raise RuntimeError("unified runner must not import frozen MAYA evals")
+    policy = results["measurement_policy"]
+    if policy["real_world"] != "UNMEASURED" or policy["privacy_efficacy"] != "UNMEASURED":
+        raise RuntimeError("measurement policy must mark real-world and privacy claims UNMEASURED")
+    if policy["model_backed"] is not True or policy["vigil_integrated"] is not True:
+        raise RuntimeError("measurement policy does not report active VIGIL")
+    vigil = results["sections"]["vigil"]
+    if vigil["model_status"]["is_neural_active"] is not True:
+        raise RuntimeError("VIGIL neural weights are not active in the committed results")
+    if vigil["privacy_efficacy"] != "UNMEASURED":
+        raise RuntimeError("VIGIL privacy efficacy must remain UNMEASURED")
+    if "VIGIL" not in RUNNER_PATH.read_text(encoding="utf-8"):
+        raise RuntimeError("active runner lost its VIGIL capability")
 
 
 def main(argv: list[str] | None = None) -> int:

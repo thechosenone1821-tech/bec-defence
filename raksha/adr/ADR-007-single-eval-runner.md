@@ -1,3 +1,5 @@
+> Historical provenance: the retired voice-scorer code was removed from executable paths. Active status lives in [docs/STATUS.md](../../docs/STATUS.md); see the [retired code note](../../archive/provenance/RETIRED.md). Real-world privacy efficacy remains UNMEASURED.
+
 # ADR-007 — One eval runner and claims ledger
 
 > **Status:** Frozen for Phase 1 planning · MessageGuard eval runner implemented by [ADR-013](ADR-013-messageguard-single-source.md); broader Phase 9 claims ledger pending · **Date:** 2026-11-26

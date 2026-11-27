@@ -1,3 +1,5 @@
+> Historical provenance: the retired voice-scorer code was removed from executable paths. Active status lives in [docs/STATUS.md](../../docs/STATUS.md); see the [retired code note](../../archive/provenance/RETIRED.md). Real-world privacy efficacy remains UNMEASURED.
+
 # ADR-004 — One dry-run containment planner
 
 > **Status:** Frozen for Phase 1 planning · **Date:** 2026-11-26

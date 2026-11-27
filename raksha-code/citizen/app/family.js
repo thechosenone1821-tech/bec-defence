@@ -1,9 +1,9 @@
 /* RAKSHA Citizen — family mode (Part 1, Phase 2, task 2.2)
  *
  * The people who most need this app are the least able to judge a verdict.
- * Family mode changes what the *screen* does, never what the *model* says —
+ * Family mode changes what the *screen* does, never what the *scorer* says —
  * it re-presents, it does not re-score. That separation matters: a lenient or
- * strict UI must never alter a verdict, or the same clip would get two answers
+ * strict UI must never alter a verdict, or the same input would get two answers
  * depending on who is holding the phone.
  *
  * Three behaviours, in order of importance:
