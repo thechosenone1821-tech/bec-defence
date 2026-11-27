@@ -1,0 +1,79 @@
+{
+  "system": "CloakPixel 2.0",
+  "component": "Engine 1.2 - CloakPixelPrivacyNet (MobileUNetV3)",
+  "input_resolution": [
+    384,
+    384
+  ],
+  "num_classes": 7,
+  "classes": {
+    "0": "Background",
+    "1": "Facial skin",
+    "2": "Eyes & eyebrows",
+    "3": "Nose",
+    "4": "Mouth & lips",
+    "5": "Ears",
+    "6": "Hair & head boundary"
+  },
+  "policies": {
+    "Profile_A_Minimal": {
+      "description": "Biometric core only (eyes, eyebrows, nose, mouth)",
+      "target_classes": [
+        2,
+        3,
+        4
+      ]
+    },
+    "Profile_B_Personal": {
+      "description": "Complete facial identity (skin, eyes, nose, mouth, ears)",
+      "target_classes": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
+    },
+    "Profile_C_Maximum": {
+      "description": "Maximum visual privacy (entire face, ears, hair & head boundary)",
+      "target_classes": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    }
+  },
+  "artifacts": {
+    "pytorch_best_checkpoint": {
+      "filename": "best_privacynet.pt",
+      "sha256": "sha256:047275661932aa4790fb2d2d0ce312e3e6e158a8780a7ee3b1abcc50f665c8bd",
+      "size_bytes": 53534891
+    },
+    "torchscript_deployment_model": {
+      "filename": "cloakpixel_privacynet_384.torchscript.pt",
+      "sha256": "sha256:43f4d739c59c4349ea90220fd0f3b3156682fa8e5b1fcc2d3f657d2bbbd9102d",
+      "size_bytes": 18450009
+    }
+  },
+  "independent_test_metrics": {
+    "loss": 0.42705458775162697,
+    "miou": 0.8836102639818952,
+    "per_class_iou": {
+      "Background": 0.9618600652754563,
+      "Facial skin": 0.9399734394084939,
+      "Eyes & eyebrows": 0.8211067062062509,
+      "Nose": 0.9089095781520397,
+      "Mouth & lips": 0.8871076295833749,
+      "Ears": 0.7489369956548727,
+      "Hair & head boundary": 0.9173774335927785
+    },
+    "face_recall": 0.9810023466130525,
+    "face_precision": 0.981427941449979,
+    "face_iou": 0.963122927952535,
+    "face_fnr": 0.018997653386947477,
+    "boundary_f1": 0.8354583466247356
+  }
+}
