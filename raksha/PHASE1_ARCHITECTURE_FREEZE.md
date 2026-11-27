@@ -27,7 +27,7 @@
 >
 > **Companion artifacts:** [`PHASE1_SOURCE_OF_TRUTH_MATRIX.md`](PHASE1_SOURCE_OF_TRUTH_MATRIX.md),
 > [`adr/README.md`](adr/README.md), and
-> [`../raksha-code/citizen/voiceguard/FROZEN.md`](../raksha-code/citizen/voiceguard/FROZEN.md).
+> [the retired-code note](../archive/provenance/RETIRED.md).
 
 ---
 

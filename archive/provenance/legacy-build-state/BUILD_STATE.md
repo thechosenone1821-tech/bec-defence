@@ -267,7 +267,7 @@ that is the safety argument, not a shortcut. Part 5's commander needs a model
 | [`/specs/01_citizen_spine.md`](../../../specs/01_citizen_spine.md) | Part 1 spec + Definition of Done |
 | [`/specs/01a_citizen_spine_roadmap.md`](../../../specs/01a_citizen_spine_roadmap.md) | Part 1, 3-phase roadmap + build log |
 | [`/specs/01b_citizen_spine_phase3.md`](../../../specs/01b_citizen_spine_phase3.md) | Phase 3 hardening log |
-| [`/specs/02_citizen_voiceguard.md`](../../../specs/02_citizen_voiceguard.md) | Part 2 spec, measured results |
+| [the retired-code note](../RETIRED.md) | retired VoiceGuard / MAYA seam |
 | [`/specs/03_citizen_messageguard.md`](../../../specs/03_citizen_messageguard.md) | Part 3 spec, integration and definition of done |
 | [`/specs04–07`](../../../specs/) | Parts 4, 5, 6, 7 specs |
 | `raksha/EVALS.md` | Every measured number with its condition |

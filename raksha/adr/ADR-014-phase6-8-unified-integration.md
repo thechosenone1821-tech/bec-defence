@@ -8,7 +8,7 @@ over the legacy `spine.bus`. It does not supersede ADR-001…ADR-013.
 **Related:** [ADR-001](ADR-001-single-bus.md),
 [ADR-003](ADR-003-single-governor.md), [ADR-004](ADR-004-single-planner.md),
 [ADR-005](ADR-005-single-organ-registry.md),
-[ADR-009](ADR-009-voiceguard-frozen-seam.md),
+[retired-code note](../../archive/provenance/RETIRED.md),
 [ADR-013](ADR-013-messageguard-single-source.md).
 
 ## Context

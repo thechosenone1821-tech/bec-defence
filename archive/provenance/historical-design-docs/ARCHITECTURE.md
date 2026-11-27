@@ -14,7 +14,7 @@
 > but VoiceGuard rows below are a **frozen future seam**, not part of the
 > combined-system 10 phases. See
 > [`PHASE1_ARCHITECTURE_FREEZE.md`](../../../raksha/PHASE1_ARCHITECTURE_FREEZE.md) and
-> [`adr/ADR-009-voiceguard-frozen-seam.md`](../../../raksha/adr/ADR-009-voiceguard-frozen-seam.md).
+> [the retired-code note](../RETIRED.md).
 
 ---
 

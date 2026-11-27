@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """Check every local Markdown link in the active + provenance tree.
 
-Links to code paths deleted in this working tree are resolved from git's
-name-status and count as documented removals, so historical Markdown can stay
-unchanged. External http/https, mailto, tel, data and anchor-only links are
-ignored.
+Links to code paths deleted in an in-progress working tree are resolved from
+git's name-status and count as documented removals. Once those removals are
+committed, historical links must point at the retired-code note so the same
+gate also passes in clean CI checkouts. External http/https, mailto, tel, data
+and anchor-only links are ignored.
 """
 from __future__ import annotations
 

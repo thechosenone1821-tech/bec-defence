@@ -16,7 +16,7 @@
 > **Phase 1 note:** the original Citizen scope below includes voice screening.
 > The combined-system 10-phase plan parks VoiceGuard / MAYA as a frozen seam;
 > see [`PHASE1_ARCHITECTURE_FREEZE.md`](PHASE1_ARCHITECTURE_FREEZE.md) and
-> [`adr/ADR-009-voiceguard-frozen-seam.md`](adr/ADR-009-voiceguard-frozen-seam.md).
+> [the retired-code note](../archive/provenance/RETIRED.md).
 
 ---
 
