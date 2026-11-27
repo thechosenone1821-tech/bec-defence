@@ -1,0 +1,43 @@
+name: RAKSHA deterministic CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  deterministic-gates:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Node for browser tests
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Install
+        run: make install
+      - name: Python tests
+        run: python3 tools/run_phase4_pytest.py
+      - name: Browser tests
+        run: python3 tools/run_phase4_node_tests.py
+      - name: Eval drift
+        run: python3 tools/check_eval_drift.py
+      - name: Ledger verify
+        run: python3 tools/verify_runtime_ledger.py
+      - name: Boot-manifest check
+        run: python3 tools/check_boot_manifest.py
+      - name: No secrets
+        run: python3 tools/check_no_secrets.py
+      - name: No live-executor imports
+        run: python3 tools/check_no_live_executor.py
+      - name: Claims ledger verify
+        run: python3 tools/check_claims_ledger.py
+      - name: Full deterministic integration gate
+        run: make ci

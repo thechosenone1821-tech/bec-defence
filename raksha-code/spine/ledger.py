@@ -7,11 +7,18 @@ retroactive edit invalidates the chain (verify() detects it).
 
 from __future__ import annotations
 
-import hashlib
 import json
 import os
+import sys
 import time
+from pathlib import Path
 from typing import Any, Dict, List
+
+try:
+    from packages.contracts.canonical import canonical_hash
+except ImportError:  # pragma: no cover - minimal standalone checkout
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+    from packages.contracts.canonical import canonical_hash
 
 try:
     from spine.ledger_anchor import LedgerAnchor
@@ -62,8 +69,7 @@ class AuditLedger:
     @staticmethod
     def _hash_entry(entry: Dict[str, Any]) -> str:
         body = {k: v for k, v in entry.items() if k != "hash"}
-        blob = json.dumps(body, sort_keys=True, separators=(",", ":"), default=str)
-        return hashlib.sha256(blob.encode()).hexdigest()
+        return canonical_hash(body)
 
     def verify(self) -> Dict[str, Any]:
         base = self._verify_chain()

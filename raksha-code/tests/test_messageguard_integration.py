@@ -1,8 +1,10 @@
-"""Integration tests for the standalone Part 3 MessageGuard work.
+"""Integration tests for the Phase 5 single-source MessageGuard work.
 
 These pin the seams that unit tests of the scorer alone cannot see: the
 Citizen API payload contract, the shared reason-code presentation layer, the
 committed measurement, and compatibility with the original M3 smoke corpus.
+This file imports the frozen VoiceGuard i18n module, so the no-AI runner
+intentionally skips it; its pinned numbers are kept current for future audits.
 """
 
 import json
@@ -65,12 +67,13 @@ def test_score_message_reason_details_are_catalogue_backed():
         assert reason["code"] in REASON_CATALOGUE
         assert REASON_CATALOGUE[reason["code"]][0] == reason["family"]
         assert reason["matched"]
-        assert reason["pattern_lang"] in ("en", "hi", "te", "any")
+        assert reason["pattern_lang"] in ("en", "hi", "te", "hinglish", "any")
 
 
 def test_detector_language_filter_is_explicit_and_safe():
     text = "CBI digital arrest! Share your OTP now, else arrest warrant today."
     assert score_message(text, lang="en")["detector_lang"] == "en"
+    assert score_message(text, lang="hinglish")["detector_lang"] == "hinglish"
     # Unknown language falls back to all scripts rather than silently missing
     # a Hindi or Telugu scam because a caller asked for French explanations.
     assert score_message(text, lang="fr")["detector_lang"] == "auto"
@@ -106,12 +109,12 @@ def test_legacy_m3_smoke_corpus_still_passes():
 
 def test_v1_corpus_integrity():
     records = _load_corpus()
-    assert len(records) == 492
-    assert len({r["id"] for r in records}) == 492
-    assert len({r["text"] for r in records}) == 492
-    assert sum(r["label"] == "scam" for r in records) == 372
-    assert sum(r["label"] == "benign" for r in records) == 120
-    assert {r["lang"] for r in records} == {"en", "hi", "te"}
+    assert len(records) == 538
+    assert len({r["id"] for r in records}) == 538
+    assert len({r["text"] for r in records}) == 538
+    assert sum(r["label"] == "scam" for r in records) == 402
+    assert sum(r["label"] == "benign" for r in records) == 136
+    assert {r["lang"] for r in records} == {"en", "hi", "te", "hinglish"}
     for record in records:
         assert record["label"] in ("scam", "benign")
         assert set(record.get("families", [])) <= set(FAMILY_WEIGHTS)
@@ -120,13 +123,13 @@ def test_v1_corpus_integrity():
 def test_committed_messageguard_results_reproduce_exactly():
     committed = json.loads(RESULTS.read_text(encoding="utf-8"))
     assert compute_results() == committed
-    assert committed["corpus"]["scam_total"] == 372
-    assert committed["corpus"]["benign_total"] == 120
-    assert committed["overall"]["accuracy_moderate"] == 0.9654
-    assert committed["overall"]["fpr_moderate"] == 0.1167
+    assert committed["corpus"]["scam_total"] == 402
+    assert committed["corpus"]["benign_total"] == 136
+    assert committed["overall"]["accuracy_moderate"] == 0.9684
+    assert committed["overall"]["fpr_moderate"] == 0.1029
     report = evaluate_fixtures(V1_FIXTURES)
-    assert report["total"] == 492
-    assert report["passed"] == 475
+    assert report["total"] == 538
+    assert report["passed"] == 521
 
 
 def test_reason_catalogue_and_i18n_stay_in_sync():

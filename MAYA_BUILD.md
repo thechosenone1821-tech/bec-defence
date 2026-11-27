@@ -1,14 +1,17 @@
 # MAYA — the VoiceGuard build spec (what is built, what to build, how to build it)
 
-> **Last updated:** 2026-11-23 · **Owner of record:** repo maintainer (human)
+> **Last updated:** 2026-11-26 · **Owner of record:** repo maintainer (human)
+> **Parked by Phase 1:** VoiceGuard / MAYA is a frozen seam, not part of the
+> combined-system 10 phases. See
+> [`raksha/adr/ADR-009-voiceguard-frozen-seam.md`](raksha/adr/ADR-009-voiceguard-frozen-seam.md)
+> and [`raksha-code/citizen/voiceguard/FROZEN.md`](raksha-code/citizen/voiceguard/FROZEN.md).
 > **What Maya is:** the citizen-facing **voice-clone / synthetic-speech screen**
 > in RAKSHA Citizen — the module currently implemented as
 > `raksha-code/citizen/voiceguard/` (`score_voice()`), surfaced in the PWA's
 > **Check Voice** tab and in `POST /api/citizen/screen_voice`.
-> **Name status:** *"Maya"* does not appear anywhere in the repository docs or
-> code. It is the maintainer-assigned product name for VoiceGuard as of
-> 2026-11-23. Before any stage/press use, register it once here and add a
-> `CHANGELOG.md` entry so the docs stop disagreeing with the demo script.
+> **Name status:** *"Maya"* is a maintainer-assigned product name used in
+> historical VoiceGuard docs; it is not a combined-system app name. This spec is
+> retained as context, not as a Phase 1–10 integration deliverable.
 > **Evidence base:** `citizen/voiceguard/voiceguard.py` (66 LOC),
 > `citizen/api.py`, `citizen/app/{app.js,index.html}`,
 > `tests/test_voiceguard.py` (6 tests), `raksha/ARCHITECTURE.md §3`,

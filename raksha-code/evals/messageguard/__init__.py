@@ -1,1 +1,1 @@
-"""Reproducible MessageGuard v1 measurement and generated documentation."""
+"""Phase 10 compatibility wrappers for the one canonical MessageGuard eval."""

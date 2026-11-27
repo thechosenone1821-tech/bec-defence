@@ -1,0 +1,15 @@
+{
+  "contract": "raksha-boot-manifest-v1",
+  "app": "citizen",
+  "app_count": 2,
+  "entrypoint": "python -m apps.citizen",
+  "default_port": 8095,
+  "bind": "0.0.0.0",
+  "root_redirect": "/app/",
+  "health_path": "/api/citizen/health",
+  "manifest_path": "/app/manifest.json",
+  "no_ai_models": true,
+  "voiceguard_integrated": false,
+  "dry_run": true,
+  "executor": "none"
+}

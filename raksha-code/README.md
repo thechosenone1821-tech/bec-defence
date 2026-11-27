@@ -1,13 +1,31 @@
 # raksha-code — RAKSHA application monorepo
 
-> **Status: M1–M6 + Citizen phases shipped. Verified 2026-11-26:** 1252 Python
-> tests passed (1 skipped, 1 documented xfail) and 90 browser tests passed.
-> MessageGuard v1 is integrated: 492 hand-authored en/hi/te fixtures, a
-> reproducible eval harness, and a generated report at
-> [`../raksha/MESSAGEGUARD_EVALS.md`](../raksha/MESSAGEGUARD_EVALS.md). Six-day
-> hackathon plan lives in `../raksha/ROADMAP.md`. **Nothing here performs
-> real-world actions** — the organ-backed executor is dry-run by construction
-> (no host ever touched).
+> **Status: historical compatibility tree.** The canonical entry point is
+> [`../README.md`](../README.md), the single status board is
+> [`../docs/STATUS.md`](../docs/STATUS.md), the generated evaluation is
+> [`../EVALS.md`](../EVALS.md), and the claims ledger is
+> [`../evals/claims_ledger.json`](../evals/claims_ledger.json). Counts, paths
+> and commands below are historical as-of earlier phases, not current release
+> measurements; real-world accuracy, latency, uptime, recall and FPR are
+> UNMEASURED. `tools/run_phase4_pytest.py` now skips 22 model-dependent Python
+> test files and one frozen MAYA Node test. This tree is not a third app;
+> VoiceGuard / MAYA stays frozen and the executor is dry-run by construction.
+>
+> **Phase 2/3/4 compatibility-layer note:** editable app code now lives in
+> [`../apps/citizen/`](../apps/citizen/) and
+> [`../apps/infra/`](../apps/infra/), with shared facades in
+> [`../packages/`](../packages/). This tree remains the compatibility and
+> provenance layer for legacy imports, frozen VoiceGuard/MAYA assets, PWA files,
+> fixtures, and shipped spine/sentinel/raavan/corpora/evals modules. It is not
+> a third app. See
+> [`../raksha/PHASE2_CODE_LAYOUT.md`](../raksha/PHASE2_CODE_LAYOUT.md),
+> [`../raksha/PHASE3_CONTRACT_SPINE.md`](../raksha/PHASE3_CONTRACT_SPINE.md),
+> [`../raksha/PHASE4_CITIZEN_CONSOLIDATION.md`](../raksha/PHASE4_CITIZEN_CONSOLIDATION.md),
+> and [`citizen/voiceguard/FROZEN.md`](citizen/voiceguard/FROZEN.md). Phase 3
+> makes shipped canonical JSON, config pins, sanitizer rules and the ledger CLI
+> delegate to `../packages/`. Phase 4 keeps this tree as the single frozen PWA
+> shell and compatibility seam; active Citizen copy/rendering lives in
+> `../apps/citizen/copy.py` and `../packages/contracts/i18n.py`.
 
 ## Layout
 
@@ -33,7 +51,7 @@ evals/messageguard/   MessageGuard v1: reproducible measurement + generated docs
   orchestrator.py   local SLM planner (Ollama; deterministic fallback offline)
   ledger_cli.py     verify / tail / replay the evidence ledger
   config/           policy.yaml · company_topology.json · manifest.json (pinned)
-tests/          pytest — 1252 passed incl. M1 end-to-end and MessageGuard v1
+tests/          pytest — 171 passed here / 186 from repo root (no-AI subset)
 requirements.txt
 ```
 
@@ -41,13 +59,13 @@ requirements.txt
 citizen/          RAKSHA Citizen (M3) — offline PWA + same-origin FastAPI
   messageguard/     v1 deterministic scorer · reason catalogue · normalize · bandmap
                     en/hi/te regex token sets · negation guards · API adapter
-  voiceguard/       Maya synthetic-speech screening (NEVER claims clone detection)
+  voiceguard/       frozen MAYA/VoiceGuard seam; disabled on the Phase 4 path
   risk/             bounded noisy-OR fusion; no SAFE verdict exists
   fixtures/
-    messageguard/   492 hand-authored labelled JSONL fixtures (372 scam / 120 genuine)
+    messageguard/   538 hand-authored labelled JSONL fixtures (402 scam / 136 genuine)
     message_fixtures.json   legacy 20-item M3 smoke corpus; NOT a measurement
-  api.py            GET /api/citizen/health · POST screen_message / screen_voice / report
-  app/              PWA: home · check message · check voice · report · 1930 panic button
+  api.py            one Citizen service; screen_voice returns NOT_INTEGRATED
+  app/              one PWA shell; runtime overlay says voice is not integrated yet
 ```
 
 ## Quickstart
@@ -56,16 +74,12 @@ citizen/          RAKSHA Citizen (M3) — offline PWA + same-origin FastAPI
 cd raksha-code
 python -m venv ../.venv && source ../.venv/bin/activate   # or reuse repo venv
 pip install -r requirements.txt
-pytest -q                                        # 1252 passed expected
-node --test tests/*.test.js                      # 90 passed expected
-python evals/messageguard/run_evals.py --check # published MessageGuard numbers reproducible
-python evals/messageguard/gen_evals_md.py      # regenerate ../raksha/MESSAGEGUARD_EVALS.md
-python -m spine.boot_manifest --check spine/config/manifest.json
-python -m spine.ledger_cli verify                # (after any run wrote a ledger)
-python -m spine.bus --policy spine/config/policy.yaml \
-    --topology spine/config/company_topology.json --port 8090
-python -m citizen.api --port 8095                 # Citizen app + PWA
-curl -s localhost:8090/api/health
+make test                                       # canonical Python/browser/check gate
+make eval                                       # canonical eval drift gate
+make eval-generate                              # regenerate EVALS.md + claims ledger
+make run                                        # one launcher for both apps
+python -m evals.run_evals --check
+python -m packages.ledger.cli verify --ledger spine/config/audit_ledger.jsonl
 ```
 
 Verify a campaign flows: `pytest tests/test_m1_campaign_flow.py -q`.
@@ -74,13 +88,13 @@ Verify the integrated detector: `pytest tests/test_messageguard*.py -q`.
 ## Integration and porting notes (honesty log)
 
 * The standalone Part 3 tree at
-  `../random project that ew need to integrate/raksha/` has been folded into
+  `../archive/provenance/messageguard-snapshot/raksha/` has been folded into
   `citizen/messageguard/` and `evals/messageguard/`. The API's `score_message`
   contract is preserved; `analyze()` is the measured engine. The original
   staging tree is retained only for provenance and is no longer the runtime
   source of truth.
 * MessageGuard v1 is rules-based, stdlib-only and offline. Its published
-  99.2% detection, 11.7% false-positive rate and 96.5% accuracy are
+  99.2% detection, 10.3% false-positive rate and 96.8% accuracy are
   **in-distribution, hand-authored-fixture** measurements. Real-world recall
   and FPR remain UNMEASURED; novel scripts and genuine urgent KYC alerts are
   documented failure modes.

@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RAKSHA SOC Console · read-only</title>
+  <style>
+    :root { color-scheme: dark; --bg:#08111f; --panel:#101d31; --line:#223757; --ink:#e7eefb; --muted:#9db0cc; --ok:#64d8a0; --warn:#ffcb6b; --bad:#ff8a80; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--ink); font:14px/1.45 ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,sans-serif; }
+    header { padding:18px 24px; border-bottom:1px solid var(--line); display:flex; gap:16px; align-items:center; flex-wrap:wrap; }
+    h1 { font-size:20px; margin:0; letter-spacing:.02em; }
+    .badge { border:1px solid var(--line); border-radius:999px; padding:3px 10px; color:var(--muted); }
+    .badge.ok { color:var(--ok); border-color:#1d6a4b; }
+    .badge.warn { color:var(--warn); border-color:#7a5a1d; }
+    main { padding:20px 24px 40px; display:grid; gap:18px; grid-template-columns:repeat(12,1fr); }
+    .card { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:16px; grid-column:span 12; overflow:auto; }
+    .third { grid-column:span 4; }
+    .half { grid-column:span 6; }
+    @media (max-width: 900px) { .third,.half { grid-column:span 12; } }
+    h2 { font-size:14px; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); margin:0 0 12px; }
+    .kpis { display:grid; grid-template-columns:repeat(4,minmax(120px,1fr)); gap:12px; }
+    .kpi { background:#0b1729; border:1px solid var(--line); border-radius:10px; padding:12px; }
+    .kpi b { display:block; font-size:24px; }
+    table { width:100%; border-collapse:collapse; }
+    th,td { text-align:left; padding:8px 10px; border-bottom:1px solid var(--line); vertical-align:top; }
+    th { color:var(--muted); font-weight:600; }
+    code { color:#b9d4ff; }
+    .refusal { color:var(--bad); font-weight:700; }
+    .allowed { color:var(--ok); font-weight:700; }
+    .ledger { color:#b9d4ff; }
+    .muted { color:var(--muted); }
+    button { background:#172a46; color:var(--ink); border:1px solid var(--line); border-radius:8px; padding:7px 12px; cursor:pointer; }
+    pre { white-space:pre-wrap; word-break:break-word; margin:0; color:var(--muted); }
+    .notice { color:var(--warn); }
+  </style>
+  <script src="console.js" defer></script>
+</head>
+<body>
+  <header>
+    <h1>RAKSHA SOC Console</h1>
+    <span class="badge">Phase 6–8 unified Infra</span>
+    <span class="badge ok">read-only</span>
+    <span class="badge warn">dry-run · no real containment</span>
+    <span id="ws-state" class="badge">WS connecting</span>
+    <button id="refresh" type="button">Refresh now</button>
+  </header>
+  <main>
+    <section class="card">
+      <h2>Campaign snapshot</h2>
+      <div class="kpis">
+        <div class="kpi"><span class="muted">Ledger height</span><b id="ledger-height">—</b></div>
+        <div class="kpi"><span class="muted">Detections</span><b id="detection-count">—</b></div>
+        <div class="kpi"><span class="muted">Decisions</span><b id="decision-count">—</b></div>
+        <div class="kpi"><span class="muted">Quarantine</span><b id="quarantine-count">—</b></div>
+      </div>
+      <p class="muted">Token scope: <code>read</code>. This page only requests GET state and one read-scoped WebSocket stream. It has no control that can mutate safety state.</p>
+    </section>
+
+    <section class="card half">
+      <h2>Ledger verification</h2>
+      <pre id="ledger-verify">Loading…</pre>
+    </section>
+    <section class="card half">
+      <h2>Commander / runtime</h2>
+      <pre id="commander">Loading…</pre>
+    </section>
+
+    <section class="card">
+      <h2>Detection → proposal → decision → ledger sequence</h2>
+      <table>
+        <thead><tr><th>Step</th><th>Stage</th><th>Kind / rule</th><th>Ref</th><th>Ledger</th><th>Detail</th></tr></thead>
+        <tbody id="timeline"><tr><td colspan="6">Loading deterministic fixture campaign…</td></tr></tbody>
+      </table>
+    </section>
+
+    <section class="card half">
+      <h2>Decisions incl. refusals</h2>
+      <table>
+        <thead><tr><th>Seq</th><th>Kind</th><th>Verdict</th><th>Rule</th><th>Proposal</th></tr></thead>
+        <tbody id="decisions"><tr><td colspan="5">Loading…</td></tr></tbody>
+      </table>
+    </section>
+    <section class="card half">
+      <h2>Quarantine (never actionable)</h2>
+      <table>
+        <thead><tr><th>Event</th><th>State</th><th>Organ</th><th>Reason</th></tr></thead>
+        <tbody id="quarantine"><tr><td colspan="4">Loading…</td></tr></tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>Metrics</h2>
+      <pre id="metrics">Loading…</pre>
+    </section>
+  </main>
+</body>
+</html>

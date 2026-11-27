@@ -1,6 +1,11 @@
 # MAYA / VoiceGuard — 5-phase build roadmap
 
 > **Last updated:** 2026-11-26 · **Version:** roadmap v1.0
+> **Parked by Phase 1 (2026-11-26):** VoiceGuard is a frozen seam, not one of
+> the combined-system 10 phases. This 5-phase roadmap is historical / future
+> work; see [`raksha/COMBINED_SYSTEM_ROADMAP.md`](raksha/COMBINED_SYSTEM_ROADMAP.md) §8,
+> [`raksha/adr/ADR-009-voiceguard-frozen-seam.md`](raksha/adr/ADR-009-voiceguard-frozen-seam.md),
+> and [`raksha-code/citizen/voiceguard/FROZEN.md`](raksha-code/citizen/voiceguard/FROZEN.md).
 > **Purpose:** split the entire VoiceGuard build into five executable phases,
 > each ending in green tests and a demoable, honest increment.
 > **Companion:** `MAYA_BUILD.md` (deep spec, model choice, §6 acceptance

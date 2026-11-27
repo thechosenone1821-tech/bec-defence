@@ -11,13 +11,18 @@ raw logs.
 from __future__ import annotations
 
 import hashlib
+import sys
 import time
+from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
-_WINDOW_SEC = 600
+try:
+    from packages.contracts.entities import ENTITY_PATH
+except ImportError:  # pragma: no cover - minimal standalone checkout
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+    from packages.contracts.entities import ENTITY_PATH
 
-# entity_key prefix -> tier in the kill-chain path
-_PATH = ["session_id", "user_id", "host_id", "vlan_id", "service_id"]
+_WINDOW_SEC = 600
 
 
 class EntityGraph:
@@ -31,7 +36,7 @@ class EntityGraph:
     def add_event(self, event: Dict[str, Any]) -> None:
         ts = time.time()
         ent = event.get("entities", {}) or {}
-        chain = [ent[k] for k in _PATH if ent.get(k)]
+        chain = [ent[k] for k in ENTITY_PATH if ent.get(k)]
         for node in chain:
             self._nodes[str(node)] = ts
         for a, b in zip(chain, chain[1:]):

@@ -2,9 +2,19 @@
 
 > **Read this first. Then `AI_HANDOFF.md`. Then your task file.**
 > **Last updated:** 2026-11-26 · **Owner of record:** repo maintainer (human).
+> **Phase 3/4 note:** `../packages/contracts/` now owns one canonical JSON rule,
+> one signed-envelope contract and shared i18n rendering; Citizen sentences live
+> in `../apps/citizen/copy.py`. VoiceGuard/MAYA remain a frozen, disabled seam.
+> See [`PHASE3_CONTRACT_SPINE.md`](PHASE3_CONTRACT_SPINE.md) and
+> [`PHASE4_CITIZEN_CONSOLIDATION.md`](PHASE4_CITIZEN_CONSOLIDATION.md).
 > This file exists so an AI that has never seen this project can act like a
 > senior teammate by the end of one read. If you change facts here, you MUST
 > update `CHANGELOG.md`.
+>
+> **Phase 1 note:** the original Citizen scope below includes voice screening.
+> The combined-system 10-phase plan parks VoiceGuard / MAYA as a frozen seam;
+> see [`PHASE1_ARCHITECTURE_FREEZE.md`](PHASE1_ARCHITECTURE_FREEZE.md) and
+> [`adr/ADR-009-voiceguard-frozen-seam.md`](adr/ADR-009-voiceguard-frozen-seam.md).
 
 ---
 

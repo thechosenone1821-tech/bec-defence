@@ -1,0 +1,29 @@
+{
+  "algorithm": "sha256",
+  "base": "raksha-code/spine",
+  "canonical_json_rule": "json.dumps(obj, sort_keys=True, separators=(',', ':'), ensure_ascii=True, default=str)",
+  "contract": "raksha-config-pins-v1",
+  "files": {
+    "config/company_topology.json": {
+      "bytes": 5500,
+      "sha256": "2f2bb54761b0afa5655ad8fc3458d4c4ebea6a4d244881348aea8c560e3b6981"
+    },
+    "config/manifest.json": {
+      "bytes": 623,
+      "sha256": "49f7a7436433bc1b394ee0ed48099b267a0c93eb1f40a450e338d91c4d62f927"
+    },
+    "config/policy.yaml": {
+      "bytes": 630,
+      "sha256": "d7fd9d231af4388cf25594c40249dfd1c3ca4b19a5edfd24ea4b56423d48a3d3"
+    },
+    "system_prompt.txt": {
+      "bytes": 1826,
+      "sha256": "3e265da1271b3e12f0179d17f28e8c139a7006b539f3424277dd73c8fefcbcc6"
+    },
+    "tool_schemas.json": {
+      "bytes": 6353,
+      "sha256": "75ea9f30affc4407786de2eef0cb07ec0cfe486825b5b78530eb987b87da4e50"
+    }
+  },
+  "version": 1
+}

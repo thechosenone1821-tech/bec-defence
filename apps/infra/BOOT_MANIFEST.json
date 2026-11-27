@@ -1,0 +1,17 @@
+{
+  "contract": "raksha-boot-manifest-v1",
+  "app": "infra",
+  "app_count": 2,
+  "entrypoint": "python -m apps.infra",
+  "default_port": 8090,
+  "bind": "0.0.0.0",
+  "root_redirect": "/app/console",
+  "health_path": "/app/health",
+  "state_path": "/v1/state",
+  "console_read_only": true,
+  "organ_registry_count": 1,
+  "no_ai_models": true,
+  "voiceguard_integrated": false,
+  "dry_run": true,
+  "executor": "DryRunExecutor-v1"
+}

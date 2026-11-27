@@ -8,8 +8,20 @@
 > `PROBLEM_STATEMENT.md`, `CONTEXT.md`, `BUILD_GUIDE.md`, `README.md` (the 8-organ
 > ring definition), and the actual code in `raksha-code/`.
 >
-> **Start here for current state:** [`../BUILD_STATE.md`](../BUILD_STATE.md)
+> **Start here for current state:** [`../BUILD_STATE.md`](../docs/STATUS.md)
 > — one page, every figure produced by running the code today.
+> **Phase 3/4 note:** shared contracts/spine and the Citizen consolidation are
+> described in [`../raksha/PHASE3_CONTRACT_SPINE.md`](../raksha/PHASE3_CONTRACT_SPINE.md)
+> and [`../raksha/PHASE4_CITIZEN_CONSOLIDATION.md`](../raksha/PHASE4_CITIZEN_CONSOLIDATION.md);
+> the seven-part build split below remains the historical work breakdown.
+>
+> **Phase 1 supersession (2026-11-26):** the 7-part split below is historical.
+> The combined-system freeze uses **two apps + one shared spine** and one
+> canonical implementation per capability; see
+> [`../raksha/PHASE1_ARCHITECTURE_FREEZE.md`](../raksha/PHASE1_ARCHITECTURE_FREEZE.md)
+> and [`../raksha/PHASE1_SOURCE_OF_TRUTH_MATRIX.md`](../raksha/PHASE1_SOURCE_OF_TRUTH_MATRIX.md).
+> The phrase "Two spines, as requested" below is historical language and is not
+> the Phase 1 architecture. VoiceGuard is parked by ADR-009.
 >
 > **`features.md` has still never been supplied**, so this taxonomy is derived from
 > the docs above. When it arrives, reconcile — do not rebuild.
@@ -61,7 +73,7 @@ ledger and Governor that both apps depend on).
 |---|---|---|
 | 1 · Citizen spine | **100% + rebuilt** | 3 phases done, then rebuilt in 4 parts (fusion · explanation · capture · delivery). **+196 tests over 626, 822 total.** |
 | 2 · VoiceGuard | **65%** | Real pipeline, real measurements — on fake data. |
-| 3 · MessageGuard | **100% (spec DoD)** | v1 integrated; 492 hand-authored fixtures, measured FPR and accuracy, shared `MSG-*` i18n. Real-world field performance still UNMEASURED. |
+| 3 · MessageGuard | **100% (spec DoD)** | Phase 5 single-source; 538 hand-authored fixtures, measured FPR and accuracy, shared `MSG-*` i18n. Real-world field performance still UNMEASURED. |
 | 4 · Detection rings | **70%** | 8/8 organs coded; none seen real traffic. |
 | 5 · Response & governance | **75%** | The strongest part. No live model; dry-run executor. |
 | 6 · Console & red-team | **30%** | **No UI at all.** RAAVAN works. |
@@ -104,3 +116,12 @@ local model — it needs **running**, not training.
 | Technical depth | **Part 5** — already strongest; add adversarial tests |
 | Broadest contributor surface | **Part 4** — 8 organs, parallelisable |
 | Not breaking what works | **Part 7** — everything depends on it |
+
+## Current integration status (Phases 6–8)
+
+Phases 6–8 are implemented: one 8-organ detector registry, one deterministic
+Governor/planner/executor/ledger path and one unified Infra backend/API/WS with
+an operable read-only SOC console. See
+[`../raksha/PHASE678_UNIFIED_INTEGRATION.md`](../raksha/PHASE678_UNIFIED_INTEGRATION.md)
+and [`../BUILD_STATE.md`](../docs/STATUS.md). VoiceGuard/MAYA remain frozen;
+Phase 9/10 are not started.
