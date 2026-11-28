@@ -1,0 +1,23 @@
+{
+  "active_model": "VIGIL PrivacyNet TorchScript",
+  "app": "citizen",
+  "app_count": 2,
+  "bind": "0.0.0.0",
+  "contract": "raksha-boot-manifest-v2",
+  "default_port": 8095,
+  "entrypoint": "python -m apps.citizen",
+  "executor": "none",
+  "frontend_contract": "raksha-phosphor-frontend-v1",
+  "frontend_gateway_path": "/api/gateway",
+  "frontend_health_path": "/api/frontend/health",
+  "frontend_path": "/",
+  "frontend_root_redirect": "/console/call-screen",
+  "health_path": "/api/citizen/health",
+  "manifest_path": "/app/manifest.json",
+  "model_backed": true,
+  "root_redirect": "/console/call-screen",
+  "vigil_integrated": true,
+  "vigil_route": "/vigil/",
+  "vigil_status_path": "/api/citizen/vigil/status",
+  "weights_manifest": "packages/vigil/model_manifest.json"
+}

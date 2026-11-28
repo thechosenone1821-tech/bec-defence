@@ -1,3 +1,5 @@
+> Historical provenance: the retired voice-scorer code was removed from executable paths. Active status lives in [docs/STATUS.md](../docs/STATUS.md); see the [retired code note](../archive/provenance/RETIRED.md). Real-world privacy efficacy remains UNMEASURED.
+
 # RAKSHA — Problem Statement
 
 > **Status:** Final draft for stage/PRD use pending verification of tagged figures.

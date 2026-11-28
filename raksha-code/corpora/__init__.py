@@ -1,16 +1,17 @@
-"""Part 4 Phase 4 — organ fixture corpora.
+"""Phase 10 compatibility package for the retired standalone corpora tree.
 
-A corpus here is a JSON file of *labelled cases*. A case is not a recorded
-sample; it is a seeded generator expression that the harness compiles and runs.
-That choice is deliberate and it is the whole honesty argument of this phase:
-
-*A hand-written sample is a sample written by the same person who wrote the
-detector, using the same assumptions.* It would score near-perfectly and mean
-nothing. A seeded expression at least fails the same way twice, and its
-parameters are visible: when the report says "bot offset 3", a reader can ask
-what happens at offset 1 without trusting me.
-
-What this does NOT give: any evidence about real attackers. Every file in
-``corpora/organs/`` carries ``"provenance": "synthetic"`` and the report refuses
-to publish a rate unless that field is present.
+The implementation lives in ``archive/provenance/legacy-corpora``. This shim
+keeps legacy imports such as ``corpora.harness`` working for historical tests
+without creating a second runtime implementation.
 """
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[2]
+CODE_ROOT = ROOT / "raksha-code"
+ARCHIVE = ROOT / "archive" / "provenance" / "legacy-corpora"
+__path__ = [str(ARCHIVE)]
+if str(CODE_ROOT) not in sys.path:
+    sys.path.insert(0, str(CODE_ROOT))

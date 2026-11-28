@@ -37,7 +37,7 @@ class TestWiring:
 
     def test_panic_is_a_button_not_a_bare_link(self):
         """It was an <a href="tel:1930"> — which is a phone link, not a panic
-        flow. It cannot lock anything or stop a recording."""
+        flow. It cannot lock anything or stop a image buffer."""
         html = read("index.html")
         assert 'id="btnPanic"' in html
         assert not re.search(r'<a class="panic"[^>]*href="tel:1930"', html), \
@@ -48,19 +48,19 @@ class TestWiring:
         assert "RakshaPanic" in js
         assert "runPanic" in js
         # The three effects must all be present, or the sequence is a no-op.
-        for key in ("lock", "stopCapture", "dial"):
+        for key in ("lock", "closeImageSession", "dial"):
             assert key in js
 
-    def test_panic_stops_a_live_capture(self):
+    def test_panic_stops_a_live_image_session(self):
         js = read("app.js")
         block = js[js.index("function wirePanic"):js.index("document.addEventListener(\"DOMContentLoaded\", wirePanic)")]
-        assert "activeCapture" in block
-        assert ".stop()" in block or "stop(" in block
+        assert "activeVigilSession" in js
+        assert "closeImageSession" in block
 
-    def test_panic_clears_the_recording_indicator(self):
+    def test_panic_clears_the_image_buffer_indicator(self):
         js = read("app.js")
         block = js[js.index("function wirePanic"):js.index("document.addEventListener(\"DOMContentLoaded\", wirePanic)")]
-        assert "voiceIndicator" in block
+        assert "vigilStatus" in block
 
     def test_family_toggle_exists_and_is_wired(self):
         assert 'id="chkFamily"' in read("index.html")
@@ -137,7 +137,7 @@ class TestSpecHonesty:
     def test_panic_row_now_claims_the_behaviour_that_exists(self):
         """Phase 1 changed this row from a false ✅ to an honest ⚠️. Phase 2 made
         the behaviour real, so the row may only go back to ✅ if the lock, the
-        capture stop and the dial are all actually implemented — which the JS
+        image session stop and the dial are all actually implemented — which the JS
         tests prove they are."""
         spec = open(os.path.join(_SPECS, "01_citizen_spine.md"), encoding="utf-8").read()
         row = [l for l in spec.splitlines() if "Panic button" in l][0]
@@ -145,7 +145,7 @@ class TestSpecHonesty:
         assert "1930" in row
         # And the implementation it points at must contain all three steps.
         js = read("panic.js")
-        for step in ("LOCK", "STOP_CAPTURE", "DIAL"):
+        for step in ("LOCK", "CLOSE_IMAGE_SESSION", "DIAL"):
             assert step in js, f"{step} missing from panic.js"
 
     def test_spec_states_what_the_panic_button_cannot_do(self):
@@ -165,9 +165,9 @@ class TestSpecHonesty:
 # 5. Family mode must not become a scoring path
 # --------------------------------------------------------------------------- #
 class TestFamilyIsPresentationOnly:
-    def test_family_module_never_imports_or_calls_a_model(self):
+    def test_family_module_never_imports_or_calls_a_scorer(self):
         js = read("family.js")
-        for banned in ("score_voice", "screen_voice", "/api/", "fetch("):
+        for banned in ("score_call", "screen_call", "/api/", "fetch("):
             assert banned not in js, f"family mode must not call {banned}"
 
     def test_family_module_stores_nothing_sensitive(self):

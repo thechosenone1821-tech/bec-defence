@@ -11,7 +11,11 @@ import sys
 
 import pytest
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+CODE_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+REPO_ROOT = os.path.dirname(CODE_ROOT)
+for _path in (REPO_ROOT, CODE_ROOT):
+    if _path not in sys.path:
+        sys.path.insert(0, _path)
 
 
 @pytest.fixture(autouse=True)

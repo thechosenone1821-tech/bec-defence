@@ -1,3 +1,5 @@
+> Historical provenance: the retired voice-scorer code was removed from executable paths. Active status lives in [docs/STATUS.md](../docs/STATUS.md); see the [retired code note](../archive/provenance/RETIRED.md). Real-world privacy efficacy remains UNMEASURED.
+
 # PART 4 — INFRA SPINE: SENTINEL DETECTION RINGS
 ## (the 8 shield organs — Rings 1–4)
 
@@ -1207,33 +1209,35 @@ opinion with a commit attached — the same failure mode as Phase 4's hand-writt
 corpus, one level down. A threshold is earned by a capture file, and there is
 no capture file. §5.4 is what happened when I found data that *was* real.
 
-## 5.4 Finding: Organ 3 blocks every real document in this repository
+## 5.4 Finding: Organ 3 blocks most real documents in this repository
 
 The one corpus that was not written for these detectors is the documentation,
 accumulated over months for reasons that had nothing to do with Bragg peaks.
+Phase 2 added separate `apps/` and `packages/` docs and compatibility symlinks;
+`collect_documents()` now counts canonical, non-symlink markdown paths only.
 
     $ python3 corpora/real_documents.py
-    documents: 28   words: 43,621
-    blocked:   27/28 (96%)
+    documents: 61   words: ~70k
+    blocked:   55/61 (90.2%)
       flagged by BRAGG_PEAK:       0
-      flagged by FIEDLER_FRACTURE: 27
+      flagged by FIEDLER_FRACTURE: 55
       with the peak rule alone:    0 blocked
-      with the Fiedler rule alone: 27 blocked
-    peak median 0.012  max 0.138
+      with the Fiedler rule alone: 55 blocked
+    peak median 0.015  max 0.138
     lambda2 median 0.0000
 
     skipped above 6000 tokens (organ memory is quadratic):
-      specs/04_infra_detection_rings.md (11,778 tokens)
+      specs/04_infra_detection_rings.md (~14.3k tokens)
 
 **This corpus contains this log.** `specs/04_infra_detection_rings.md` is one of
 the documents being scanned, so the word count moves every time the file is
-edited — it read 43,611 before the sections above were finished and 43,621 now.
-That is not a bug in the measurement, it is what "unlabelled project
+edited. That is not a bug in the measurement, it is what "unlabelled project
 documentation" means: the corpus is the repository, including the report on the
-corpus. The block rate and the attribution did not change across those edits
-(27/28, Fiedler 27, peak 0), which is the stability that matters.
+corpus. The Phase 2 canonical corpus is 55/61 blocked, Fiedler 55, peak 0. The
+six allowed docs are short app/package READMEs plus two fixture/capture READMEs;
+none of them make the Fiedler finding disappear.
 
-**The skipped document is itself a result.** Screening the 11.6k-token Part 4
+**The skipped document is itself a result.** Screening the 14.3k-token Part 4
 spec — the file this log lives in — exhausted a 4 GB container and the process
 was killed by the OOM reaper, more than once. The size cap exists because the
 organ cannot be pointed at it, and the skip is listed in the output rather than
@@ -1243,10 +1247,10 @@ Three things fall out of that.
 
 **1. The rule everyone believes is secondary does all the work — and all the
 harm.** Phase 4 showed the Bragg *peak* threshold is inert on synthetic text.
-Phase 5 shows it never fires on real text either: peak median 0.012 against a
+Phase 5 shows it never fires on real text either: peak median 0.015 against a
 0.32 threshold, max 0.138. With the peak rule alone, **zero** documents are
 blocked. The Fiedler rule, whose threshold was treated as a secondary check,
-blocks 28.
+blocks 55 of 61 canonical documents.
 
 **2. It is not measuring injection. It is measuring token rarity.** λ₂ is the
 algebraic connectivity of a k-nearest-neighbour graph over token embeddings.
@@ -1716,3 +1720,12 @@ Corrected totals: **Phase 5/6: 7 of 7 killed. Phase 7: 13 of 13 killed.**
 * **The fatigue budget from Phase 6 is still an assumption**, and the thresholds
   are still uncalibrated. Phase 7 made the fleet *visible*; it did not make the
   detectors *right*.
+
+## Phase 6 implementation note (2026-11-26)
+
+The single active registry is
+[`../apps/infra/detectors/registry.py`](../apps/infra/detectors/registry.py).
+It keeps the eight shield names, adds firing/silent/missing fixtures per organ,
+and exposes one `detect(event) -> DetectionResult` contract. Signed-envelope
+verification and quarantine happen before rules execute; missing features return
+`no_detection`. See [`../raksha/PHASE678_UNIFIED_INTEGRATION.md`](../raksha/PHASE678_UNIFIED_INTEGRATION.md).

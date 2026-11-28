@@ -1,3 +1,5 @@
+> Historical provenance: the retired voice-scorer code was removed from executable paths. Active status lives in [docs/STATUS.md](../docs/STATUS.md); see the [retired code note](../archive/provenance/RETIRED.md). Real-world privacy efficacy remains UNMEASURED.
+
 # PART 1 — CITIZEN SPINE · THREE-PHASE BUILD ROADMAP
 
 > **This file is the build plan AND the build log for Part 1.** Each phase is

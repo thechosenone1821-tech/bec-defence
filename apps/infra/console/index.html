@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RAKSHA SOC Console · completed read-only Infra</title>
+  <style>
+    :root { color-scheme: dark; --bg:#08111f; --panel:#101d31; --panel2:#0b1729; --line:#223757; --ink:#e7eefb; --muted:#9db0cc; --ok:#64d8a0; --warn:#ffcb6b; --bad:#ff8a80; --cyan:#7cc7ff; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--ink); font:14px/1.45 ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,sans-serif; }
+    header { padding:18px 24px; border-bottom:1px solid var(--line); display:flex; gap:16px; align-items:center; flex-wrap:wrap; }
+    h1 { font-size:20px; margin:0; letter-spacing:.02em; }
+    .badge { border:1px solid var(--line); border-radius:999px; padding:3px 10px; color:var(--muted); }
+    .badge.ok { color:var(--ok); border-color:#1d6a4b; }
+    .badge.warn { color:var(--warn); border-color:#7a5a1d; }
+    .badge.bad { color:var(--bad); border-color:#7a3030; }
+    .header-actions { margin-left:auto; display:flex; gap:8px; flex-wrap:wrap; }
+    button, .button { background:#172a46; color:var(--ink); border:1px solid var(--line); border-radius:8px; padding:7px 12px; cursor:pointer; font:inherit; text-decoration:none; display:inline-flex; align-items:center; justify-content:center; gap:6px; }
+    button:hover, .button:hover { filter:brightness(1.12); }
+    button.primary { background:#173b5a; border-color:#2c6088; }
+    button.ghost { background:transparent; }
+    nav.tabs { padding:12px 24px 0; display:flex; gap:8px; flex-wrap:wrap; border-bottom:1px solid var(--line); }
+    nav.tabs button.active { color:#06121f; background:var(--cyan); border-color:var(--cyan); font-weight:800; }
+    main { padding:20px 24px 44px; display:grid; gap:18px; grid-template-columns:repeat(12,1fr); }
+    main > section[data-panel] { display:none; }
+    main > section.active { display:block; }
+    .card { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:16px; grid-column:span 12; overflow:auto; }
+    .third { grid-column:span 4; }
+    .half { grid-column:span 6; }
+    @media (max-width: 900px) { .third,.half { grid-column:span 12; } }
+    h2 { font-size:14px; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); margin:0 0 12px; }
+    h3 { font-size:15px; margin:12px 0 6px; }
+    .kpis { display:grid; grid-template-columns:repeat(4,minmax(120px,1fr)); gap:12px; }
+    .kpi { background:var(--panel2); border:1px solid var(--line); border-radius:10px; padding:12px; }
+    .kpi b { display:block; font-size:24px; }
+    .status-line { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:10px; }
+    .status-item { background:var(--panel2); border:1px solid var(--line); border-radius:10px; padding:10px; }
+    .status-item span { display:block; color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.08em; }
+    .status-item strong { font-size:14px; }
+    table { width:100%; border-collapse:collapse; }
+    th,td { text-align:left; padding:8px 10px; border-bottom:1px solid var(--line); vertical-align:top; }
+    th { color:var(--muted); font-weight:600; }
+    code { color:#b9d4ff; }
+    .refusal { color:var(--bad); font-weight:700; }
+    .allowed { color:var(--ok); font-weight:700; }
+    .ledger { color:#b9d4ff; }
+    .muted { color:var(--muted); }
+    input[type="search"] { width:100%; background:var(--panel2); color:var(--ink); border:1px solid var(--line); border-radius:9px; padding:10px 12px; font:inherit; }
+    pre { white-space:pre-wrap; word-break:break-word; margin:0; color:var(--muted); }
+    .notice { color:var(--warn); }
+    .api-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:8px; margin-bottom:14px; }
+    .api-grid button { justify-content:flex-start; text-align:left; }
+    .toast { position:fixed; right:18px; bottom:18px; max-width:360px; background:#10243a; border:1px solid var(--line); color:var(--ink); padding:12px 14px; border-radius:10px; box-shadow:0 12px 30px rgba(0,0,0,.4); opacity:0; transform:translateY(8px); pointer-events:none; transition:.18s ease; }
+    .toast.show { opacity:1; transform:translateY(0); }
+    .toast.bad { border-color:#7a3030; color:#ffd7d7; }
+    [hidden] { display:none !important; }
+  </style>
+  <script src="console.js" defer></script>
+</head>
+<body>
+  <header>
+    <h1>RAKSHA SOC Console</h1>
+    <span class="badge ok">completed read-only</span>
+    <span class="badge warn">dry-run · no real containment</span>
+    <span id="ws-state" class="badge">WS connecting</span>
+    <div class="header-actions">
+      <button id="refresh" type="button" class="primary">Refresh now</button>
+      <button id="export" type="button">Download snapshot</button>
+      <button id="copy-status" type="button">Copy status</button>
+      <a class="button primary" href="/demo/hospital">Open attack demo</a>
+      <a class="button" href="/console/attack-lab">Attack Lab (simulated)</a>
+    </div>
+  </header>
+
+  <nav class="tabs" role="tablist" aria-label="Console sections">
+    <button class="tab active" type="button" data-panel="overview">Overview</button>
+    <button class="tab" type="button" data-panel="campaign">Campaign</button>
+    <button class="tab" type="button" data-panel="ledger">Ledger</button>
+    <button class="tab" type="button" data-panel="organs">Organs</button>
+    <button class="tab" type="button" data-panel="api">API explorer</button>
+  </nav>
+
+  <main>
+    <section class="card active" data-panel="overview">
+      <h2>Infra status</h2>
+      <div id="infra-status" class="status-line" aria-live="polite">Loading…</div>
+      <p class="muted">Auth mode: <code id="auth-mode">header + read cookie + read-only query fallback</code>. Token scope is <code>read</code>; this page never calls a mutation route.</p>
+    </section>
+
+    <section class="card active" data-panel="overview">
+      <h2>Campaign snapshot</h2>
+      <div class="kpis">
+        <div class="kpi"><span class="muted">Ledger height</span><b id="ledger-height">—</b></div>
+        <div class="kpi"><span class="muted">Detections</span><b id="detection-count">—</b></div>
+        <div class="kpi"><span class="muted">Decisions</span><b id="decision-count">—</b></div>
+        <div class="kpi"><span class="muted">Quarantine</span><b id="quarantine-count">—</b></div>
+      </div>
+    </section>
+
+    <section class="card half active" data-panel="overview">
+      <h2>Commander / runtime</h2>
+      <pre id="commander">Loading…</pre>
+    </section>
+    <section class="card half active" data-panel="overview">
+      <h2>Metrics</h2>
+      <pre id="metrics">Loading…</pre>
+    </section>
+
+    <section class="card" data-panel="campaign">
+      <h2>Filter visible rows</h2>
+      <label class="muted" for="filter">Timeline, decisions and quarantine</label>
+      <input id="filter" type="search" placeholder="Filter by rule, organ, event or verdict…" autocomplete="off">
+    </section>
+
+    <section class="card" data-panel="campaign">
+      <h2>Detection → proposal → decision → ledger sequence</h2>
+      <table>
+        <thead><tr><th>Step</th><th>Stage</th><th>Kind / rule</th><th>Ref</th><th>Ledger</th><th>Detail</th></tr></thead>
+        <tbody id="timeline"><tr><td colspan="6">Loading deterministic fixture campaign…</td></tr></tbody>
+      </table>
+    </section>
+
+    <section class="card half" data-panel="campaign">
+      <h2>Decisions incl. refusals</h2>
+      <table>
+        <thead><tr><th>Seq</th><th>Kind</th><th>Verdict</th><th>Rule</th><th>Proposal</th></tr></thead>
+        <tbody id="decisions"><tr><td colspan="5">Loading…</td></tr></tbody>
+      </table>
+    </section>
+    <section class="card half" data-panel="campaign">
+      <h2>Quarantine (never actionable)</h2>
+      <table>
+        <thead><tr><th>Event</th><th>State</th><th>Organ</th><th>Reason</th></tr></thead>
+        <tbody id="quarantine"><tr><td colspan="4">Loading…</td></tr></tbody>
+      </table>
+    </section>
+
+    <section class="card half" data-panel="ledger">
+      <h2>Ledger head</h2>
+      <pre id="ledger-head">Loading…</pre>
+    </section>
+    <section class="card half" data-panel="ledger">
+      <h2>Ledger verification</h2>
+      <pre id="ledger-verify">Loading…</pre>
+    </section>
+    <section class="card" data-panel="ledger">
+      <h2>Campaign state</h2>
+      <pre id="campaigns">Loading…</pre>
+    </section>
+
+    <section class="card" data-panel="organs">
+      <h2>One detector registry</h2>
+      <p class="muted">The organ card is static metadata. It does not run detection, load a model or mutate runtime state.</p>
+      <button id="load-organs" type="button" class="primary">Load organ card</button>
+      <table>
+        <thead><tr><th>Organ</th><th>Ring</th><th>Legacy name</th><th>Rules</th><th>Firing features</th></tr></thead>
+        <tbody id="organ-list"><tr><td colspan="5">Click “Load organ card”.</td></tr></tbody>
+      </table>
+    </section>
+
+    <section class="card" data-panel="api">
+      <h2>API explorer</h2>
+      <p class="muted">These buttons perform same-origin GET requests with the read token. They render JSON in this page; they do not navigate away or write state.</p>
+      <div class="api-grid">
+        <button type="button" data-api-path="/api/infra/status">GET /api/infra/status</button>
+        <button type="button" data-api-path="/api/infra/capabilities">GET /api/infra/capabilities</button>
+        <button type="button" data-api-path="/api/infra/detectors">GET /api/infra/detectors</button>
+        <button type="button" data-api-path="/app/health">GET /app/health</button>
+        <button type="button" data-api-path="/app/contract">GET /app/contract</button>
+        <button type="button" data-api-path="/v1/state">GET /v1/state</button>
+        <button type="button" data-api-path="/v1/decisions">GET /v1/decisions</button>
+        <button type="button" data-api-path="/v1/ledger/head">GET /v1/ledger/head</button>
+        <button type="button" data-api-path="/v1/ledger/verify">GET /v1/ledger/verify</button>
+        <button type="button" data-api-path="/v1/quarantine">GET /v1/quarantine</button>
+        <button type="button" data-api-path="/v1/metrics">GET /v1/metrics</button>
+        <button type="button" data-api-path="/v1/campaigns">GET /v1/campaigns</button>
+        <button type="button" data-api-path="/api/infra/demo/hospital/state">GET /api/infra/demo/hospital/state</button>
+        <button type="button" data-api-path="/api/infra/scenarios">GET /api/infra/scenarios</button>
+      </div>
+      <pre id="api-output">Choose an endpoint above.</pre>
+    </section>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <noscript><p class="notice">JavaScript is required for the read-only console.</p></noscript>
+</body>
+</html>

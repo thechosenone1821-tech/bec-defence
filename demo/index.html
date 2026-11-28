@@ -1,0 +1,514 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RAKSHA Citizen — Presentation Demo</title>
+<style>
+  :root {
+    --bg: #06101d; --panel: #0d1d30; --panel2: #10283f; --line: #1d3b56;
+    --text: #eaf4ff; --muted: #8fb0c9; --cyan: #3dd6d0; --lime: #a8e05f;
+    --amber: #ffcc66; --red: #ff7b7b; --shadow: 0 18px 40px rgba(0,0,0,.35);
+  }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  body {
+    margin: 0; color: var(--text); background:
+      radial-gradient(1100px 600px at 15% -10%, #123b52 0%, transparent 60%),
+      radial-gradient(900px 500px at 90% 0%, #1a2e52 0%, transparent 55%),
+      var(--bg);
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.45; min-height: 100vh;
+  }
+  body.family { --cyan: #b9a0ff; --lime: #ffd28a; }
+  header {
+    position: sticky; top: 0; z-index: 20; backdrop-filter: blur(14px);
+    background: rgba(6,16,29,.82); border-bottom: 1px solid var(--line);
+    padding: 14px clamp(16px, 4vw, 44px); display: flex; flex-wrap: wrap;
+    align-items: center; justify-content: space-between; gap: 12px;
+  }
+  .brand { display: flex; align-items: center; gap: 12px; font-weight: 800; letter-spacing: .02em; }
+  .mark {
+    width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center;
+    background: linear-gradient(135deg, var(--cyan), #2777a8); color: #04121e; font-size: 20px; font-weight: 900;
+    box-shadow: 0 0 24px rgba(61,214,208,.35);
+  }
+  .brand small { display: block; color: var(--muted); font-weight: 500; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; }
+  .badges { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .badge { border: 1px solid var(--line); background: rgba(16,40,63,.7); color: var(--muted); padding: 6px 10px; border-radius: 999px; font-size: 12px; }
+  .badge.live { color: #04121e; background: var(--lime); border-color: transparent; font-weight: 800; }
+  main { max-width: 1280px; margin: 0 auto; padding: 26px clamp(16px, 4vw, 44px) 60px; }
+  .hero {
+    display: grid; grid-template-columns: 1.25fr .75fr; gap: 18px; align-items: stretch; margin-bottom: 20px;
+  }
+  @media (max-width: 860px) { .hero { grid-template-columns: 1fr; } }
+  .banner {
+    border: 1px solid var(--line); border-radius: 20px; padding: 24px;
+    background: linear-gradient(135deg, rgba(61,214,208,.12), rgba(16,40,63,.55));
+    box-shadow: var(--shadow);
+  }
+  .banner h1 { margin: 0 0 8px; font-size: clamp(26px, 4vw, 42px); line-height: 1.1; }
+  .banner p { margin: 0; color: var(--muted); max-width: 68ch; }
+  .banner strong { color: var(--text); }
+  .notice {
+    margin-top: 16px; border-left: 3px solid var(--amber); padding: 10px 12px;
+    background: rgba(255,204,102,.08); color: #ffe6ad; border-radius: 0 10px 10px 0; font-size: 13px;
+  }
+  .stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .stat {
+    border: 1px solid var(--line); border-radius: 16px; padding: 14px;
+    background: linear-gradient(160deg, var(--panel2), var(--panel)); box-shadow: var(--shadow);
+  }
+  .stat span { display: block; color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .1em; }
+  .stat strong { display: block; margin: 4px 0 2px; font-size: 18px; }
+  .stat small { color: var(--muted); font-size: 12px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(310px, 1fr)); gap: 18px; }
+  .card {
+    border: 1px solid var(--line); border-radius: 20px; padding: 18px;
+    background: linear-gradient(165deg, rgba(16,40,63,.92), rgba(9,24,40,.92));
+    box-shadow: var(--shadow);
+  }
+  .card h2 { margin: 0 0 4px; font-size: 20px; display: flex; align-items: center; gap: 9px; }
+  .card .sub { margin: 0 0 16px; color: var(--muted); font-size: 13px; }
+  .icon { width: 30px; height: 30px; border-radius: 10px; display: grid; place-items: center; background: rgba(61,214,208,.14); color: var(--cyan); font-weight: 900; }
+  label { display: block; color: var(--muted); font-size: 12px; margin: 10px 0 6px; text-transform: uppercase; letter-spacing: .07em; }
+  textarea, select, input[type="file"] {
+    width: 100%; border: 1px solid var(--line); background: #081726; color: var(--text);
+    border-radius: 12px; padding: 11px 12px; font: inherit; outline: none;
+  }
+  textarea { min-height: 92px; resize: vertical; }
+  textarea:focus, select:focus { border-color: var(--cyan); box-shadow: 0 0 0 3px rgba(61,214,208,.12); }
+  .row { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 12px; align-items: center; }
+  button, .button {
+    appearance: none; border: 1px solid transparent; border-radius: 11px; padding: 10px 14px;
+    background: linear-gradient(135deg, var(--cyan), #2b8fb6); color: #04121e; font-weight: 800;
+    cursor: pointer; font: inherit; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+    transition: transform .12s ease, filter .12s ease;
+  }
+  button:hover, .button:hover { transform: translateY(-1px); filter: brightness(1.08); }
+  button.secondary { background: rgba(16,40,63,.8); color: var(--text); border-color: var(--line); }
+  button.ghost { background: transparent; color: var(--muted); border-color: var(--line); }
+  button.danger { background: linear-gradient(135deg, var(--red), #c94f4f); color: #fff; }
+  .verdict { margin-top: 14px; border-radius: 14px; padding: 13px; border: 1px solid var(--line); background: #081726; }
+  .verdict .band { font-size: 13px; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; }
+  .verdict .score { font-size: 30px; font-weight: 900; margin: 2px 0 4px; }
+  .verdict.low .band { color: var(--lime); }
+  .verdict.moderate .band { color: var(--amber); }
+  .verdict.high .band, .verdict.critical .band { color: var(--red); }
+  .reasons { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size: 13px; }
+  .muted { color: var(--muted); }
+  .pill { font-size: 11px; padding: 3px 8px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); }
+  .pill.works { color: #04121e; background: var(--lime); border-color: transparent; font-weight: 800; }
+  .split { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+  @media (max-width: 620px) { .split { grid-template-columns: 1fr; } }
+  .frame { border: 1px solid var(--line); border-radius: 14px; padding: 9px; background: #081726; }
+  .frame b { display: block; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .09em; margin-bottom: 7px; }
+  canvas { width: 100%; height: auto; display: block; border-radius: 10px; background: #0a1726; }
+  pre {
+    max-height: 190px; overflow: auto; background: #06121f; border: 1px solid var(--line);
+    border-radius: 12px; padding: 12px; color: #bfe8ff; font-size: 12px; margin: 12px 0 0;
+  }
+  .status { margin-top: 12px; color: var(--cyan); font-size: 13px; font-weight: 700; min-height: 18px; }
+  .queue { list-style: none; padding: 0; margin: 12px 0 0; display: grid; gap: 8px; }
+  .queue li { border: 1px solid var(--line); border-radius: 11px; padding: 9px 11px; background: #081726; font-size: 13px; }
+  .queue li span { color: var(--muted); display: block; font-size: 11px; }
+  .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; margin-top: 14px; }
+  .feature { border: 1px solid var(--line); border-radius: 14px; padding: 13px; background: rgba(8,23,38,.7); }
+  .feature h3 { margin: 0 0 5px; font-size: 15px; }
+  .feature p { margin: 0 0 9px; color: var(--muted); font-size: 12px; }
+  .switch { display: flex; align-items: center; gap: 9px; margin-top: 12px; color: var(--muted); font-size: 13px; }
+  .switch input { accent-color: var(--cyan); width: 18px; height: 18px; }
+  details { margin-top: 16px; border-top: 1px solid var(--line); padding-top: 12px; color: var(--muted); font-size: 13px; }
+  summary { cursor: pointer; color: var(--text); font-weight: 700; }
+  footer { text-align: center; color: var(--muted); font-size: 12px; padding: 0 20px 30px; }
+  .overlay {
+    position: fixed; inset: 0; z-index: 50; display: grid; place-items: center;
+    background: rgba(3,9,16,.86); backdrop-filter: blur(8px); padding: 20px;
+  }
+  .overlay .box { max-width: 460px; text-align: center; border: 1px solid var(--red); border-radius: 22px; padding: 28px; background: #111b28; box-shadow: var(--shadow); }
+  .overlay h2 { margin: 0 0 8px; color: var(--red); }
+  .overlay .num { font-size: 42px; font-weight: 900; color: #fff; display: block; margin: 12px 0; letter-spacing: .06em; }
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">
+    <div class="mark">R</div>
+    <div>RAKSHA Citizen<small>Defence workspace · presentation build</small></div>
+  </div>
+  <div class="badges">
+    <span class="badge live">● Live preview</span>
+    <span class="badge">Simulated data</span>
+    <span class="badge">No backend inference</span>
+    <span class="badge">Real-world UNMEASURED</span>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="banner">
+      <h1>Citizen, ready to show.</h1>
+      <p>A temporary, self-contained <strong>Citizen-side demo</strong> with working interactions: message screening, image privacy, offline report queue, panic overlay and family mode. Everything runs in the browser so the presentation works without a model server.</p>
+      <div class="notice"><strong>Honesty note:</strong> this is a presentation stub. Scores and image transforms are simulated, model weights are not loaded, and no field efficacy is claimed. The normal repository work remains local and untouched.</div>
+    </div>
+    <div class="stats">
+      <div class="stat"><span>Active surface</span><strong>Citizen</strong><small>one user-facing app</small></div>
+      <div class="stat"><span>Model reference</span><strong>VIGIL TorchScript</strong><small>demo reference only</small></div>
+      <div class="stat"><span>Inference</span><strong>simulated</strong><small>canvas transform</small></div>
+      <div class="stat"><span>Privacy efficacy</span><strong>UNMEASURED</strong><small>no field claim</small></div>
+    </div>
+  </section>
+
+  <section class="grid">
+    <article class="card">
+      <h2><span class="icon">1</span> MessageGuard</h2>
+      <p class="sub">Rule-based demo scan. Hand-authored style signals; real-world performance UNMEASURED.</p>
+      <label for="messageText">Message to screen</label>
+      <textarea id="messageText" spellcheck="false">Aapka OTP batao warna account band ho jayega. UPI collect request approve karo abhi.</textarea>
+      <div class="row">
+        <button id="scanBtn">Scan message</button>
+        <button id="sampleTextBtn" class="secondary">Load sample</button>
+        <button id="clearScanBtn" class="ghost">Clear</button>
+      </div>
+      <div id="scanResult" class="verdict low" aria-live="polite">
+        <div class="band">Ready</div>
+        <div class="score">—</div>
+        <div class="muted">Click “Scan message” to see a simulated verdict.</div>
+      </div>
+    </article>
+
+    <article class="card">
+      <h2><span class="icon">2</span> VIGIL image privacy</h2>
+      <p class="sub">Upload an image or use the generated sample. The demo pixelates simulated regions, adds seeded noise and exports a PNG.</p>
+      <div class="row">
+        <label for="imageInput" style="flex:1; min-width:190px; margin:0;">Image file</label>
+        <input id="imageInput" type="file" accept="image/png,image/jpeg,image/webp">
+      </div>
+      <div class="row">
+        <button id="protectBtn">Protect image</button>
+        <button id="sampleImageBtn" class="secondary">Use sample image</button>
+        <a id="downloadPng" class="button secondary" download="vigil-demo.png" hidden>Download demo PNG</a>
+      </div>
+      <div class="split">
+        <div class="frame"><b>Before · source</b><canvas id="sourceCanvas" width="480" height="360"></canvas></div>
+        <div class="frame"><b>After · demo transform</b><canvas id="protectedCanvas" width="480" height="360"></canvas></div>
+      </div>
+      <div id="vigilStatus" class="status">Sample loaded — click “Protect image”.</div>
+      <pre id="auditJson" aria-label="Demo audit report">{}</pre>
+    </article>
+
+    <article class="card">
+      <h2><span class="icon">3</span> Report queue &amp; safety</h2>
+      <p class="sub">Offline-first queue plus the panic flow. Stored in this browser only.</p>
+      <div class="row">
+        <button id="queueBtn">Queue current report</button>
+        <button id="clearQueueBtn" class="ghost">Clear queue</button>
+        <button id="panicBtn" class="danger">Panic · 1930</button>
+      </div>
+      <div class="switch">
+        <input type="checkbox" id="familyToggle">
+        <label for="familyToggle" style="margin:0; text-transform:none; letter-spacing:0; color:var(--text);">Family mode <span id="familyLabel" class="muted">(off)</span></label>
+      </div>
+      <p class="sub" style="margin-top:14px;">Queued reports: <strong id="queueCount">0</strong></p>
+      <ul id="queueList" class="queue"><li class="muted">No queued reports.</li></ul>
+      <details>
+        <summary>What is simulated here?</summary>
+        <p>Message scoring uses local keyword rules. Image protection uses canvas pixelation and seeded noise, not neural weights. The queue uses browser storage. Panic shows the helpline overlay. Infra is shown only as deterministic / dry-run context; no live action is taken.</p>
+      </details>
+    </article>
+
+    <article class="card">
+      <h2><span class="icon">4</span> Feature tour</h2>
+      <p class="sub">A quick map of the Citizen story for the slides.</p>
+      <div class="feature-grid">
+        <div class="feature"><h3>MessageGuard</h3><p>Scan, verdict, reason codes, language hint.</p><span class="pill works">works</span></div>
+        <div class="feature"><h3>VIGIL</h3><p>Upload, protect, audit, PNG export.</p><span class="pill works">works</span></div>
+        <div class="feature"><h3>Report queue</h3><p>Offline-first, local storage, clear.</p><span class="pill works">works</span></div>
+        <div class="feature"><h3>Panic / family</h3><p>Helpline overlay and family toggle.</p><span class="pill works">works</span></div>
+        <div class="feature"><h3>Infra context</h3><p>Deterministic, dry-run, Commander disabled.</p><span class="pill">context</span></div>
+        <div class="feature"><h3>Honesty</h3><p>Demo data, no model server, no field claim.</p><span class="pill">labelled</span></div>
+      </div>
+    </article>
+  </section>
+
+  <footer>Temporary presentation build · local work only · no commit, push or pull request update.</footer>
+</main>
+
+<div id="panicOverlay" class="overlay" hidden>
+  <div class="box">
+    <h2>Panic mode</h2>
+    <p class="muted">Demo safety overlay. In the real app this locks the session and starts the helpline flow.</p>
+    <span class="num">1930</span>
+    <p><a class="button" href="tel:1930">Call helpline</a></p>
+    <button id="cancelPanic" class="secondary">Cancel</button>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  const $ = (id) => document.getElementById(id);
+  const clamp = (v) => Math.max(0, Math.min(255, Math.round(v)));
+  const escapeHtml = (s) => String(s).replace(/[&<>"']/g, (c) => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+  })[c]);
+
+  function mulberry32(seed) {
+    let a = seed >>> 0;
+    return function () {
+      a |= 0; a = (a + 0x6D2B79F5) | 0;
+      let t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  const RULES = [
+    { re: /otp|one time password/i, code: "MSG-CRED-OTP-SHARE", label: "OTP request", weight: 0.24 },
+    { re: /upi|collect request|payment/i, code: "MSG-CRED-UPI-COLLECT-REQUEST", label: "UPI / collect request", weight: 0.20 },
+    { re: /pin|cvv|bank|account|card/i, code: "MSG-CRED-BANK-DETAILS", label: "Bank or credential detail", weight: 0.20 },
+    { re: /arrest|warrant|police|case against|court/i, code: "MSG-AUTH-DIGITAL-ARREST", label: "Authority threat", weight: 0.22 },
+    { re: /urgent|immediately|abhi|jaldi|now|warn(a|i)/i, code: "MSG-URG-IMMEDIATE", label: "Urgency pressure", weight: 0.16 },
+    { re: /link|click|verify|kyc|update/i, code: "MSG-LNK-VERIFY", label: "Link / verification nudge", weight: 0.15 },
+    { re: /lottery|prize|refund|courier|customs|penalty/i, code: "MSG-LURE-REFUND", label: "Lure or penalty", weight: 0.17 },
+    { re: /block|band|cancel|suspend/i, code: "MSG-THR-ACCOUNT", label: "Account threat", weight: 0.14 },
+  ];
+
+  function detectLanguage(text) {
+    if (/[\u0900-\u097F]/.test(text)) return "hi";
+    if (/[\u0C00-\u0C7F]/.test(text)) return "te";
+    if (/\b(aapka|batao|warna|karo|kar|hai|abhi|jaldi|paisa|approve)\b/i.test(text)) return "hinglish";
+    return "en";
+  }
+
+  function bandFor(score) {
+    if (score >= 0.75) return ["CRITICAL", "critical"];
+    if (score >= 0.50) return ["HIGH", "high"];
+    if (score >= 0.25) return ["MODERATE", "moderate"];
+    return ["LOW", "low"];
+  }
+
+  function scan() {
+    const text = $("messageText").value.trim();
+    const hits = RULES.filter((r) => r.re.test(text));
+    const score = Math.min(0.99, 0.08 + hits.reduce((sum, r) => sum + r.weight, 0));
+    const [band, cls] = bandFor(score);
+    const lang = detectLanguage(text);
+    const reasons = hits.length
+      ? hits.map((h) => "<li>" + escapeHtml(h.label) + " <span class='pill'>" + escapeHtml(h.code) + "</span></li>").join("")
+      : "<li>No strong demo signal found.</li>";
+    $("scanResult").className = "verdict " + cls;
+    $("scanResult").innerHTML =
+      "<div class='band'>" + band + " · " + escapeHtml(lang) + "</div>" +
+      "<div class='score'>" + (score * 100).toFixed(1) + "%</div>" +
+      "<div class='muted'>Simulated rule score · real-world recall and FPR UNMEASURED</div>" +
+      "<ul class='reasons'>" + reasons + "</ul>";
+  }
+
+  function makeSample() {
+    const c = $("sourceCanvas");
+    c.width = 480; c.height = 360;
+    const g = c.getContext("2d");
+    const grad = g.createLinearGradient(0, 0, 480, 360);
+    grad.addColorStop(0, "#0b2236"); grad.addColorStop(1, "#154b5a");
+    g.fillStyle = grad; g.fillRect(0, 0, 480, 360);
+
+    g.fillStyle = "#e8b98f"; g.beginPath(); g.arc(210, 120, 55, 0, Math.PI * 2); g.fill();
+    g.fillStyle = "#24313d"; g.beginPath(); g.arc(210, 96, 56, Math.PI, 0); g.fill();
+    g.fillStyle = "#1b2a38"; g.beginPath(); g.arc(192, 118, 5, 0, Math.PI * 2); g.fill();
+    g.beginPath(); g.arc(228, 118, 5, 0, Math.PI * 2); g.fill();
+    g.strokeStyle = "#9a5f4d"; g.lineWidth = 3; g.beginPath(); g.arc(210, 138, 18, 0.15 * Math.PI, 0.85 * Math.PI); g.stroke();
+
+    g.fillStyle = "#dbe9f4"; g.fillRect(55, 250, 170, 46);
+    g.fillStyle = "#1c2b3a"; g.font = "bold 21px monospace"; g.fillText("RAKSHA 1930", 68, 280);
+
+    g.fillStyle = "#f4f0df"; g.fillRect(305, 205, 145, 115);
+    g.fillStyle = "#334155";
+    for (let i = 0; i < 6; i += 1) g.fillRect(320, 222 + i * 15, 112 - (i % 2) * 28, 5);
+
+    g.setLineDash([7, 5]); g.lineWidth = 2; g.strokeStyle = "rgba(61,214,208,.85)";
+    const regions = makeRegions(480, 360);
+    regions.forEach((r) => {
+      g.strokeRect(r.x, r.y, r.w, r.h);
+      g.fillStyle = "rgba(61,214,208,.95)"; g.font = "bold 12px system-ui";
+      g.fillText(r.label, r.x + 5, r.y + 15);
+    });
+    g.setLineDash([]);
+  }
+
+  function makeRegions(w, h) {
+    const raw = [
+      { label: "FACE", x: .32 * w, y: .08 * h, w: .26 * w, h: .34 * h, block: 14 },
+      { label: "PLATE", x: .06 * w, y: .66 * h, w: .36 * w, h: .16 * h, block: 9 },
+      { label: "DOC", x: .60 * w, y: .53 * h, w: .35 * w, h: .34 * h, block: 11 },
+    ];
+    return raw.map((r) => ({
+      label: r.label,
+      x: Math.max(0, Math.round(r.x)),
+      y: Math.max(0, Math.round(r.y)),
+      w: Math.max(8, Math.round(Math.min(r.w, w - r.x))),
+      h: Math.max(8, Math.round(Math.min(r.h, h - r.y))),
+      block: r.block,
+    }));
+  }
+
+  function drawReady() {
+    const c = $("protectedCanvas");
+    const g = c.getContext("2d");
+    g.fillStyle = "#0a1726"; g.fillRect(0, 0, c.width, c.height);
+    g.fillStyle = "#8fb0c9"; g.font = "16px system-ui"; g.textAlign = "center";
+    g.fillText("Ready — click Protect image", c.width / 2, c.height / 2);
+    g.textAlign = "start";
+  }
+
+  function pixelateRegion(ctx, r) {
+    const off = document.createElement("canvas");
+    off.width = Math.max(1, Math.floor(r.w / r.block));
+    off.height = Math.max(1, Math.floor(r.h / r.block));
+    off.getContext("2d").drawImage(ctx.canvas, r.x, r.y, r.w, r.h, 0, 0, off.width, off.height);
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(off, 0, 0, off.width, off.height, r.x, r.y, r.w, r.h);
+    ctx.imageSmoothingEnabled = true;
+  }
+
+  function protect() {
+    const source = $("sourceCanvas");
+    const out = $("protectedCanvas");
+    if (!source.width || !source.height) makeSample();
+    const w = source.width, h = source.height;
+    out.width = w; out.height = h;
+    const ctx = out.getContext("2d");
+    ctx.drawImage(source, 0, 0);
+    const regions = makeRegions(w, h);
+    regions.forEach((r) => pixelateRegion(ctx, r));
+
+    const img = ctx.getImageData(0, 0, w, h);
+    const rand = mulberry32(42);
+    for (let y = 0; y < h; y += 1) {
+      for (let x = 0; x < w; x += 1) {
+        const inside = regions.some((r) => x >= r.x && x < r.x + r.w && y >= r.y && y < r.y + r.h);
+        const n = (rand() - 0.5) * (inside ? 38 : 7);
+        const i = (y * w + x) * 4;
+        img.data[i] = clamp(img.data[i] + n);
+        img.data[i + 1] = clamp(img.data[i + 1] + n);
+        img.data[i + 2] = clamp(img.data[i + 2] + n);
+      }
+    }
+    ctx.putImageData(img, 0, 0);
+    ctx.setLineDash([6, 4]); ctx.lineWidth = 2; ctx.strokeStyle = "rgba(61,214,208,.9)";
+    regions.forEach((r) => ctx.strokeRect(r.x, r.y, r.w, r.h));
+    ctx.setLineDash([]);
+
+    const audit = {
+      application: "VIGIL Citizen demo",
+      mode: "DEMO_TRANSFORM",
+      neural_weights_loaded: false,
+      seed: 42,
+      transform: "pixelate + seeded noise",
+      regions: regions.map((r) => ({ label: r.label, x: r.x, y: r.y, w: r.w, h: r.h })),
+      png_metadata: "stripped",
+      real_world_privacy_efficacy: "UNMEASURED",
+    };
+    $("auditJson").textContent = JSON.stringify(audit, null, 2);
+    $("vigilStatus").textContent = "Protected " + regions.length + " simulated regions · seed 42 · PNG ready.";
+    const link = $("downloadPng");
+    link.href = out.toDataURL("image/png");
+    link.hidden = false;
+  }
+
+  function loadImageFile(file) {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = function () {
+      const source = $("sourceCanvas");
+      const scale = Math.min(480 / img.width, 360 / img.height, 1);
+      source.width = Math.max(1, Math.round(img.width * scale));
+      source.height = Math.max(1, Math.round(img.height * scale));
+      source.getContext("2d").drawImage(img, 0, 0, source.width, source.height);
+      const out = $("protectedCanvas");
+      out.width = source.width; out.height = source.height;
+      drawReady();
+      $("auditJson").textContent = "{}";
+      $("downloadPng").hidden = true;
+      $("vigilStatus").textContent = "Image loaded — click “Protect image”.";
+      URL.revokeObjectURL(url);
+    };
+    img.onerror = function () {
+      $("vigilStatus").textContent = "Could not read that image.";
+      URL.revokeObjectURL(url);
+    };
+    img.src = url;
+  }
+
+  const QUEUE_KEY = "raksha-citizen-demo-queue";
+  let queue = [];
+  try { queue = JSON.parse(localStorage.getItem(QUEUE_KEY) || "[]"); } catch (e) { queue = []; }
+
+  function renderQueue() {
+    $("queueCount").textContent = String(queue.length);
+    const list = $("queueList");
+    if (!queue.length) {
+      list.innerHTML = "<li class='muted'>No queued reports.</li>";
+      return;
+    }
+    list.innerHTML = queue.slice(-4).reverse().map((r) =>
+      "<li>" + escapeHtml(r.text) + "<span>" + escapeHtml(r.at) + " · " + escapeHtml(r.id) + "</span></li>"
+    ).join("");
+  }
+
+  function addReport() {
+    const text = $("messageText").value.trim() || "Citizen demo report";
+    queue.push({ id: "R" + Date.now(), text: text.slice(0, 120), at: new Date().toLocaleTimeString() });
+    if (queue.length > 8) queue = queue.slice(-8);
+    try { localStorage.setItem(QUEUE_KEY, JSON.stringify(queue)); } catch (e) { /* storage optional */ }
+    renderQueue();
+  }
+
+  function init() {
+    $("scanBtn").addEventListener("click", scan);
+    $("sampleTextBtn").addEventListener("click", function () {
+      $("messageText").value = "Aapka OTP batao warna account band ho jayega. UPI collect request approve karo abhi.";
+      scan();
+    });
+    $("clearScanBtn").addEventListener("click", function () {
+      $("messageText").value = "";
+      $("scanResult").className = "verdict low";
+      $("scanResult").innerHTML = "<div class='band'>Ready</div><div class='score'>—</div><div class='muted'>Click “Scan message” to see a simulated verdict.</div>";
+    });
+
+    $("protectBtn").addEventListener("click", protect);
+    $("sampleImageBtn").addEventListener("click", function () { makeSample(); protect(); });
+    $("imageInput").addEventListener("change", function (e) {
+      const file = e.target.files && e.target.files[0];
+      if (file) loadImageFile(file);
+    });
+
+    $("queueBtn").addEventListener("click", addReport);
+    $("clearQueueBtn").addEventListener("click", function () {
+      queue = [];
+      try { localStorage.removeItem(QUEUE_KEY); } catch (e) { /* storage optional */ }
+      renderQueue();
+    });
+    $("panicBtn").addEventListener("click", function () { $("panicOverlay").hidden = false; });
+    $("cancelPanic").addEventListener("click", function () { $("panicOverlay").hidden = true; });
+    $("familyToggle").addEventListener("change", function (e) {
+      document.body.classList.toggle("family", e.target.checked);
+      $("familyLabel").textContent = e.target.checked ? "(on)" : "(off)";
+    });
+
+    makeSample();
+    protect();
+    scan();
+    renderQueue();
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init);
+  } else {
+    init();
+  }
+})();
+</script>
+</body>
+</html>

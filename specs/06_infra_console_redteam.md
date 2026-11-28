@@ -1,3 +1,5 @@
+> Historical provenance: the retired voice-scorer code was removed from executable paths. Active status lives in [docs/STATUS.md](../docs/STATUS.md); see the [retired code note](../archive/provenance/RETIRED.md). Real-world privacy efficacy remains UNMEASURED.
+
 # PART 6 — INFRA: CONSOLE, RED-TEAM & OBSERVABILITY
 ## (SOC console · RAAVAN kill chain · eval harness)
 
@@ -7,19 +9,23 @@
 > **Team size.** 2–3 people (1 frontend, 1 red-team, 1 measurement).
 > **Depends on:** Parts 4, 5 and 7.
 >
-> **This part contains the single largest visible gap in the project.**
+> **Active implementation note.** This historical specification described the
+> missing company-side UI. The active workspace now has an operable read-only SOC
+> console at `/app/console` and a functional synthetic attack exercise at
+> `/demo/hospital`. The exercise drives signed and deliberately invalid events
+> through the active detector, quarantine, campaign-fusion, Governor, ledger and
+> dry-run executor path in an isolated runtime. It uses a fake hospital, not
+> real patient data, real network traffic or live containment.
 
 ---
 
-## 1. The console ❌ NOT BUILT
+## 1. The console ✅ BUILT (historical gap)
 
-There is **no company-side UI at all.** The bus serves JSON and a websocket, and
-its root endpoint literally says:
-
-> `"dashboard": "served separately — see raksha/ROADMAP.md (SOC console owned by UI/UX team)"`
-
-Everything Parts 4, 5 and 7 do — eight organs detecting, a planner cutting, a
-Governor refusing, a ledger sealing — is currently only visible through `curl`.
+The historical gap — a JSON/websocket backend with no company-side UI — is
+closed. `/app/console` renders status, campaign, ledger, organ, decision and
+quarantine surfaces; `/demo/hospital` adds start/step/play/reset controls for a
+scripted attack series on a synthetic organisation. The read-only console does
+not mutate safety state, and demo controls mutate only the isolated scenario.
 
 ### 1.1 Why this is the highest-value work in the repo
 

@@ -1,3 +1,5 @@
+> Historical provenance: the retired voice-scorer code was removed from executable paths. Active status lives in [docs/STATUS.md](../docs/STATUS.md); see the [retired code note](../archive/provenance/RETIRED.md). Real-world privacy efficacy remains UNMEASURED.
+
 # PART 1 — PHASE 3 · HARDEN & SHIP ✅ COMPLETE
 
 > **This file is the Phase 3 build plan and build log.** Phase 3 is where the

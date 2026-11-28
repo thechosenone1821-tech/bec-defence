@@ -18,15 +18,15 @@ const F = require(path.join(__dirname, "..", "citizen", "app", "family.js"));
 /* ------------------------------------------------------------------ */
 /* 1. Panic — the order is the safety property                        */
 /* ------------------------------------------------------------------ */
-test("panic runs LOCK, then STOP_CAPTURE, then DIAL", () => {
+test("panic runs LOCK, then CLOSE_IMAGE_SESSION, then DIAL", () => {
   const trace = [];
   const out = P.runPanic({
     lock: () => trace.push("lock"),
-    stopCapture: () => trace.push("stop"),
+    closeImageSession: () => trace.push("stop"),
     dial: () => trace.push("dial"),
   });
   assert.deepStrictEqual(trace, ["lock", "stop", "dial"]);
-  assert.deepStrictEqual(out.done, ["LOCK", "STOP_CAPTURE", "DIAL"]);
+  assert.deepStrictEqual(out.done, ["LOCK", "CLOSE_IMAGE_SESSION", "DIAL"]);
   assert.deepStrictEqual(out.failed, []);
 });
 
@@ -34,56 +34,56 @@ test("the lock always precedes the dial", () => {
   const trace = [];
   P.runPanic({
     lock: () => trace.push("lock"),
-    stopCapture: () => trace.push("stop"),
+    closeImageSession: () => trace.push("stop"),
     dial: () => trace.push("dial"),
   });
   assert.ok(trace.indexOf("lock") < trace.indexOf("dial"),
     "dialling before locking leaves the scam screen visible underneath");
 });
 
-test("capture is stopped before the dialler opens", () => {
+test("image session is closed before the dialler opens", () => {
   const trace = [];
   P.runPanic({
     lock: () => trace.push("lock"),
-    stopCapture: () => trace.push("stop"),
+    closeImageSession: () => trace.push("stop"),
     dial: () => trace.push("dial"),
   });
   assert.ok(trace.indexOf("stop") < trace.indexOf("dial"),
-    "audio must not still be recording when the call starts");
+    "image must not still be image buffer when the call starts");
 });
 
 test("a broken overlay does not prevent the call to 1930", () => {
   const trace = [];
   const out = P.runPanic({
     lock: () => { throw new Error("render failed"); },
-    stopCapture: () => trace.push("stop"),
+    closeImageSession: () => trace.push("stop"),
     dial: () => trace.push("dial"),
   });
   assert.deepStrictEqual(trace, ["stop", "dial"]);
   assert.ok(out.failed.includes("LOCK"));
 });
 
-test("a broken buffer-zero does not prevent the call either", () => {
+test("a broken buffer clear does not prevent the call either", () => {
   const trace = [];
   const out = P.runPanic({
     lock: () => trace.push("lock"),
-    stopCapture: () => { throw new Error("worklet gone"); },
+    closeImageSession: () => { throw new Error("buffer gone"); },
     dial: () => trace.push("dial"),
   });
   assert.deepStrictEqual(trace, ["lock", "dial"]);
-  assert.ok(out.failed.includes("STOP_CAPTURE"));
+  assert.ok(out.failed.includes("CLOSE_IMAGE_SESSION"));
 });
 
 test("every missing effect is reported, none is silently skipped", () => {
   const out = P.runPanic({ dial: () => {} });
-  assert.deepStrictEqual(out.failed, ["LOCK", "STOP_CAPTURE"]);
+  assert.deepStrictEqual(out.failed, ["LOCK", "CLOSE_IMAGE_SESSION"]);
   assert.deepStrictEqual(out.done, ["DIAL"]);
 });
 
 test("runPanic never throws, whatever it is handed", () => {
   assert.doesNotThrow(() => P.runPanic());
   assert.doesNotThrow(() => P.runPanic({}));
-  assert.doesNotThrow(() => P.runPanic({ lock: 42, stopCapture: null, dial: "x" }));
+  assert.doesNotThrow(() => P.runPanic({ lock: 42, closeImageSession: null, dial: "x" }));
 });
 
 test("state is LOCKED only when the lock actually succeeded", () => {
@@ -114,15 +114,15 @@ test("unknown language falls back to English", () => {
   assert.strictEqual(P.panicCopy().title, P.panicCopy("en").title);
 });
 
-test("panic copy tells the truth about the microphone and buffer", () => {
+test("panic copy tells the truth about the image buffer and pixels", () => {
   const c = P.panicCopy("en");
-  assert.match((c.body + c.calling).toLowerCase(), /microphone|buffer/);
+  assert.match((c.body + c.calling).toLowerCase(), /image|pixels|buffer/);
 });
 
-test("panic copy never claims it killed other apps or sessions", () => {
+test("panic copy never claims it killed other apps", () => {
   for (const lang of ["en", "hi", "te"]) {
     const blob = JSON.stringify(P.panicCopy(lang)).toLowerCase();
-    assert.ok(!blob.includes("session"), `${lang} claims session control`);
+    assert.ok(!blob.includes("other apps"), `${lang} claims control of other apps`);
     assert.ok(!blob.includes("lock the screen"));
   }
 });

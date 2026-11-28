@@ -1,5 +1,5 @@
 {
-  "_readme": "Synthetic labeled fixtures for MessageGuard development + eval. Hand-authored examples in English/Hindi/Telugu; designed to exercise signal families, NOT to represent real scam traffic statistics. Expected labels are coarse verdict bands.",
+  "_readme": "Legacy 20-item M3 smoke corpus kept for API/regression compatibility. Hand-authored en/hi/te examples; NOT a measurement corpus and NOT representative of real traffic. MessageGuard v1 uses the canonical 538 hand-authored / in-distribution fixture corpus; real-world recall and FPR are UNMEASURED (see ../../../EVALS.md).",
   "scam": [
     {"lang": "en", "text": "URGENT: Your bank KYC has expired. Click bit.ly/update-kyc-now and verify your account within 24 hours or your account will be blocked.", "expect_at_least": "HIGH"},
     {"lang": "en", "text": "This is Cyber Crime Branch. An arrest warrant has been issued in your name. Digital arrest proceedings start now — transfer the fine amount immediately to avoid jail.", "expect_at_least": "CRITICAL"},

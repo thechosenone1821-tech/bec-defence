@@ -1,0 +1,571 @@
+{
+  "benign_fp_cases": [
+    {
+      "families_fired": [
+        "link_grab",
+        "urgency"
+      ],
+      "id": "BN-EN-024",
+      "kind": "genuine_bank_kyc_alert",
+      "lang": "en",
+      "score": 0.45,
+      "text": "HDFC Bank KYC alert: Update your KYC immediately to avoid deactivation of your account. Visit hdfcbank.com/kyc",
+      "verdict": "HIGH"
+    },
+    {
+      "families_fired": [
+        "link_grab"
+      ],
+      "id": "BN-EN-025",
+      "kind": "genuine_bank_kyc_alert",
+      "lang": "en",
+      "score": 0.25,
+      "text": "SBI: Update KYC now at bit.ly/sbi-kyc to keep your account active.",
+      "verdict": "MODERATE"
+    },
+    {
+      "families_fired": [
+        "link_grab",
+        "urgency"
+      ],
+      "id": "BN-EN-026",
+      "kind": "genuine_bank_kyc_alert",
+      "lang": "en",
+      "score": 0.45,
+      "text": "ICICI Bank: KYC update pending. Update your PAN card details immediately at icicibank.com/kyc-update else card suspended.",
+      "verdict": "HIGH"
+    },
+    {
+      "families_fired": [
+        "prize"
+      ],
+      "id": "BN-EN-031",
+      "kind": "marketing_offer",
+      "lang": "en",
+      "score": 0.3,
+      "text": "Win exciting coupons this Diwali with Paytm! Play the in-app lucky draw now.",
+      "verdict": "MODERATE"
+    },
+    {
+      "families_fired": [
+        "urgency"
+      ],
+      "id": "BN-EN-033",
+      "kind": "broker_market_info",
+      "lang": "en",
+      "score": 0.2,
+      "text": "Angel One: Your demat account is active. Market opens at 9:15 AM today.",
+      "verdict": "MODERATE"
+    },
+    {
+      "families_fired": [
+        "link_grab",
+        "urgency"
+      ],
+      "id": "BN-HI-024",
+      "kind": "genuine_bank_kyc_alert",
+      "lang": "hi",
+      "score": 0.45,
+      "text": "\u090f\u091a\u0921\u0940\u090f\u092b\u0938\u0940 \u092c\u0948\u0902\u0915 \u0915\u0947\u0935\u093e\u0908\u0938\u0940 \u0905\u0932\u0930\u094d\u091f: \u0916\u093e\u0924\u093e \u0921\u0940-\u090f\u0915\u094d\u091f\u093f\u0935\u0947\u0936\u0928 \u0938\u0947 \u092c\u091a\u0928\u0947 \u0915\u0947 \u0932\u093f\u090f \u0924\u0941\u0930\u0902\u0924 \u0915\u0947\u0935\u093e\u0908\u0938\u0940 \u0905\u092a\u0921\u0947\u091f \u0915\u0930\u0947\u0902\u0964 hdfcbank.com/kyc \u092a\u0930 \u091c\u093e\u090f\u0902\u0964",
+      "verdict": "HIGH"
+    },
+    {
+      "families_fired": [
+        "link_grab"
+      ],
+      "id": "BN-HI-025",
+      "kind": "genuine_bank_kyc_alert",
+      "lang": "hi",
+      "score": 0.25,
+      "text": "\u090f\u0938\u092c\u0940\u0906\u0908: \u0916\u093e\u0924\u093e \u090f\u0915\u094d\u091f\u093f\u0935 \u0930\u0916\u0928\u0947 \u0915\u0947 \u0932\u093f\u090f \u0905\u092d\u0940 bit.ly/sbi-kyc \u092a\u0930 \u0915\u0947\u0935\u093e\u0908\u0938\u0940 \u0905\u092a\u0921\u0947\u091f \u0915\u0930\u0947\u0902\u0964",
+      "verdict": "MODERATE"
+    },
+    {
+      "families_fired": [
+        "link_grab",
+        "urgency"
+      ],
+      "id": "BN-HI-026",
+      "kind": "genuine_bank_kyc_alert",
+      "lang": "hi",
+      "score": 0.45,
+      "text": "\u0906\u0908\u0938\u0940\u0906\u0908\u0938\u0940\u0906\u0908 \u092c\u0948\u0902\u0915: \u0915\u0947\u0935\u093e\u0908\u0938\u0940 \u0905\u092a\u0921\u0947\u091f \u0932\u0902\u092c\u093f\u0924\u0964 icicibank.com/kyc-update \u092a\u0930 \u092a\u0948\u0928 \u0915\u093e\u0930\u094d\u0921 \u0935\u093f\u0935\u0930\u0923 \u0924\u0941\u0930\u0902\u0924 \u0905\u092a\u0921\u0947\u091f \u0915\u0930\u0947\u0902, \u0905\u0928\u094d\u092f\u0925\u093e \u0915\u093e\u0930\u094d\u0921 \u0928\u093f\u0932\u0902\u092c\u093f\u0924\u0964",
+      "verdict": "HIGH"
+    },
+    {
+      "families_fired": [
+        "prize"
+      ],
+      "id": "BN-HI-031",
+      "kind": "marketing_offer",
+      "lang": "hi",
+      "score": 0.3,
+      "text": "\u092a\u0947\u091f\u0940\u090f\u092e \u0915\u0947 \u0938\u093e\u0925 \u0907\u0938 \u0926\u093f\u0935\u093e\u0932\u0940 \u0936\u093e\u0928\u0926\u093e\u0930 \u0915\u0942\u092a\u0928 \u091c\u0940\u0924\u0947\u0902! \u0910\u092a \u092e\u0947\u0902 \u0932\u0915\u0940 \u0921\u094d\u0930\u0949 \u0916\u0947\u0932\u0947\u0902\u0964",
+      "verdict": "MODERATE"
+    },
+    {
+      "families_fired": [
+        "link_grab",
+        "urgency"
+      ],
+      "id": "BN-TE-024",
+      "kind": "genuine_bank_kyc_alert",
+      "lang": "te",
+      "score": 0.45,
+      "text": "\u0c39\u0c46\u0c1a\u0c4d\u200c\u0c21\u0c40\u0c0e\u0c2b\u0c4d\u200c\u0c38\u0c40 \u0c2c\u0c4d\u0c2f\u0c3e\u0c02\u0c15\u0c4d \u0c15\u0c46\u0c35\u0c3e\u0c08\u0c38\u0c40 \u0c05\u0c32\u0c30\u0c4d\u0c1f\u0c4d: \u0c16\u0c3e\u0c24\u0c3e \u0c21\u0c40-\u0c2f\u0c3e\u0c15\u0c4d\u0c1f\u0c3f\u0c35\u0c47\u0c37\u0c28\u0c4d \u0c28\u0c41\u0c02\u0c1a\u0c3f \u0c24\u0c2a\u0c4d\u0c2a\u0c3f\u0c02\u0c1a\u0c41\u0c15\u0c4b\u0c35\u0c21\u0c3e\u0c28\u0c3f\u0c15\u0c3f \u0c35\u0c46\u0c02\u0c1f\u0c28\u0c47 \u0c15\u0c46\u0c35\u0c3e\u0c08\u0c38\u0c40 \u0c05\u0c2a\u0c4d\u200c\u0c21\u0c47\u0c1f\u0c4d \u0c1a\u0c47\u0c2f\u0c02\u0c21\u0c3f. hdfcbank.com/kyc \u0c32\u0c4b \u0c1a\u0c42\u0c21\u0c02\u0c21\u0c3f.",
+      "verdict": "HIGH"
+    },
+    {
+      "families_fired": [
+        "link_grab"
+      ],
+      "id": "BN-TE-025",
+      "kind": "genuine_bank_kyc_alert",
+      "lang": "te",
+      "score": 0.25,
+      "text": "\u0c0e\u0c38\u0c4d\u200c\u0c2c\u0c40\u0c10: \u0c16\u0c3e\u0c24\u0c3e \u0c2f\u0c3e\u0c15\u0c4d\u0c1f\u0c3f\u0c35\u0c4d\u200c\u0c17\u0c3e \u0c09\u0c02\u0c1a\u0c21\u0c3e\u0c28\u0c3f\u0c15\u0c3f \u0c07\u0c2a\u0c4d\u0c2a\u0c41\u0c21\u0c47 bit.ly/sbi-kyc \u0c32\u0c4b \u0c15\u0c46\u0c35\u0c3e\u0c08\u0c38\u0c40 \u0c05\u0c2a\u0c4d\u200c\u0c21\u0c47\u0c1f\u0c4d \u0c1a\u0c47\u0c2f\u0c02\u0c21\u0c3f.",
+      "verdict": "MODERATE"
+    },
+    {
+      "families_fired": [
+        "link_grab",
+        "urgency"
+      ],
+      "id": "BN-TE-026",
+      "kind": "genuine_bank_kyc_alert",
+      "lang": "te",
+      "score": 0.45,
+      "text": "\u0c10\u0c38\u0c40\u0c10\u0c38\u0c40\u0c10 \u0c2c\u0c4d\u0c2f\u0c3e\u0c02\u0c15\u0c4d: \u0c15\u0c46\u0c35\u0c3e\u0c08\u0c38\u0c40 \u0c05\u0c2a\u0c4d\u200c\u0c21\u0c47\u0c1f\u0c4d \u0c2a\u0c46\u0c02\u0c21\u0c3f\u0c02\u0c17\u0c4d. icicibank.com/kyc-update \u0c32\u0c4b \u0c2a\u0c3e\u0c28\u0c4d \u0c15\u0c3e\u0c30\u0c4d\u0c21\u0c4d \u0c35\u0c3f\u0c35\u0c30\u0c3e\u0c32\u0c41 \u0c35\u0c46\u0c02\u0c1f\u0c28\u0c47 \u0c05\u0c2a\u0c4d\u200c\u0c21\u0c47\u0c1f\u0c4d \u0c1a\u0c47\u0c2f\u0c02\u0c21\u0c3f, \u0c32\u0c47\u0c26\u0c02\u0c1f\u0c47 \u0c15\u0c3e\u0c30\u0c4d\u0c21\u0c4d \u0c38\u0c38\u0c4d\u0c2a\u0c46\u0c02\u0c21\u0c4d.",
+      "verdict": "HIGH"
+    },
+    {
+      "families_fired": [
+        "money_action"
+      ],
+      "id": "BN-TE-029",
+      "kind": "toll_challan",
+      "lang": "te",
+      "score": 0.3,
+      "text": "\u0c1f\u0c4b\u0c32\u0c4d \u0c28\u0c4b\u0c1f\u0c40\u0c38\u0c41: \u0c35\u0c3e\u0c39\u0c28\u0c02 TN-09-CD-4321 \u0c2b\u0c3e\u0c38\u0c4d\u0c1f\u0c4d\u200c\u0c1f\u0c4d\u0c2f\u0c3e\u0c17\u0c4d \u0c32\u0c47\u0c15\u0c41\u0c02\u0c21\u0c3e \u0c1f\u0c4b\u0c32\u0c4d \u0c26\u0c3e\u0c1f\u0c3f\u0c02\u0c26\u0c3f. \u20b960 \u0c1f\u0c4b\u0c32\u0c4d \u0c35\u0c26\u0c4d\u0c26 \u0c1a\u0c46\u0c32\u0c4d\u0c32\u0c3f\u0c02\u0c1a\u0c02\u0c21\u0c3f.",
+      "verdict": "MODERATE"
+    },
+    {
+      "families_fired": [
+        "prize"
+      ],
+      "id": "BN-TE-031",
+      "kind": "marketing_offer",
+      "lang": "te",
+      "score": 0.3,
+      "text": "\u0c2a\u0c47\u0c1f\u0c40\u0c0e\u0c02\u0c24\u0c4b \u0c08 \u0c26\u0c40\u0c2a\u0c3e\u0c35\u0c33\u0c3f\u0c15\u0c3f \u0c05\u0c26\u0c4d\u0c2d\u0c41\u0c24 \u0c15\u0c42\u0c2a\u0c28\u0c4d\u0c32\u0c41 \u0c17\u0c46\u0c32\u0c41\u0c1a\u0c41\u0c15\u0c4b\u0c02\u0c21\u0c3f! \u0c2f\u0c3e\u0c2a\u0c4d\u200c\u0c32\u0c4b \u0c32\u0c15\u0c4d\u0c15\u0c40 \u0c21\u0c4d\u0c30\u0c3e \u0c06\u0c21\u0c02\u0c21\u0c3f.",
+      "verdict": "MODERATE"
+    }
+  ],
+  "condition": "hand-authored / in-distribution; real-world recall and FPR UNMEASURED",
+  "corpus": {
+    "benign_by_lang": {
+      "en": 40,
+      "hi": 40,
+      "hinglish": 16,
+      "te": 40
+    },
+    "benign_total": 136,
+    "claim_scope": "hand-authored / in-distribution; real-world recall and FPR UNMEASURED",
+    "fixture_total": 538,
+    "scam_by_lang": {
+      "en": 120,
+      "hi": 132,
+      "hinglish": 30,
+      "te": 120
+    },
+    "scam_total": 402
+  },
+  "detector_interface": "apps/citizen/messageguard",
+  "engine": "messageguard-rules-v1 (538 hand-authored/in-distribution fixtures; real-world UNMEASURED)",
+  "family_recall": {
+    "authority": {
+      "hit": 157,
+      "labelled": 157,
+      "recall": 1.0
+    },
+    "credential": {
+      "hit": 96,
+      "labelled": 96,
+      "recall": 1.0
+    },
+    "link_grab": {
+      "hit": 124,
+      "labelled": 124,
+      "recall": 1.0
+    },
+    "money_action": {
+      "hit": 225,
+      "labelled": 225,
+      "recall": 1.0
+    },
+    "prize": {
+      "hit": 56,
+      "labelled": 56,
+      "recall": 1.0
+    },
+    "urgency": {
+      "hit": 269,
+      "labelled": 269,
+      "recall": 1.0
+    }
+  },
+  "generated_report": "EVALS.md",
+  "languages": {
+    "en": {
+      "benign_total": 40,
+      "critical_count": 65,
+      "detection_rate_high": 0.5417,
+      "detection_rate_moderate": 0.9917,
+      "family_recall": {
+        "authority": {
+          "hit": 46,
+          "labelled": 46,
+          "recall": 1.0
+        },
+        "credential": {
+          "hit": 27,
+          "labelled": 27,
+          "recall": 1.0
+        },
+        "link_grab": {
+          "hit": 38,
+          "labelled": 38,
+          "recall": 1.0
+        },
+        "money_action": {
+          "hit": 67,
+          "labelled": 67,
+          "recall": 1.0
+        },
+        "prize": {
+          "hit": 17,
+          "labelled": 17,
+          "recall": 1.0
+        },
+        "urgency": {
+          "hit": 72,
+          "labelled": 72,
+          "recall": 1.0
+        }
+      },
+      "fp_cases": [
+        {
+          "families_fired": [
+            "link_grab",
+            "urgency"
+          ],
+          "id": "BN-EN-024",
+          "kind": "genuine_bank_kyc_alert",
+          "score": 0.45,
+          "text": "HDFC Bank KYC alert: Update your KYC immediately to avoid deactivation of your account. Visit hdfcbank.com/kyc",
+          "verdict": "HIGH"
+        },
+        {
+          "families_fired": [
+            "link_grab"
+          ],
+          "id": "BN-EN-025",
+          "kind": "genuine_bank_kyc_alert",
+          "score": 0.25,
+          "text": "SBI: Update KYC now at bit.ly/sbi-kyc to keep your account active.",
+          "verdict": "MODERATE"
+        },
+        {
+          "families_fired": [
+            "link_grab",
+            "urgency"
+          ],
+          "id": "BN-EN-026",
+          "kind": "genuine_bank_kyc_alert",
+          "score": 0.45,
+          "text": "ICICI Bank: KYC update pending. Update your PAN card details immediately at icicibank.com/kyc-update else card suspended.",
+          "verdict": "HIGH"
+        },
+        {
+          "families_fired": [
+            "prize"
+          ],
+          "id": "BN-EN-031",
+          "kind": "marketing_offer",
+          "score": 0.3,
+          "text": "Win exciting coupons this Diwali with Paytm! Play the in-app lucky draw now.",
+          "verdict": "MODERATE"
+        },
+        {
+          "families_fired": [
+            "urgency"
+          ],
+          "id": "BN-EN-033",
+          "kind": "broker_market_info",
+          "score": 0.2,
+          "text": "Angel One: Your demat account is active. Market opens at 9:15 AM today.",
+          "verdict": "MODERATE"
+        }
+      ],
+      "fp_high": 0,
+      "fp_moderate": 5,
+      "fpr_high": 0.0,
+      "fpr_moderate": 0.125,
+      "scam_caught_high": 65,
+      "scam_caught_moderate": 119,
+      "scam_total": 120,
+      "tn_moderate": 35
+    },
+    "hi": {
+      "benign_total": 40,
+      "critical_count": 74,
+      "detection_rate_high": 0.5606,
+      "detection_rate_moderate": 0.9924,
+      "family_recall": {
+        "authority": {
+          "hit": 53,
+          "labelled": 53,
+          "recall": 1.0
+        },
+        "credential": {
+          "hit": 30,
+          "labelled": 30,
+          "recall": 1.0
+        },
+        "link_grab": {
+          "hit": 40,
+          "labelled": 40,
+          "recall": 1.0
+        },
+        "money_action": {
+          "hit": 74,
+          "labelled": 74,
+          "recall": 1.0
+        },
+        "prize": {
+          "hit": 19,
+          "labelled": 19,
+          "recall": 1.0
+        },
+        "urgency": {
+          "hit": 91,
+          "labelled": 91,
+          "recall": 1.0
+        }
+      },
+      "fp_cases": [
+        {
+          "families_fired": [
+            "link_grab",
+            "urgency"
+          ],
+          "id": "BN-HI-024",
+          "kind": "genuine_bank_kyc_alert",
+          "score": 0.45,
+          "text": "\u090f\u091a\u0921\u0940\u090f\u092b\u0938\u0940 \u092c\u0948\u0902\u0915 \u0915\u0947\u0935\u093e\u0908\u0938\u0940 \u0905\u0932\u0930\u094d\u091f: \u0916\u093e\u0924\u093e \u0921\u0940-\u090f\u0915\u094d\u091f\u093f\u0935\u0947\u0936\u0928 \u0938\u0947 \u092c\u091a\u0928\u0947 \u0915\u0947 \u0932\u093f\u090f \u0924\u0941\u0930\u0902\u0924 \u0915\u0947\u0935\u093e\u0908\u0938\u0940 \u0905\u092a\u0921\u0947\u091f \u0915\u0930\u0947\u0902\u0964 hdfcbank.com/kyc \u092a\u0930 \u091c\u093e\u090f\u0902\u0964",
+          "verdict": "HIGH"
+        },
+        {
+          "families_fired": [
+            "link_grab"
+          ],
+          "id": "BN-HI-025",
+          "kind": "genuine_bank_kyc_alert",
+          "score": 0.25,
+          "text": "\u090f\u0938\u092c\u0940\u0906\u0908: \u0916\u093e\u0924\u093e \u090f\u0915\u094d\u091f\u093f\u0935 \u0930\u0916\u0928\u0947 \u0915\u0947 \u0932\u093f\u090f \u0905\u092d\u0940 bit.ly/sbi-kyc \u092a\u0930 \u0915\u0947\u0935\u093e\u0908\u0938\u0940 \u0905\u092a\u0921\u0947\u091f \u0915\u0930\u0947\u0902\u0964",
+          "verdict": "MODERATE"
+        },
+        {
+          "families_fired": [
+            "link_grab",
+            "urgency"
+          ],
+          "id": "BN-HI-026",
+          "kind": "genuine_bank_kyc_alert",
+          "score": 0.45,
+          "text": "\u0906\u0908\u0938\u0940\u0906\u0908\u0938\u0940\u0906\u0908 \u092c\u0948\u0902\u0915: \u0915\u0947\u0935\u093e\u0908\u0938\u0940 \u0905\u092a\u0921\u0947\u091f \u0932\u0902\u092c\u093f\u0924\u0964 icicibank.com/kyc-update \u092a\u0930 \u092a\u0948\u0928 \u0915\u093e\u0930\u094d\u0921 \u0935\u093f\u0935\u0930\u0923 \u0924\u0941\u0930\u0902\u0924 \u0905\u092a\u0921\u0947\u091f \u0915\u0930\u0947\u0902, \u0905\u0928\u094d\u092f\u0925\u093e \u0915\u093e\u0930\u094d\u0921 \u0928\u093f\u0932\u0902\u092c\u093f\u0924\u0964",
+          "verdict": "HIGH"
+        },
+        {
+          "families_fired": [
+            "prize"
+          ],
+          "id": "BN-HI-031",
+          "kind": "marketing_offer",
+          "score": 0.3,
+          "text": "\u092a\u0947\u091f\u0940\u090f\u092e \u0915\u0947 \u0938\u093e\u0925 \u0907\u0938 \u0926\u093f\u0935\u093e\u0932\u0940 \u0936\u093e\u0928\u0926\u093e\u0930 \u0915\u0942\u092a\u0928 \u091c\u0940\u0924\u0947\u0902! \u0910\u092a \u092e\u0947\u0902 \u0932\u0915\u0940 \u0921\u094d\u0930\u0949 \u0916\u0947\u0932\u0947\u0902\u0964",
+          "verdict": "MODERATE"
+        }
+      ],
+      "fp_high": 0,
+      "fp_moderate": 4,
+      "fpr_high": 0.0,
+      "fpr_moderate": 0.1,
+      "scam_caught_high": 74,
+      "scam_caught_moderate": 131,
+      "scam_total": 132,
+      "tn_moderate": 36
+    },
+    "hinglish": {
+      "benign_total": 16,
+      "critical_count": 19,
+      "detection_rate_high": 0.6333,
+      "detection_rate_moderate": 1.0,
+      "family_recall": {
+        "authority": {
+          "hit": 11,
+          "labelled": 11,
+          "recall": 1.0
+        },
+        "credential": {
+          "hit": 12,
+          "labelled": 12,
+          "recall": 1.0
+        },
+        "link_grab": {
+          "hit": 10,
+          "labelled": 10,
+          "recall": 1.0
+        },
+        "money_action": {
+          "hit": 16,
+          "labelled": 16,
+          "recall": 1.0
+        },
+        "prize": {
+          "hit": 3,
+          "labelled": 3,
+          "recall": 1.0
+        },
+        "urgency": {
+          "hit": 27,
+          "labelled": 27,
+          "recall": 1.0
+        }
+      },
+      "fp_cases": [],
+      "fp_high": 0,
+      "fp_moderate": 0,
+      "fpr_high": 0.0,
+      "fpr_moderate": 0.0,
+      "scam_caught_high": 19,
+      "scam_caught_moderate": 30,
+      "scam_total": 30,
+      "tn_moderate": 16
+    },
+    "te": {
+      "benign_total": 40,
+      "critical_count": 65,
+      "detection_rate_high": 0.5417,
+      "detection_rate_moderate": 0.9917,
+      "family_recall": {
+        "authority": {
+          "hit": 47,
+          "labelled": 47,
+          "recall": 1.0
+        },
+        "credential": {
+          "hit": 27,
+          "labelled": 27,
+          "recall": 1.0
+        },
+        "link_grab": {
+          "hit": 36,
+          "labelled": 36,
+          "recall": 1.0
+        },
+        "money_action": {
+          "hit": 68,
+          "labelled": 68,
+          "recall": 1.0
+        },
+        "prize": {
+          "hit": 17,
+          "labelled": 17,
+          "recall": 1.0
+        },
+        "urgency": {
+          "hit": 79,
+          "labelled": 79,
+          "recall": 1.0
+        }
+      },
+      "fp_cases": [
+        {
+          "families_fired": [
+            "link_grab",
+            "urgency"
+          ],
+          "id": "BN-TE-024",
+          "kind": "genuine_bank_kyc_alert",
+          "score": 0.45,
+          "text": "\u0c39\u0c46\u0c1a\u0c4d\u200c\u0c21\u0c40\u0c0e\u0c2b\u0c4d\u200c\u0c38\u0c40 \u0c2c\u0c4d\u0c2f\u0c3e\u0c02\u0c15\u0c4d \u0c15\u0c46\u0c35\u0c3e\u0c08\u0c38\u0c40 \u0c05\u0c32\u0c30\u0c4d\u0c1f\u0c4d: \u0c16\u0c3e\u0c24\u0c3e \u0c21\u0c40-\u0c2f\u0c3e\u0c15\u0c4d\u0c1f\u0c3f\u0c35\u0c47\u0c37\u0c28\u0c4d \u0c28\u0c41\u0c02\u0c1a\u0c3f \u0c24\u0c2a\u0c4d\u0c2a\u0c3f\u0c02\u0c1a\u0c41\u0c15\u0c4b\u0c35\u0c21\u0c3e\u0c28\u0c3f\u0c15\u0c3f \u0c35\u0c46\u0c02\u0c1f\u0c28\u0c47 \u0c15\u0c46\u0c35\u0c3e\u0c08\u0c38\u0c40 \u0c05\u0c2a\u0c4d\u200c\u0c21\u0c47\u0c1f\u0c4d \u0c1a\u0c47\u0c2f\u0c02\u0c21\u0c3f. hdfcbank.com/kyc \u0c32\u0c4b \u0c1a\u0c42\u0c21\u0c02\u0c21\u0c3f.",
+          "verdict": "HIGH"
+        },
+        {
+          "families_fired": [
+            "link_grab"
+          ],
+          "id": "BN-TE-025",
+          "kind": "genuine_bank_kyc_alert",
+          "score": 0.25,
+          "text": "\u0c0e\u0c38\u0c4d\u200c\u0c2c\u0c40\u0c10: \u0c16\u0c3e\u0c24\u0c3e \u0c2f\u0c3e\u0c15\u0c4d\u0c1f\u0c3f\u0c35\u0c4d\u200c\u0c17\u0c3e \u0c09\u0c02\u0c1a\u0c21\u0c3e\u0c28\u0c3f\u0c15\u0c3f \u0c07\u0c2a\u0c4d\u0c2a\u0c41\u0c21\u0c47 bit.ly/sbi-kyc \u0c32\u0c4b \u0c15\u0c46\u0c35\u0c3e\u0c08\u0c38\u0c40 \u0c05\u0c2a\u0c4d\u200c\u0c21\u0c47\u0c1f\u0c4d \u0c1a\u0c47\u0c2f\u0c02\u0c21\u0c3f.",
+          "verdict": "MODERATE"
+        },
+        {
+          "families_fired": [
+            "link_grab",
+            "urgency"
+          ],
+          "id": "BN-TE-026",
+          "kind": "genuine_bank_kyc_alert",
+          "score": 0.45,
+          "text": "\u0c10\u0c38\u0c40\u0c10\u0c38\u0c40\u0c10 \u0c2c\u0c4d\u0c2f\u0c3e\u0c02\u0c15\u0c4d: \u0c15\u0c46\u0c35\u0c3e\u0c08\u0c38\u0c40 \u0c05\u0c2a\u0c4d\u200c\u0c21\u0c47\u0c1f\u0c4d \u0c2a\u0c46\u0c02\u0c21\u0c3f\u0c02\u0c17\u0c4d. icicibank.com/kyc-update \u0c32\u0c4b \u0c2a\u0c3e\u0c28\u0c4d \u0c15\u0c3e\u0c30\u0c4d\u0c21\u0c4d \u0c35\u0c3f\u0c35\u0c30\u0c3e\u0c32\u0c41 \u0c35\u0c46\u0c02\u0c1f\u0c28\u0c47 \u0c05\u0c2a\u0c4d\u200c\u0c21\u0c47\u0c1f\u0c4d \u0c1a\u0c47\u0c2f\u0c02\u0c21\u0c3f, \u0c32\u0c47\u0c26\u0c02\u0c1f\u0c47 \u0c15\u0c3e\u0c30\u0c4d\u0c21\u0c4d \u0c38\u0c38\u0c4d\u0c2a\u0c46\u0c02\u0c21\u0c4d.",
+          "verdict": "HIGH"
+        },
+        {
+          "families_fired": [
+            "money_action"
+          ],
+          "id": "BN-TE-029",
+          "kind": "toll_challan",
+          "score": 0.3,
+          "text": "\u0c1f\u0c4b\u0c32\u0c4d \u0c28\u0c4b\u0c1f\u0c40\u0c38\u0c41: \u0c35\u0c3e\u0c39\u0c28\u0c02 TN-09-CD-4321 \u0c2b\u0c3e\u0c38\u0c4d\u0c1f\u0c4d\u200c\u0c1f\u0c4d\u0c2f\u0c3e\u0c17\u0c4d \u0c32\u0c47\u0c15\u0c41\u0c02\u0c21\u0c3e \u0c1f\u0c4b\u0c32\u0c4d \u0c26\u0c3e\u0c1f\u0c3f\u0c02\u0c26\u0c3f. \u20b960 \u0c1f\u0c4b\u0c32\u0c4d \u0c35\u0c26\u0c4d\u0c26 \u0c1a\u0c46\u0c32\u0c4d\u0c32\u0c3f\u0c02\u0c1a\u0c02\u0c21\u0c3f.",
+          "verdict": "MODERATE"
+        },
+        {
+          "families_fired": [
+            "prize"
+          ],
+          "id": "BN-TE-031",
+          "kind": "marketing_offer",
+          "score": 0.3,
+          "text": "\u0c2a\u0c47\u0c1f\u0c40\u0c0e\u0c02\u0c24\u0c4b \u0c08 \u0c26\u0c40\u0c2a\u0c3e\u0c35\u0c33\u0c3f\u0c15\u0c3f \u0c05\u0c26\u0c4d\u0c2d\u0c41\u0c24 \u0c15\u0c42\u0c2a\u0c28\u0c4d\u0c32\u0c41 \u0c17\u0c46\u0c32\u0c41\u0c1a\u0c41\u0c15\u0c4b\u0c02\u0c21\u0c3f! \u0c2f\u0c3e\u0c2a\u0c4d\u200c\u0c32\u0c4b \u0c32\u0c15\u0c4d\u0c15\u0c40 \u0c21\u0c4d\u0c30\u0c3e \u0c06\u0c21\u0c02\u0c21\u0c3f.",
+          "verdict": "MODERATE"
+        }
+      ],
+      "fp_high": 0,
+      "fp_moderate": 5,
+      "fpr_high": 0.0,
+      "fpr_moderate": 0.125,
+      "scam_caught_high": 65,
+      "scam_caught_moderate": 119,
+      "scam_total": 120,
+      "tn_moderate": 35
+    }
+  },
+  "measurement_scope": "hand-authored / in-distribution; real-world recall and FPR UNMEASURED",
+  "overall": {
+    "accuracy_moderate": 0.9684,
+    "claim_scope": "hand-authored / in-distribution; real-world recall and FPR UNMEASURED",
+    "fn_moderate": 3,
+    "fp_moderate": 14,
+    "fpr_moderate": 0.1029,
+    "precision_moderate": 0.9661,
+    "recall_moderate": 0.9925,
+    "tn_moderate": 122,
+    "tp_moderate": 399
+  },
+  "reason_catalogue": "packages/contracts/reasons.py",
+  "status": "ok"
+}

@@ -1,0 +1,497 @@
+{
+  "citizen": {
+    "cases": [
+      "health",
+      "features",
+      "manifest",
+      "root_redirect",
+      "vigil_dashboard",
+      "vigil_overview",
+      "vigil_static"
+    ],
+    "condition": "fixture / sandbox",
+    "model_backed": true,
+    "source": "apps/citizen/api.py",
+    "vigil_integrated": true
+  },
+  "claim_policy": {
+    "allowed_conditions": [
+      "fixture",
+      "synthetic",
+      "sandbox",
+      "local training",
+      "hand-authored",
+      "real-world UNMEASURED"
+    ],
+    "model_backed": true,
+    "real_world": "UNMEASURED",
+    "real_world_privacy_efficacy": "UNMEASURED",
+    "vigil_integrated": true
+  },
+  "conditions": {
+    "citizen": "fixture / sandbox",
+    "governance": "sandbox",
+    "messageguard": "hand-authored / in-distribution; real-world UNMEASURED",
+    "organs": "synthetic / sandbox",
+    "replay": "sandbox",
+    "vigil": "local training / fixture; real-world UNMEASURED"
+  },
+  "contract": "raksha-unified-corpus-v2",
+  "generated_by": "evals/corpus.py",
+  "governance": {
+    "blast_cap": 3,
+    "condition": "sandbox",
+    "crown_cuts": "impossible_by_construction",
+    "executor": "DryRunExecutor-v1",
+    "source": "packages/governance/safety.py",
+    "topology": "raksha-code/spine/config/company_topology.json"
+  },
+  "messageguard": {
+    "condition": "hand-authored / in-distribution; real-world UNMEASURED",
+    "fixture_files": [
+      "benign_en.jsonl",
+      "benign_hi.jsonl",
+      "benign_hinglish.jsonl",
+      "benign_te.jsonl",
+      "scam_en_a.jsonl",
+      "scam_en_b1.jsonl",
+      "scam_en_b2.jsonl",
+      "scam_en_c.jsonl",
+      "scam_hi_a.jsonl",
+      "scam_hi_b1.jsonl",
+      "scam_hi_b2.jsonl",
+      "scam_hi_c.jsonl",
+      "scam_hi_d.jsonl",
+      "scam_hinglish.jsonl",
+      "scam_te_a.jsonl",
+      "scam_te_b1.jsonl",
+      "scam_te_b2.jsonl",
+      "scam_te_c.jsonl"
+    ],
+    "scorer": "apps/citizen/messageguard",
+    "source": "raksha-code/citizen/fixtures/messageguard/*.jsonl"
+  },
+  "organs": {
+    "condition": "synthetic / sandbox",
+    "organ_cases": {
+      "bec_spectral_filter": {
+        "firing": {
+          "condensation_ratio": 0.91,
+          "session_count": 12
+        },
+        "missing": {
+          "session_count": 12
+        },
+        "silent": {
+          "condensation_ratio": 0.41,
+          "session_count": 12
+        }
+      },
+      "bragg_fft_firewall": {
+        "firing": {
+          "fft_peak_ratio": 0.88,
+          "fiedler_value": 0.04
+        },
+        "missing": {
+          "session_note": "no spectral features supplied"
+        },
+        "silent": {
+          "fft_peak_ratio": 0.21,
+          "fiedler_value": 0.55
+        }
+      },
+      "cookie_fluid_turbulence": {
+        "firing": {
+          "cookie_replay_count": 3,
+          "reynolds_number": 3100.0
+        },
+        "missing": {
+          "cookie_replay_count": 3
+        },
+        "silent": {
+          "cookie_replay_count": 1,
+          "reynolds_number": 1400.0
+        }
+      },
+      "hashimoto_percolation": {
+        "firing": {
+          "spectral_radius": 1.42
+        },
+        "missing": {},
+        "silent": {
+          "spectral_radius": 0.82
+        }
+      },
+      "hessian_lyapunov_guard": {
+        "firing": {
+          "curvature": 2.4,
+          "lyapunov_exponent": 0.62
+        },
+        "missing": {
+          "curvature": 2.4
+        },
+        "silent": {
+          "curvature": 0.8,
+          "lyapunov_exponent": 0.1
+        }
+      },
+      "landauer_thermal_audit": {
+        "firing": {
+          "power_residual_w": 18.5
+        },
+        "missing": {},
+        "silent": {
+          "power_residual_w": 2.1
+        }
+      },
+      "muts_ebpf_repair": {
+        "firing": {
+          "invariant_mismatch": 1,
+          "repeat_mismatch": 0
+        },
+        "missing": {
+          "repeat_mismatch": 1
+        },
+        "silent": {
+          "invariant_mismatch": 0,
+          "repeat_mismatch": 0,
+          "shield_spliced": 0
+        }
+      },
+      "page_curve_trap": {
+        "firing": {
+          "encrypt_events_per_min": 512,
+          "parity_break": 1
+        },
+        "missing": {
+          "entropy": 8.0
+        },
+        "silent": {
+          "encrypt_events_per_min": 12,
+          "entropy": 3.1,
+          "parity_break": 0,
+          "shadow_delete": 0
+        }
+      }
+    },
+    "registry_count": 1,
+    "source": "apps/infra/detectors/registry.py"
+  },
+  "replay": {
+    "campaign_id": "C-P9-REPLAY",
+    "case_id": "CASE-P9-REPLAY",
+    "condition": "sandbox",
+    "deterministic_infra": true,
+    "executor_mode": "dry-run only",
+    "live_executor_called": false,
+    "source": "evals/replay.py",
+    "steps": [
+      {
+        "expected": "finding",
+        "id": "R01",
+        "kind": "signed_finding",
+        "raw": {
+          "campaign_id": "C-P9-REPLAY",
+          "case_id": "CASE-P9-REPLAY",
+          "entity": "N-VICTIM-PHONE",
+          "event_id": "EV-P9-01",
+          "leg": "citizen",
+          "organ": "bec_spectral_filter",
+          "payload": {
+            "condensation_ratio": 0.91,
+            "session_count": 12
+          },
+          "severity": 4,
+          "summary": "active replay fixture EV-P9-01",
+          "ts": "2026-11-26T09:00:00Z"
+        },
+        "stage": "initial_access"
+      },
+      {
+        "expected": "finding",
+        "id": "R02",
+        "kind": "signed_finding",
+        "raw": {
+          "campaign_id": "C-P9-REPLAY",
+          "case_id": "CASE-P9-REPLAY",
+          "entity": "HOST_EVAL_02",
+          "event_id": "EV-P9-02",
+          "leg": "infra",
+          "organ": "cookie_fluid_turbulence",
+          "payload": {
+            "cookie_replay_count": 3,
+            "reynolds_number": 3100.0
+          },
+          "severity": 4,
+          "summary": "active replay fixture EV-P9-02",
+          "ts": "2026-11-26T09:00:00Z"
+        },
+        "stage": "execution"
+      },
+      {
+        "expected": "finding",
+        "id": "R03",
+        "kind": "signed_finding",
+        "raw": {
+          "campaign_id": "C-P9-REPLAY",
+          "case_id": "CASE-P9-REPLAY",
+          "entity": "HOST_EVAL_03",
+          "event_id": "EV-P9-03",
+          "leg": "infra",
+          "organ": "bragg_fft_firewall",
+          "payload": {
+            "fft_peak_ratio": 0.88,
+            "fiedler_value": 0.04
+          },
+          "severity": 4,
+          "summary": "active replay fixture EV-P9-03",
+          "ts": "2026-11-26T09:00:00Z"
+        },
+        "stage": "execution"
+      },
+      {
+        "expected": "finding",
+        "id": "R04",
+        "kind": "signed_finding",
+        "raw": {
+          "campaign_id": "C-P9-REPLAY",
+          "case_id": "CASE-P9-REPLAY",
+          "entity": "HOST_EVAL_04",
+          "event_id": "EV-P9-04",
+          "leg": "infra",
+          "organ": "hessian_lyapunov_guard",
+          "payload": {
+            "curvature": 2.4,
+            "lyapunov_exponent": 0.62
+          },
+          "severity": 4,
+          "summary": "active replay fixture EV-P9-04",
+          "ts": "2026-11-26T09:00:00Z"
+        },
+        "stage": "execution"
+      },
+      {
+        "expected": "finding",
+        "id": "R05",
+        "kind": "signed_finding",
+        "raw": {
+          "campaign_id": "C-P9-REPLAY",
+          "case_id": "CASE-P9-REPLAY",
+          "entity": "HOST_EVAL_05",
+          "event_id": "EV-P9-05",
+          "leg": "infra",
+          "organ": "page_curve_trap",
+          "payload": {
+            "encrypt_events_per_min": 512,
+            "parity_break": 1
+          },
+          "severity": 4,
+          "summary": "active replay fixture EV-P9-05",
+          "ts": "2026-11-26T09:00:00Z"
+        },
+        "stage": "execution"
+      },
+      {
+        "expected": "finding",
+        "id": "R06",
+        "kind": "signed_finding",
+        "raw": {
+          "campaign_id": "C-P9-REPLAY",
+          "case_id": "CASE-P9-REPLAY",
+          "entity": "HOST_EVAL_06",
+          "event_id": "EV-P9-06",
+          "leg": "infra",
+          "organ": "landauer_thermal_audit",
+          "payload": {
+            "power_residual_w": 18.5
+          },
+          "severity": 4,
+          "summary": "active replay fixture EV-P9-06",
+          "ts": "2026-11-26T09:00:00Z"
+        },
+        "stage": "impact"
+      },
+      {
+        "expected": "finding",
+        "id": "R07",
+        "kind": "signed_finding",
+        "raw": {
+          "campaign_id": "C-P9-REPLAY",
+          "case_id": "CASE-P9-REPLAY",
+          "entity": "HOST_EVAL_07",
+          "event_id": "EV-P9-07",
+          "leg": "infra",
+          "organ": "hashimoto_percolation",
+          "payload": {
+            "spectral_radius": 1.42
+          },
+          "severity": 4,
+          "summary": "active replay fixture EV-P9-07",
+          "ts": "2026-11-26T09:00:00Z"
+        },
+        "stage": "impact"
+      },
+      {
+        "expected": "finding",
+        "id": "R08",
+        "kind": "signed_finding",
+        "raw": {
+          "campaign_id": "C-P9-REPLAY",
+          "case_id": "CASE-P9-REPLAY",
+          "entity": "HOST_EVAL_08",
+          "event_id": "EV-P9-08",
+          "leg": "infra",
+          "organ": "muts_ebpf_repair",
+          "payload": {
+            "invariant_mismatch": 1,
+            "repeat_mismatch": 0
+          },
+          "severity": 4,
+          "summary": "active replay fixture EV-P9-08",
+          "ts": "2026-11-26T09:00:00Z"
+        },
+        "stage": "impact"
+      },
+      {
+        "expected": "no_detection",
+        "id": "R-BENIGN",
+        "kind": "signed_no_detection",
+        "raw": {
+          "campaign_id": "C-P9-REPLAY",
+          "case_id": "CASE-P9-REPLAY",
+          "entity": "HOST_EVAL_BENIGN",
+          "event_id": "EV-P9-BENIGN",
+          "leg": "infra",
+          "organ": "bragg_fft_firewall",
+          "payload": {
+            "fft_peak_ratio": 0.21,
+            "fiedler_value": 0.55
+          },
+          "severity": 2,
+          "summary": "active replay fixture EV-P9-BENIGN",
+          "ts": "2026-11-26T09:00:00Z"
+        },
+        "stage": "defense_evasion"
+      },
+      {
+        "expected": "no_detection",
+        "id": "R-MISSING",
+        "kind": "signed_no_detection",
+        "raw": {
+          "campaign_id": "C-P9-REPLAY",
+          "case_id": "CASE-P9-REPLAY",
+          "entity": "HOST_EVAL_MISSING",
+          "event_id": "EV-P9-MISSING",
+          "leg": "infra",
+          "organ": "page_curve_trap",
+          "payload": {
+            "entropy": 8.0
+          },
+          "severity": 2,
+          "summary": "active replay fixture EV-P9-MISSING",
+          "ts": "2026-11-26T09:00:00Z"
+        },
+        "stage": "defense_evasion"
+      },
+      {
+        "expected": "quarantined",
+        "id": "R-UNSIGNED",
+        "kind": "unsigned",
+        "raw": {
+          "campaign_id": "C-P9-REPLAY",
+          "case_id": "CASE-P9-REPLAY",
+          "entity": "HOST_EVAL_07",
+          "event_id": "EV-P9-UNSIGNED",
+          "leg": "infra",
+          "organ": "page_curve_trap",
+          "payload": {
+            "encrypt_events_per_min": 512,
+            "parity_break": 1
+          },
+          "severity": 4,
+          "summary": "active replay fixture EV-P9-UNSIGNED",
+          "ts": "2026-11-26T09:00:00Z"
+        },
+        "stage": "defense_evasion"
+      },
+      {
+        "expected": "quarantined",
+        "id": "R-TAMPERED",
+        "kind": "tampered",
+        "raw": {
+          "campaign_id": "C-P9-REPLAY",
+          "case_id": "CASE-P9-REPLAY",
+          "entity": "HOST_EVAL_07",
+          "event_id": "EV-P9-TAMPERED",
+          "leg": "infra",
+          "organ": "page_curve_trap",
+          "payload": {
+            "encrypt_events_per_min": 512,
+            "parity_break": 1
+          },
+          "severity": 4,
+          "summary": "active replay fixture EV-P9-TAMPERED",
+          "ts": "2026-11-26T09:00:00Z"
+        },
+        "stage": "defense_evasion"
+      },
+      {
+        "expected": "quarantined",
+        "id": "R-FORGED",
+        "kind": "forged",
+        "raw": {
+          "campaign_id": "C-P9-REPLAY",
+          "case_id": "CASE-P9-REPLAY",
+          "entity": "HOST_EVAL_07",
+          "event_id": "EV-P9-FORGED",
+          "leg": "infra",
+          "organ": "page_curve_trap",
+          "payload": {
+            "encrypt_events_per_min": 512,
+            "parity_break": 1
+          },
+          "severity": 4,
+          "summary": "active replay fixture EV-P9-FORGED",
+          "ts": "2026-11-26T09:00:00Z"
+        },
+        "stage": "defense_evasion"
+      },
+      {
+        "expected": "quarantined",
+        "id": "R-UNKNOWN_ORGAN",
+        "kind": "unknown_organ",
+        "raw": {
+          "campaign_id": "C-P9-REPLAY",
+          "case_id": "CASE-P9-REPLAY",
+          "entity": "HOST_EVAL_07",
+          "event_id": "EV-P9-UNKNOWN",
+          "leg": "infra",
+          "organ": "unknown_organ",
+          "payload": {
+            "encrypt_events_per_min": 512,
+            "parity_break": 1
+          },
+          "severity": 4,
+          "summary": "active replay fixture EV-P9-UNKNOWN",
+          "ts": "2026-11-26T09:00:00Z"
+        },
+        "stage": "defense_evasion"
+      }
+    ]
+  },
+  "vigil": {
+    "claims_not_made": [
+      "deepfake prevention",
+      "modern face-recognition defeat",
+      "anonymity guarantee"
+    ],
+    "condition": "local training / fixture; real-world UNMEASURED",
+    "local_metrics_only": true,
+    "privacy_efficacy": "UNMEASURED",
+    "sources": [
+      "packages/vigil/model_manifest.json",
+      "packages/vigil/privacynet_history.json",
+      "packages/vigil/models/privacy_net.py"
+    ]
+  }
+}

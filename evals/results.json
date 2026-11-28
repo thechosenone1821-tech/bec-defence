@@ -1,0 +1,916 @@
+{
+  "capability_count": 7,
+  "conditions": {
+    "citizen": "fixture / sandbox",
+    "governance": "sandbox",
+    "messageguard": "hand-authored / in-distribution; real-world UNMEASURED",
+    "organs": "synthetic / sandbox",
+    "replay": "sandbox",
+    "vigil": "local training / fixture; real-world UNMEASURED"
+  },
+  "contract": "raksha-active-evals-v2",
+  "generated_by": "evals/run_evals.py",
+  "measurement_policy": {
+    "allowed_conditions": [
+      "fixture",
+      "synthetic",
+      "sandbox",
+      "hand-authored",
+      "local training",
+      "real-world UNMEASURED"
+    ],
+    "commander_mode": "disabled",
+    "executor_mode": "dry-run only",
+    "model_backed": true,
+    "privacy_efficacy": "UNMEASURED",
+    "real_world": "UNMEASURED",
+    "vigil_integrated": true
+  },
+  "sections": {
+    "citizen": {
+      "active_model": "VIGIL PrivacyNet TorchScript",
+      "app_route_count": 26,
+      "app_state_model_backed": true,
+      "app_state_vigil_integrated": true,
+      "condition": "fixture / sandbox",
+      "feature_flag_count": 9,
+      "features_status_code": 200,
+      "health_status_code": 200,
+      "manifest_status_code": 200,
+      "model_backed": true,
+      "root_redirect_status_code": 307,
+      "source": "apps/citizen/api.py + packages/vigil/main.py",
+      "status": "ok",
+      "vigil_dashboard_status_code": 200,
+      "vigil_enabled": true,
+      "vigil_model_active": true,
+      "vigil_static_status_code": 200,
+      "vigil_status_status_code": 200
+    },
+    "governance": {
+      "admin_override": "impossible",
+      "allowed_action_count": 3,
+      "allowed_count": 12,
+      "blast_cap": 3,
+      "condition": "sandbox",
+      "crown_cut_attempts_rejected": 1,
+      "executor_real_action_count": 0,
+      "proposal_count": 21,
+      "refused_count": 9,
+      "source": "packages/governance/safety.py",
+      "status": "ok"
+    },
+    "infra": {
+      "admin_override_status_code": 403,
+      "app_state_infra_ready": true,
+      "app_state_model_backed": false,
+      "app_state_status_path": "/api/infra/status",
+      "app_state_vigil_integrated": false,
+      "capabilities_endpoint_status_code": 200,
+      "commander_enabled": false,
+      "condition": "fixture / sandbox",
+      "console_contract": "raksha-readonly-console-v2",
+      "console_js_status_code": 200,
+      "console_mutating_routes": 0,
+      "console_read_only": true,
+      "console_status_code": 200,
+      "console_write_methods": 0,
+      "cookie_fallback_status_code": 200,
+      "detector_organ_count": 8,
+      "detector_registry_count": 1,
+      "detectors_endpoint_status_code": 200,
+      "deterministic": true,
+      "executor_mode": "dry-run",
+      "header_fallback_status_code": 200,
+      "health_status_code": 200,
+      "hospital_demo_attack_steps": 12,
+      "hospital_demo_campaign_fused": true,
+      "hospital_demo_commander_enabled": false,
+      "hospital_demo_decision_count": 21,
+      "hospital_demo_dry_run_action_count": 21,
+      "hospital_demo_executor_mode": "dry-run",
+      "hospital_demo_findings": 8,
+      "hospital_demo_js_status_code": 200,
+      "hospital_demo_ledger_height": 55,
+      "hospital_demo_ledger_valid": true,
+      "hospital_demo_live_runtime_unchanged": true,
+      "hospital_demo_quarantine_count": 4,
+      "hospital_demo_query_control_status_code": 401,
+      "hospital_demo_real_action_count": 0,
+      "hospital_demo_reset_status_code": 200,
+      "hospital_demo_state_status_code": 200,
+      "hospital_demo_step_status_codes_ok": 12,
+      "hospital_demo_synthetic_organization": true,
+      "hospital_demo_ui_status_code": 200,
+      "hospital_demo_unauth_status_code": 401,
+      "model_backed": false,
+      "query_fallback_status_code": 200,
+      "read_auth_fallback_count": 4,
+      "read_route_status_codes": {
+        "campaigns": 200,
+        "decisions": 200,
+        "ledger_head": 200,
+        "ledger_verify": 200,
+        "metrics": 200,
+        "quarantine": 200
+      },
+      "source": "apps/infra/backend/app.py + apps/infra/features.py + apps/infra/console/ + apps/infra/demo/",
+      "status": "ok",
+      "status_endpoint_status_code": 200,
+      "websocket_first_kind": "detection",
+      "write_query_rejected_status_code": 401
+    },
+    "messageguard": {
+      "benign_fp_cases": [
+        {
+          "families_fired": [
+            "link_grab",
+            "urgency"
+          ],
+          "id": "BN-EN-024",
+          "kind": "genuine_bank_kyc_alert",
+          "lang": "en",
+          "score": 0.45,
+          "text": "HDFC Bank KYC alert: Update your KYC immediately to avoid deactivation of your account. Visit hdfcbank.com/kyc",
+          "verdict": "HIGH"
+        },
+        {
+          "families_fired": [
+            "link_grab"
+          ],
+          "id": "BN-EN-025",
+          "kind": "genuine_bank_kyc_alert",
+          "lang": "en",
+          "score": 0.25,
+          "text": "SBI: Update KYC now at bit.ly/sbi-kyc to keep your account active.",
+          "verdict": "MODERATE"
+        },
+        {
+          "families_fired": [
+            "link_grab",
+            "urgency"
+          ],
+          "id": "BN-EN-026",
+          "kind": "genuine_bank_kyc_alert",
+          "lang": "en",
+          "score": 0.45,
+          "text": "ICICI Bank: KYC update pending. Update your PAN card details immediately at icicibank.com/kyc-update else card suspended.",
+          "verdict": "HIGH"
+        },
+        {
+          "families_fired": [
+            "prize"
+          ],
+          "id": "BN-EN-031",
+          "kind": "marketing_offer",
+          "lang": "en",
+          "score": 0.3,
+          "text": "Win exciting coupons this Diwali with Paytm! Play the in-app lucky draw now.",
+          "verdict": "MODERATE"
+        },
+        {
+          "families_fired": [
+            "urgency"
+          ],
+          "id": "BN-EN-033",
+          "kind": "broker_market_info",
+          "lang": "en",
+          "score": 0.2,
+          "text": "Angel One: Your demat account is active. Market opens at 9:15 AM today.",
+          "verdict": "MODERATE"
+        },
+        {
+          "families_fired": [
+            "link_grab",
+            "urgency"
+          ],
+          "id": "BN-HI-024",
+          "kind": "genuine_bank_kyc_alert",
+          "lang": "hi",
+          "score": 0.45,
+          "text": "\u090f\u091a\u0921\u0940\u090f\u092b\u0938\u0940 \u092c\u0948\u0902\u0915 \u0915\u0947\u0935\u093e\u0908\u0938\u0940 \u0905\u0932\u0930\u094d\u091f: \u0916\u093e\u0924\u093e \u0921\u0940-\u090f\u0915\u094d\u091f\u093f\u0935\u0947\u0936\u0928 \u0938\u0947 \u092c\u091a\u0928\u0947 \u0915\u0947 \u0932\u093f\u090f \u0924\u0941\u0930\u0902\u0924 \u0915\u0947\u0935\u093e\u0908\u0938\u0940 \u0905\u092a\u0921\u0947\u091f \u0915\u0930\u0947\u0902\u0964 hdfcbank.com/kyc \u092a\u0930 \u091c\u093e\u090f\u0902\u0964",
+          "verdict": "HIGH"
+        },
+        {
+          "families_fired": [
+            "link_grab"
+          ],
+          "id": "BN-HI-025",
+          "kind": "genuine_bank_kyc_alert",
+          "lang": "hi",
+          "score": 0.25,
+          "text": "\u090f\u0938\u092c\u0940\u0906\u0908: \u0916\u093e\u0924\u093e \u090f\u0915\u094d\u091f\u093f\u0935 \u0930\u0916\u0928\u0947 \u0915\u0947 \u0932\u093f\u090f \u0905\u092d\u0940 bit.ly/sbi-kyc \u092a\u0930 \u0915\u0947\u0935\u093e\u0908\u0938\u0940 \u0905\u092a\u0921\u0947\u091f \u0915\u0930\u0947\u0902\u0964",
+          "verdict": "MODERATE"
+        },
+        {
+          "families_fired": [
+            "link_grab",
+            "urgency"
+          ],
+          "id": "BN-HI-026",
+          "kind": "genuine_bank_kyc_alert",
+          "lang": "hi",
+          "score": 0.45,
+          "text": "\u0906\u0908\u0938\u0940\u0906\u0908\u0938\u0940\u0906\u0908 \u092c\u0948\u0902\u0915: \u0915\u0947\u0935\u093e\u0908\u0938\u0940 \u0905\u092a\u0921\u0947\u091f \u0932\u0902\u092c\u093f\u0924\u0964 icicibank.com/kyc-update \u092a\u0930 \u092a\u0948\u0928 \u0915\u093e\u0930\u094d\u0921 \u0935\u093f\u0935\u0930\u0923 \u0924\u0941\u0930\u0902\u0924 \u0905\u092a\u0921\u0947\u091f \u0915\u0930\u0947\u0902, \u0905\u0928\u094d\u092f\u0925\u093e \u0915\u093e\u0930\u094d\u0921 \u0928\u093f\u0932\u0902\u092c\u093f\u0924\u0964",
+          "verdict": "HIGH"
+        },
+        {
+          "families_fired": [
+            "prize"
+          ],
+          "id": "BN-HI-031",
+          "kind": "marketing_offer",
+          "lang": "hi",
+          "score": 0.3,
+          "text": "\u092a\u0947\u091f\u0940\u090f\u092e \u0915\u0947 \u0938\u093e\u0925 \u0907\u0938 \u0926\u093f\u0935\u093e\u0932\u0940 \u0936\u093e\u0928\u0926\u093e\u0930 \u0915\u0942\u092a\u0928 \u091c\u0940\u0924\u0947\u0902! \u0910\u092a \u092e\u0947\u0902 \u0932\u0915\u0940 \u0921\u094d\u0930\u0949 \u0916\u0947\u0932\u0947\u0902\u0964",
+          "verdict": "MODERATE"
+        },
+        {
+          "families_fired": [
+            "link_grab",
+            "urgency"
+          ],
+          "id": "BN-TE-024",
+          "kind": "genuine_bank_kyc_alert",
+          "lang": "te",
+          "score": 0.45,
+          "text": "\u0c39\u0c46\u0c1a\u0c4d\u200c\u0c21\u0c40\u0c0e\u0c2b\u0c4d\u200c\u0c38\u0c40 \u0c2c\u0c4d\u0c2f\u0c3e\u0c02\u0c15\u0c4d \u0c15\u0c46\u0c35\u0c3e\u0c08\u0c38\u0c40 \u0c05\u0c32\u0c30\u0c4d\u0c1f\u0c4d: \u0c16\u0c3e\u0c24\u0c3e \u0c21\u0c40-\u0c2f\u0c3e\u0c15\u0c4d\u0c1f\u0c3f\u0c35\u0c47\u0c37\u0c28\u0c4d \u0c28\u0c41\u0c02\u0c1a\u0c3f \u0c24\u0c2a\u0c4d\u0c2a\u0c3f\u0c02\u0c1a\u0c41\u0c15\u0c4b\u0c35\u0c21\u0c3e\u0c28\u0c3f\u0c15\u0c3f \u0c35\u0c46\u0c02\u0c1f\u0c28\u0c47 \u0c15\u0c46\u0c35\u0c3e\u0c08\u0c38\u0c40 \u0c05\u0c2a\u0c4d\u200c\u0c21\u0c47\u0c1f\u0c4d \u0c1a\u0c47\u0c2f\u0c02\u0c21\u0c3f. hdfcbank.com/kyc \u0c32\u0c4b \u0c1a\u0c42\u0c21\u0c02\u0c21\u0c3f.",
+          "verdict": "HIGH"
+        },
+        {
+          "families_fired": [
+            "link_grab"
+          ],
+          "id": "BN-TE-025",
+          "kind": "genuine_bank_kyc_alert",
+          "lang": "te",
+          "score": 0.25,
+          "text": "\u0c0e\u0c38\u0c4d\u200c\u0c2c\u0c40\u0c10: \u0c16\u0c3e\u0c24\u0c3e \u0c2f\u0c3e\u0c15\u0c4d\u0c1f\u0c3f\u0c35\u0c4d\u200c\u0c17\u0c3e \u0c09\u0c02\u0c1a\u0c21\u0c3e\u0c28\u0c3f\u0c15\u0c3f \u0c07\u0c2a\u0c4d\u0c2a\u0c41\u0c21\u0c47 bit.ly/sbi-kyc \u0c32\u0c4b \u0c15\u0c46\u0c35\u0c3e\u0c08\u0c38\u0c40 \u0c05\u0c2a\u0c4d\u200c\u0c21\u0c47\u0c1f\u0c4d \u0c1a\u0c47\u0c2f\u0c02\u0c21\u0c3f.",
+          "verdict": "MODERATE"
+        },
+        {
+          "families_fired": [
+            "link_grab",
+            "urgency"
+          ],
+          "id": "BN-TE-026",
+          "kind": "genuine_bank_kyc_alert",
+          "lang": "te",
+          "score": 0.45,
+          "text": "\u0c10\u0c38\u0c40\u0c10\u0c38\u0c40\u0c10 \u0c2c\u0c4d\u0c2f\u0c3e\u0c02\u0c15\u0c4d: \u0c15\u0c46\u0c35\u0c3e\u0c08\u0c38\u0c40 \u0c05\u0c2a\u0c4d\u200c\u0c21\u0c47\u0c1f\u0c4d \u0c2a\u0c46\u0c02\u0c21\u0c3f\u0c02\u0c17\u0c4d. icicibank.com/kyc-update \u0c32\u0c4b \u0c2a\u0c3e\u0c28\u0c4d \u0c15\u0c3e\u0c30\u0c4d\u0c21\u0c4d \u0c35\u0c3f\u0c35\u0c30\u0c3e\u0c32\u0c41 \u0c35\u0c46\u0c02\u0c1f\u0c28\u0c47 \u0c05\u0c2a\u0c4d\u200c\u0c21\u0c47\u0c1f\u0c4d \u0c1a\u0c47\u0c2f\u0c02\u0c21\u0c3f, \u0c32\u0c47\u0c26\u0c02\u0c1f\u0c47 \u0c15\u0c3e\u0c30\u0c4d\u0c21\u0c4d \u0c38\u0c38\u0c4d\u0c2a\u0c46\u0c02\u0c21\u0c4d.",
+          "verdict": "HIGH"
+        },
+        {
+          "families_fired": [
+            "money_action"
+          ],
+          "id": "BN-TE-029",
+          "kind": "toll_challan",
+          "lang": "te",
+          "score": 0.3,
+          "text": "\u0c1f\u0c4b\u0c32\u0c4d \u0c28\u0c4b\u0c1f\u0c40\u0c38\u0c41: \u0c35\u0c3e\u0c39\u0c28\u0c02 TN-09-CD-4321 \u0c2b\u0c3e\u0c38\u0c4d\u0c1f\u0c4d\u200c\u0c1f\u0c4d\u0c2f\u0c3e\u0c17\u0c4d \u0c32\u0c47\u0c15\u0c41\u0c02\u0c21\u0c3e \u0c1f\u0c4b\u0c32\u0c4d \u0c26\u0c3e\u0c1f\u0c3f\u0c02\u0c26\u0c3f. \u20b960 \u0c1f\u0c4b\u0c32\u0c4d \u0c35\u0c26\u0c4d\u0c26 \u0c1a\u0c46\u0c32\u0c4d\u0c32\u0c3f\u0c02\u0c1a\u0c02\u0c21\u0c3f.",
+          "verdict": "MODERATE"
+        },
+        {
+          "families_fired": [
+            "prize"
+          ],
+          "id": "BN-TE-031",
+          "kind": "marketing_offer",
+          "lang": "te",
+          "score": 0.3,
+          "text": "\u0c2a\u0c47\u0c1f\u0c40\u0c0e\u0c02\u0c24\u0c4b \u0c08 \u0c26\u0c40\u0c2a\u0c3e\u0c35\u0c33\u0c3f\u0c15\u0c3f \u0c05\u0c26\u0c4d\u0c2d\u0c41\u0c24 \u0c15\u0c42\u0c2a\u0c28\u0c4d\u0c32\u0c41 \u0c17\u0c46\u0c32\u0c41\u0c1a\u0c41\u0c15\u0c4b\u0c02\u0c21\u0c3f! \u0c2f\u0c3e\u0c2a\u0c4d\u200c\u0c32\u0c4b \u0c32\u0c15\u0c4d\u0c15\u0c40 \u0c21\u0c4d\u0c30\u0c3e \u0c06\u0c21\u0c02\u0c21\u0c3f.",
+          "verdict": "MODERATE"
+        }
+      ],
+      "condition": "hand-authored / in-distribution; real-world recall and FPR UNMEASURED",
+      "corpus": {
+        "benign_by_lang": {
+          "en": 40,
+          "hi": 40,
+          "hinglish": 16,
+          "te": 40
+        },
+        "benign_total": 136,
+        "claim_scope": "hand-authored / in-distribution; real-world recall and FPR UNMEASURED",
+        "fixture_total": 538,
+        "scam_by_lang": {
+          "en": 120,
+          "hi": 132,
+          "hinglish": 30,
+          "te": 120
+        },
+        "scam_total": 402
+      },
+      "detector_interface": "apps/citizen/messageguard",
+      "engine": "messageguard-rules-v1 (538 hand-authored/in-distribution fixtures; real-world UNMEASURED)",
+      "family_recall": {
+        "authority": {
+          "hit": 157,
+          "labelled": 157,
+          "recall": 1.0
+        },
+        "credential": {
+          "hit": 96,
+          "labelled": 96,
+          "recall": 1.0
+        },
+        "link_grab": {
+          "hit": 124,
+          "labelled": 124,
+          "recall": 1.0
+        },
+        "money_action": {
+          "hit": 225,
+          "labelled": 225,
+          "recall": 1.0
+        },
+        "prize": {
+          "hit": 56,
+          "labelled": 56,
+          "recall": 1.0
+        },
+        "urgency": {
+          "hit": 269,
+          "labelled": 269,
+          "recall": 1.0
+        }
+      },
+      "generated_report": "EVALS.md",
+      "languages": {
+        "en": {
+          "benign_total": 40,
+          "critical_count": 65,
+          "detection_rate_high": 0.5417,
+          "detection_rate_moderate": 0.9917,
+          "family_recall": {
+            "authority": {
+              "hit": 46,
+              "labelled": 46,
+              "recall": 1.0
+            },
+            "credential": {
+              "hit": 27,
+              "labelled": 27,
+              "recall": 1.0
+            },
+            "link_grab": {
+              "hit": 38,
+              "labelled": 38,
+              "recall": 1.0
+            },
+            "money_action": {
+              "hit": 67,
+              "labelled": 67,
+              "recall": 1.0
+            },
+            "prize": {
+              "hit": 17,
+              "labelled": 17,
+              "recall": 1.0
+            },
+            "urgency": {
+              "hit": 72,
+              "labelled": 72,
+              "recall": 1.0
+            }
+          },
+          "fp_cases": [
+            {
+              "families_fired": [
+                "link_grab",
+                "urgency"
+              ],
+              "id": "BN-EN-024",
+              "kind": "genuine_bank_kyc_alert",
+              "score": 0.45,
+              "text": "HDFC Bank KYC alert: Update your KYC immediately to avoid deactivation of your account. Visit hdfcbank.com/kyc",
+              "verdict": "HIGH"
+            },
+            {
+              "families_fired": [
+                "link_grab"
+              ],
+              "id": "BN-EN-025",
+              "kind": "genuine_bank_kyc_alert",
+              "score": 0.25,
+              "text": "SBI: Update KYC now at bit.ly/sbi-kyc to keep your account active.",
+              "verdict": "MODERATE"
+            },
+            {
+              "families_fired": [
+                "link_grab",
+                "urgency"
+              ],
+              "id": "BN-EN-026",
+              "kind": "genuine_bank_kyc_alert",
+              "score": 0.45,
+              "text": "ICICI Bank: KYC update pending. Update your PAN card details immediately at icicibank.com/kyc-update else card suspended.",
+              "verdict": "HIGH"
+            },
+            {
+              "families_fired": [
+                "prize"
+              ],
+              "id": "BN-EN-031",
+              "kind": "marketing_offer",
+              "score": 0.3,
+              "text": "Win exciting coupons this Diwali with Paytm! Play the in-app lucky draw now.",
+              "verdict": "MODERATE"
+            },
+            {
+              "families_fired": [
+                "urgency"
+              ],
+              "id": "BN-EN-033",
+              "kind": "broker_market_info",
+              "score": 0.2,
+              "text": "Angel One: Your demat account is active. Market opens at 9:15 AM today.",
+              "verdict": "MODERATE"
+            }
+          ],
+          "fp_high": 0,
+          "fp_moderate": 5,
+          "fpr_high": 0.0,
+          "fpr_moderate": 0.125,
+          "scam_caught_high": 65,
+          "scam_caught_moderate": 119,
+          "scam_total": 120,
+          "tn_moderate": 35
+        },
+        "hi": {
+          "benign_total": 40,
+          "critical_count": 74,
+          "detection_rate_high": 0.5606,
+          "detection_rate_moderate": 0.9924,
+          "family_recall": {
+            "authority": {
+              "hit": 53,
+              "labelled": 53,
+              "recall": 1.0
+            },
+            "credential": {
+              "hit": 30,
+              "labelled": 30,
+              "recall": 1.0
+            },
+            "link_grab": {
+              "hit": 40,
+              "labelled": 40,
+              "recall": 1.0
+            },
+            "money_action": {
+              "hit": 74,
+              "labelled": 74,
+              "recall": 1.0
+            },
+            "prize": {
+              "hit": 19,
+              "labelled": 19,
+              "recall": 1.0
+            },
+            "urgency": {
+              "hit": 91,
+              "labelled": 91,
+              "recall": 1.0
+            }
+          },
+          "fp_cases": [
+            {
+              "families_fired": [
+                "link_grab",
+                "urgency"
+              ],
+              "id": "BN-HI-024",
+              "kind": "genuine_bank_kyc_alert",
+              "score": 0.45,
+              "text": "\u090f\u091a\u0921\u0940\u090f\u092b\u0938\u0940 \u092c\u0948\u0902\u0915 \u0915\u0947\u0935\u093e\u0908\u0938\u0940 \u0905\u0932\u0930\u094d\u091f: \u0916\u093e\u0924\u093e \u0921\u0940-\u090f\u0915\u094d\u091f\u093f\u0935\u0947\u0936\u0928 \u0938\u0947 \u092c\u091a\u0928\u0947 \u0915\u0947 \u0932\u093f\u090f \u0924\u0941\u0930\u0902\u0924 \u0915\u0947\u0935\u093e\u0908\u0938\u0940 \u0905\u092a\u0921\u0947\u091f \u0915\u0930\u0947\u0902\u0964 hdfcbank.com/kyc \u092a\u0930 \u091c\u093e\u090f\u0902\u0964",
+              "verdict": "HIGH"
+            },
+            {
+              "families_fired": [
+                "link_grab"
+              ],
+              "id": "BN-HI-025",
+              "kind": "genuine_bank_kyc_alert",
+              "score": 0.25,
+              "text": "\u090f\u0938\u092c\u0940\u0906\u0908: \u0916\u093e\u0924\u093e \u090f\u0915\u094d\u091f\u093f\u0935 \u0930\u0916\u0928\u0947 \u0915\u0947 \u0932\u093f\u090f \u0905\u092d\u0940 bit.ly/sbi-kyc \u092a\u0930 \u0915\u0947\u0935\u093e\u0908\u0938\u0940 \u0905\u092a\u0921\u0947\u091f \u0915\u0930\u0947\u0902\u0964",
+              "verdict": "MODERATE"
+            },
+            {
+              "families_fired": [
+                "link_grab",
+                "urgency"
+              ],
+              "id": "BN-HI-026",
+              "kind": "genuine_bank_kyc_alert",
+              "score": 0.45,
+              "text": "\u0906\u0908\u0938\u0940\u0906\u0908\u0938\u0940\u0906\u0908 \u092c\u0948\u0902\u0915: \u0915\u0947\u0935\u093e\u0908\u0938\u0940 \u0905\u092a\u0921\u0947\u091f \u0932\u0902\u092c\u093f\u0924\u0964 icicibank.com/kyc-update \u092a\u0930 \u092a\u0948\u0928 \u0915\u093e\u0930\u094d\u0921 \u0935\u093f\u0935\u0930\u0923 \u0924\u0941\u0930\u0902\u0924 \u0905\u092a\u0921\u0947\u091f \u0915\u0930\u0947\u0902, \u0905\u0928\u094d\u092f\u0925\u093e \u0915\u093e\u0930\u094d\u0921 \u0928\u093f\u0932\u0902\u092c\u093f\u0924\u0964",
+              "verdict": "HIGH"
+            },
+            {
+              "families_fired": [
+                "prize"
+              ],
+              "id": "BN-HI-031",
+              "kind": "marketing_offer",
+              "score": 0.3,
+              "text": "\u092a\u0947\u091f\u0940\u090f\u092e \u0915\u0947 \u0938\u093e\u0925 \u0907\u0938 \u0926\u093f\u0935\u093e\u0932\u0940 \u0936\u093e\u0928\u0926\u093e\u0930 \u0915\u0942\u092a\u0928 \u091c\u0940\u0924\u0947\u0902! \u0910\u092a \u092e\u0947\u0902 \u0932\u0915\u0940 \u0921\u094d\u0930\u0949 \u0916\u0947\u0932\u0947\u0902\u0964",
+              "verdict": "MODERATE"
+            }
+          ],
+          "fp_high": 0,
+          "fp_moderate": 4,
+          "fpr_high": 0.0,
+          "fpr_moderate": 0.1,
+          "scam_caught_high": 74,
+          "scam_caught_moderate": 131,
+          "scam_total": 132,
+          "tn_moderate": 36
+        },
+        "hinglish": {
+          "benign_total": 16,
+          "critical_count": 19,
+          "detection_rate_high": 0.6333,
+          "detection_rate_moderate": 1.0,
+          "family_recall": {
+            "authority": {
+              "hit": 11,
+              "labelled": 11,
+              "recall": 1.0
+            },
+            "credential": {
+              "hit": 12,
+              "labelled": 12,
+              "recall": 1.0
+            },
+            "link_grab": {
+              "hit": 10,
+              "labelled": 10,
+              "recall": 1.0
+            },
+            "money_action": {
+              "hit": 16,
+              "labelled": 16,
+              "recall": 1.0
+            },
+            "prize": {
+              "hit": 3,
+              "labelled": 3,
+              "recall": 1.0
+            },
+            "urgency": {
+              "hit": 27,
+              "labelled": 27,
+              "recall": 1.0
+            }
+          },
+          "fp_cases": [],
+          "fp_high": 0,
+          "fp_moderate": 0,
+          "fpr_high": 0.0,
+          "fpr_moderate": 0.0,
+          "scam_caught_high": 19,
+          "scam_caught_moderate": 30,
+          "scam_total": 30,
+          "tn_moderate": 16
+        },
+        "te": {
+          "benign_total": 40,
+          "critical_count": 65,
+          "detection_rate_high": 0.5417,
+          "detection_rate_moderate": 0.9917,
+          "family_recall": {
+            "authority": {
+              "hit": 47,
+              "labelled": 47,
+              "recall": 1.0
+            },
+            "credential": {
+              "hit": 27,
+              "labelled": 27,
+              "recall": 1.0
+            },
+            "link_grab": {
+              "hit": 36,
+              "labelled": 36,
+              "recall": 1.0
+            },
+            "money_action": {
+              "hit": 68,
+              "labelled": 68,
+              "recall": 1.0
+            },
+            "prize": {
+              "hit": 17,
+              "labelled": 17,
+              "recall": 1.0
+            },
+            "urgency": {
+              "hit": 79,
+              "labelled": 79,
+              "recall": 1.0
+            }
+          },
+          "fp_cases": [
+            {
+              "families_fired": [
+                "link_grab",
+                "urgency"
+              ],
+              "id": "BN-TE-024",
+              "kind": "genuine_bank_kyc_alert",
+              "score": 0.45,
+              "text": "\u0c39\u0c46\u0c1a\u0c4d\u200c\u0c21\u0c40\u0c0e\u0c2b\u0c4d\u200c\u0c38\u0c40 \u0c2c\u0c4d\u0c2f\u0c3e\u0c02\u0c15\u0c4d \u0c15\u0c46\u0c35\u0c3e\u0c08\u0c38\u0c40 \u0c05\u0c32\u0c30\u0c4d\u0c1f\u0c4d: \u0c16\u0c3e\u0c24\u0c3e \u0c21\u0c40-\u0c2f\u0c3e\u0c15\u0c4d\u0c1f\u0c3f\u0c35\u0c47\u0c37\u0c28\u0c4d \u0c28\u0c41\u0c02\u0c1a\u0c3f \u0c24\u0c2a\u0c4d\u0c2a\u0c3f\u0c02\u0c1a\u0c41\u0c15\u0c4b\u0c35\u0c21\u0c3e\u0c28\u0c3f\u0c15\u0c3f \u0c35\u0c46\u0c02\u0c1f\u0c28\u0c47 \u0c15\u0c46\u0c35\u0c3e\u0c08\u0c38\u0c40 \u0c05\u0c2a\u0c4d\u200c\u0c21\u0c47\u0c1f\u0c4d \u0c1a\u0c47\u0c2f\u0c02\u0c21\u0c3f. hdfcbank.com/kyc \u0c32\u0c4b \u0c1a\u0c42\u0c21\u0c02\u0c21\u0c3f.",
+              "verdict": "HIGH"
+            },
+            {
+              "families_fired": [
+                "link_grab"
+              ],
+              "id": "BN-TE-025",
+              "kind": "genuine_bank_kyc_alert",
+              "score": 0.25,
+              "text": "\u0c0e\u0c38\u0c4d\u200c\u0c2c\u0c40\u0c10: \u0c16\u0c3e\u0c24\u0c3e \u0c2f\u0c3e\u0c15\u0c4d\u0c1f\u0c3f\u0c35\u0c4d\u200c\u0c17\u0c3e \u0c09\u0c02\u0c1a\u0c21\u0c3e\u0c28\u0c3f\u0c15\u0c3f \u0c07\u0c2a\u0c4d\u0c2a\u0c41\u0c21\u0c47 bit.ly/sbi-kyc \u0c32\u0c4b \u0c15\u0c46\u0c35\u0c3e\u0c08\u0c38\u0c40 \u0c05\u0c2a\u0c4d\u200c\u0c21\u0c47\u0c1f\u0c4d \u0c1a\u0c47\u0c2f\u0c02\u0c21\u0c3f.",
+              "verdict": "MODERATE"
+            },
+            {
+              "families_fired": [
+                "link_grab",
+                "urgency"
+              ],
+              "id": "BN-TE-026",
+              "kind": "genuine_bank_kyc_alert",
+              "score": 0.45,
+              "text": "\u0c10\u0c38\u0c40\u0c10\u0c38\u0c40\u0c10 \u0c2c\u0c4d\u0c2f\u0c3e\u0c02\u0c15\u0c4d: \u0c15\u0c46\u0c35\u0c3e\u0c08\u0c38\u0c40 \u0c05\u0c2a\u0c4d\u200c\u0c21\u0c47\u0c1f\u0c4d \u0c2a\u0c46\u0c02\u0c21\u0c3f\u0c02\u0c17\u0c4d. icicibank.com/kyc-update \u0c32\u0c4b \u0c2a\u0c3e\u0c28\u0c4d \u0c15\u0c3e\u0c30\u0c4d\u0c21\u0c4d \u0c35\u0c3f\u0c35\u0c30\u0c3e\u0c32\u0c41 \u0c35\u0c46\u0c02\u0c1f\u0c28\u0c47 \u0c05\u0c2a\u0c4d\u200c\u0c21\u0c47\u0c1f\u0c4d \u0c1a\u0c47\u0c2f\u0c02\u0c21\u0c3f, \u0c32\u0c47\u0c26\u0c02\u0c1f\u0c47 \u0c15\u0c3e\u0c30\u0c4d\u0c21\u0c4d \u0c38\u0c38\u0c4d\u0c2a\u0c46\u0c02\u0c21\u0c4d.",
+              "verdict": "HIGH"
+            },
+            {
+              "families_fired": [
+                "money_action"
+              ],
+              "id": "BN-TE-029",
+              "kind": "toll_challan",
+              "score": 0.3,
+              "text": "\u0c1f\u0c4b\u0c32\u0c4d \u0c28\u0c4b\u0c1f\u0c40\u0c38\u0c41: \u0c35\u0c3e\u0c39\u0c28\u0c02 TN-09-CD-4321 \u0c2b\u0c3e\u0c38\u0c4d\u0c1f\u0c4d\u200c\u0c1f\u0c4d\u0c2f\u0c3e\u0c17\u0c4d \u0c32\u0c47\u0c15\u0c41\u0c02\u0c21\u0c3e \u0c1f\u0c4b\u0c32\u0c4d \u0c26\u0c3e\u0c1f\u0c3f\u0c02\u0c26\u0c3f. \u20b960 \u0c1f\u0c4b\u0c32\u0c4d \u0c35\u0c26\u0c4d\u0c26 \u0c1a\u0c46\u0c32\u0c4d\u0c32\u0c3f\u0c02\u0c1a\u0c02\u0c21\u0c3f.",
+              "verdict": "MODERATE"
+            },
+            {
+              "families_fired": [
+                "prize"
+              ],
+              "id": "BN-TE-031",
+              "kind": "marketing_offer",
+              "score": 0.3,
+              "text": "\u0c2a\u0c47\u0c1f\u0c40\u0c0e\u0c02\u0c24\u0c4b \u0c08 \u0c26\u0c40\u0c2a\u0c3e\u0c35\u0c33\u0c3f\u0c15\u0c3f \u0c05\u0c26\u0c4d\u0c2d\u0c41\u0c24 \u0c15\u0c42\u0c2a\u0c28\u0c4d\u0c32\u0c41 \u0c17\u0c46\u0c32\u0c41\u0c1a\u0c41\u0c15\u0c4b\u0c02\u0c21\u0c3f! \u0c2f\u0c3e\u0c2a\u0c4d\u200c\u0c32\u0c4b \u0c32\u0c15\u0c4d\u0c15\u0c40 \u0c21\u0c4d\u0c30\u0c3e \u0c06\u0c21\u0c02\u0c21\u0c3f.",
+              "verdict": "MODERATE"
+            }
+          ],
+          "fp_high": 0,
+          "fp_moderate": 5,
+          "fpr_high": 0.0,
+          "fpr_moderate": 0.125,
+          "scam_caught_high": 65,
+          "scam_caught_moderate": 119,
+          "scam_total": 120,
+          "tn_moderate": 35
+        }
+      },
+      "measurement_scope": "hand-authored / in-distribution; real-world recall and FPR UNMEASURED",
+      "overall": {
+        "accuracy_moderate": 0.9684,
+        "claim_scope": "hand-authored / in-distribution; real-world recall and FPR UNMEASURED",
+        "fn_moderate": 3,
+        "fp_moderate": 14,
+        "fpr_moderate": 0.1029,
+        "precision_moderate": 0.9661,
+        "recall_moderate": 0.9925,
+        "tn_moderate": 122,
+        "tp_moderate": 399
+      },
+      "reason_catalogue": "packages/contracts/reasons.py",
+      "status": "ok"
+    },
+    "organs": {
+      "condition": "synthetic / sandbox",
+      "firing_findings": 8,
+      "fixture_bundle_count": 24,
+      "missing_no_detection": 8,
+      "organ_count": 8,
+      "quarantine_before_detection": 4,
+      "registry_count": 1,
+      "silent_no_detection": 8,
+      "source": "apps/infra/detectors/registry.py",
+      "status": "ok",
+      "unknown_organ_quarantine": 1
+    },
+    "replay": {
+      "admin_override_status_code": 403,
+      "campaign_step_count": 14,
+      "commander_model_invoked": false,
+      "condition": "sandbox",
+      "decision_count": 21,
+      "decisions_snapshot_count": 21,
+      "deterministic": true,
+      "dry_run": true,
+      "execution_count": 21,
+      "executor_mode": "dry-run only",
+      "executor_real_action_count": 0,
+      "finding_count": 8,
+      "ledger_height": 55,
+      "ledger_valid": true,
+      "model_backed": false,
+      "no_detection_count": 2,
+      "quarantine_count": 4,
+      "quarantine_snapshot_count": 4,
+      "signed_event_count": 13,
+      "source": "evals/replay.py + apps/infra/backend/app.py",
+      "status": "ok",
+      "unsafe_decision_count": 0
+    },
+    "vigil": {
+      "active_model": "cloakpixel_privacynet_384.torchscript.pt",
+      "claims_not_made": [
+        "deepfake prevention",
+        "modern face-recognition defeat",
+        "anonymity guarantee"
+      ],
+      "condition": "local training / fixture; real-world UNMEASURED",
+      "dashboard_status_code": 200,
+      "local_epochs": 15,
+      "local_metrics": {
+        "boundary_f1": 0.8354583466247356,
+        "face_fnr": 0.018997653386947477,
+        "face_iou": 0.963122927952535,
+        "face_precision": 0.981427941449979,
+        "face_recall": 0.9810023466130525,
+        "loss": 0.42705458775162697,
+        "miou": 0.8836102639818952,
+        "per_class_iou": {
+          "Background": 0.9618600652754563,
+          "Ears": 0.7489369956548727,
+          "Eyes & eyebrows": 0.8211067062062509,
+          "Facial skin": 0.9399734394084939,
+          "Hair & head boundary": 0.9173774335927785,
+          "Mouth & lips": 0.8871076295833749,
+          "Nose": 0.9089095781520397
+        }
+      },
+      "local_metrics_only": true,
+      "model_input_size": 384,
+      "model_status": {
+        "architecture": "TorchScript_VigilPrivacyNet",
+        "cpu_threads_limit": 2,
+        "is_neural_active": true,
+        "parameter_count": 4428047,
+        "status_message": "Loaded neural checkpoint 'cloakpixel_privacynet_384.torchscript.pt' (4,428,047 parameters, CPU inference).",
+        "system_mode": "NEURAL_WEIGHTS_ACTIVE",
+        "under_100m_limit": true,
+        "weights_byte_size": 18450009,
+        "weights_file": "cloakpixel_privacynet_384.torchscript.pt",
+        "weights_sha256": "43f4d739c59c4349ea90220fd0f3b3156682fa8e5b1fcc2d3f657d2bbbd9102d"
+      },
+      "overview_status_code": 200,
+      "policy_count": 4,
+      "privacy_efficacy": "UNMEASURED",
+      "semantic_class_count": 7,
+      "sources": [
+        "packages/vigil/model_manifest.json",
+        "packages/vigil/privacynet_history.json",
+        "packages/vigil/config.py",
+        "apps/citizen/api.py"
+      ],
+      "static_status_code": 200,
+      "status": "ok",
+      "training_history": {
+        "train_loss": [
+          1.8976593551635743,
+          1.1677896173795064,
+          0.8311200757026672,
+          0.6400237971146902,
+          0.540289537747701,
+          0.48341480684280397,
+          0.44681968410809836,
+          0.4213220157623291,
+          0.4003232266108195,
+          0.38440968775749207,
+          0.37074131321907045,
+          0.3604161310195923,
+          0.35191132068634035,
+          0.34658619300524396,
+          0.34143030826250714
+        ],
+        "val_boundary_f1": [
+          0.6149510233408615,
+          0.7121336269832742,
+          0.7442641997486591,
+          0.7802174909378776,
+          0.782019672062202,
+          0.7912783398956441,
+          0.7839799954259441,
+          0.8028869774389827,
+          0.8126690936250628,
+          0.8177658448795652,
+          0.8166245371500112,
+          0.8267844055603929,
+          0.833074464678847,
+          0.8300921221299008,
+          0.8331404884107279
+        ],
+        "val_face_iou": [
+          0.9244475911570059,
+          0.9373120693342402,
+          0.9444462945944208,
+          0.9514307311238751,
+          0.9526257802158093,
+          0.9540202013796547,
+          0.953344919651403,
+          0.9571838243855839,
+          0.9579313352769975,
+          0.9588872604736477,
+          0.9585476953718731,
+          0.9604551806049054,
+          0.9611048474871535,
+          0.960703853918194,
+          0.9610816135315552
+        ],
+        "val_face_recall": [
+          0.9709070187197902,
+          0.9586067713914944,
+          0.9739240114986873,
+          0.9715094267932926,
+          0.982416179219487,
+          0.9771203465194128,
+          0.9833300209007998,
+          0.9804016032173463,
+          0.9814364136357909,
+          0.9797728905325482,
+          0.9815049355244749,
+          0.9801959563642221,
+          0.9792311292017557,
+          0.9786632256338113,
+          0.9785968146089966
+        ],
+        "val_loss": [
+          1.4175775861740112,
+          0.9735311985015869,
+          0.7265164315700531,
+          0.5905103659629822,
+          0.5300859743356705,
+          0.49744726181030274,
+          0.4742837089300156,
+          0.45078538060188295,
+          0.4383060097694397,
+          0.4320024186372757,
+          0.4279515081644058,
+          0.4172575569152832,
+          0.41347021400928496,
+          0.41118318498134615,
+          0.4104594910144806
+        ],
+        "val_miou": [
+          0.7695622241586059,
+          0.8336081236160927,
+          0.8457318263562043,
+          0.8625640206226347,
+          0.8686556210941428,
+          0.8711158251126879,
+          0.8743050325324192,
+          0.8799842085227523,
+          0.8816153822899085,
+          0.8837919207490426,
+          0.8826065024769936,
+          0.8864088118516171,
+          0.8875224436170169,
+          0.8890821754237486,
+          0.8892400324171076
+        ]
+      }
+    }
+  },
+  "source_files": [
+    "evals/corpus.py",
+    "evals/replay.py",
+    "evals/sections.py",
+    "evals/messageguard.py",
+    "apps/citizen/api.py",
+    "apps/citizen/features.py",
+    "packages/vigil/main.py",
+    "packages/vigil/config.py",
+    "packages/vigil/model_manifest.json",
+    "packages/vigil/privacynet_history.json",
+    "apps/infra/features.py",
+    "apps/infra/backend/app.py",
+    "apps/infra/console/__init__.py",
+    "apps/infra/console/console.js",
+    "apps/infra/console/hospital.html",
+    "apps/infra/console/hospital.js",
+    "apps/infra/demo/__init__.py",
+    "apps/infra/demo/hospital.py",
+    "apps/infra/demo/hospital_topology.json",
+    "apps/infra/BOOT_MANIFEST.json",
+    "apps/infra/detectors/registry.py",
+    "packages/governance/safety.py",
+    "packages/spine/runtime.py"
+  ]
+}

@@ -58,7 +58,7 @@ test("a Response for a 500 is NOT accepted as a successful send", async () => {
    * passed a Response, which is truthy for a 500. The report was deleted and
    * reported as sent. */
   const store = memStore();
-  Q.enqueue(store, { category: "voice", severity: 0.9 });
+  Q.enqueue(store, { category: "call", severity: 0.9 });
   const out = await Q.flush(store, async () => ({ status: 500 }));
   assert.strictEqual(out.sent, 0);
   assert.strictEqual(out.remaining, 1);
@@ -67,7 +67,7 @@ test("a Response for a 500 is NOT accepted as a successful send", async () => {
 
 test("a Response for a 200 is accepted", async () => {
   const store = memStore();
-  Q.enqueue(store, { category: "voice" });
+  Q.enqueue(store, { category: "call" });
   const out = await Q.flush(store, async () => ({ status: 200 }));
   assert.strictEqual(out.sent, 1);
   assert.strictEqual(Q.size(store), 0);
@@ -75,7 +75,7 @@ test("a Response for a 200 is accepted", async () => {
 
 test("a 4xx is kept but not retried forever in one pass", async () => {
   const store = memStore();
-  Q.enqueue(store, { category: "voice" });
+  Q.enqueue(store, { category: "call" });
   const out = await Q.flush(store, async () => ({ status: 422 }));
   assert.strictEqual(out.sent, 0);
   assert.strictEqual(out.rejected, 1);
@@ -86,7 +86,7 @@ test("the boolean contract still works unchanged", async () => {
   /* 8 pre-existing tests assert exact {sent, remaining} objects. The fix had to
    * preserve that shape or it would have rewritten the whole suite. */
   const store = memStore();
-  Q.enqueue(store, { category: "voice" });
+  Q.enqueue(store, { category: "call" });
   const ok = await Q.flush(store, async () => true);
   assert.deepStrictEqual(ok, { sent: 1, remaining: 0 });
 });
@@ -121,7 +121,7 @@ test("a rejected report never claims it will be sent later", () => {
 test("a network failure mid-flush keeps the unsent remainder in order", async () => {
   const store = memStore();
   for (const id of ["A", "B", "C"]) {
-    Q.enqueue(store, { category: "voice", case_id: id });
+    Q.enqueue(store, { category: "call", case_id: id });
   }
   let n = 0;
   const out = await Q.flush(store, async () => {
@@ -137,7 +137,7 @@ test("a network failure mid-flush keeps the unsent remainder in order", async ()
 
 test("a sender that throws does not lose the backlog", async () => {
   const store = memStore();
-  Q.enqueue(store, { category: "voice" });
+  Q.enqueue(store, { category: "call" });
   await Q.flush(store, async () => { throw new Error("boom"); });
   assert.strictEqual(Q.size(store), 1);
 });
@@ -145,13 +145,13 @@ test("a sender that throws does not lose the backlog", async () => {
 test("nothing from a queued entry ever leaks into storage", async () => {
   const store = memStore();
   Q.enqueue(store, {
-    category: "voice", severity: 0.8, lang: "te", case_id: "abc123",
-    text: "my OTP is 123456", samples: [0.1, 0.2], phone: "9876543210",
+    category: "call", severity: 0.8, lang: "te", case_id: "abc123",
+    text: "my OTP is 123456", pixels: [0.1, 0.2], phone: "9876543210",
   });
   const raw = store.getItem(Q.QUEUE_KEY);
   assert.ok(!raw.includes("OTP"), "message content reached storage");
   assert.ok(!raw.includes("9876543210"), "a phone number reached storage");
-  assert.ok(!raw.includes("samples"), "audio reached storage");
+  assert.ok(!raw.includes("samples"), "image pixels reached storage");
   assert.deepStrictEqual(Object.keys(JSON.parse(raw)[0]).sort(),
                          ["case_id", "category", "lang", "severity"]);
 });
@@ -170,11 +170,11 @@ test("the panic path issues no network request at all", () => {
   const order = [];
   const res = P.runPanic({
     lock: () => order.push("LOCK"),
-    stopCapture: () => order.push("STOP_CAPTURE"),
+    closeImageSession: () => order.push("CLOSE_IMAGE_SESSION"),
     dial: () => order.push("DIAL"),
   });
   assert.strictEqual(fetched, 0, "panic touched the network");
-  assert.deepStrictEqual(order, ["LOCK", "STOP_CAPTURE", "DIAL"],
+  assert.deepStrictEqual(order, ["LOCK", "CLOSE_IMAGE_SESSION", "DIAL"],
                          "safety order must be lock -> stop -> dial");
   assert.strictEqual(res.failed.length, 0);
 });
@@ -182,7 +182,7 @@ test("the panic path issues no network request at all", () => {
 test("panic completes with a full queue and a dead network", async () => {
   const store = memStore();
   for (let i = 0; i < Q.QUEUE_MAX; i += 1) {
-    Q.enqueue(store, { category: "voice", case_id: "c" + i });
+    Q.enqueue(store, { category: "call", case_id: "c" + i });
   }
   assert.strictEqual(Q.size(store), Q.QUEUE_MAX);
 
@@ -194,10 +194,10 @@ test("panic completes with a full queue and a dead network", async () => {
   const order = [];
   const res = P.runPanic({
     lock: () => order.push("LOCK"),
-    stopCapture: () => order.push("STOP_CAPTURE"),
+    closeImageSession: () => order.push("CLOSE_IMAGE_SESSION"),
     dial: () => order.push("DIAL"),
   });
-  assert.deepStrictEqual(order, ["LOCK", "STOP_CAPTURE", "DIAL"]);
+  assert.deepStrictEqual(order, ["LOCK", "CLOSE_IMAGE_SESSION", "DIAL"]);
   assert.strictEqual(res.state, P.PANIC_STATE.LOCKED);
 });
 
@@ -208,10 +208,10 @@ test("panic still dials when the overlay throws", () => {
   const order = [];
   const res = P.runPanic({
     lock: () => { throw new Error("DOM is gone"); },
-    stopCapture: () => order.push("STOP_CAPTURE"),
+    closeImageSession: () => order.push("CLOSE_IMAGE_SESSION"),
     dial: () => order.push("DIAL"),
   });
-  assert.deepStrictEqual(order, ["STOP_CAPTURE", "DIAL"]);
+  assert.deepStrictEqual(order, ["CLOSE_IMAGE_SESSION", "DIAL"]);
   assert.ok(res.failed.includes("LOCK"));
 });
 
@@ -225,7 +225,7 @@ function loadSw(clientsControlled) {
     self: null,
     caches: {
       open: async () => ({ addAll: async (a) => { calls.added = a; } }),
-      keys: async () => ["raksha-citizen-v0.4.0", "raksha-citizen-v0.4.1"],
+      keys: async () => ["raksha-citizen-v0.4.0", "raksha-citizen-v0.4.1", "raksha-citizen-v0.4.2"],
       delete: async (k) => { calls.deleted.push(k); },
       match: async () => undefined,
     },
@@ -250,10 +250,11 @@ function loadSw(clientsControlled) {
   return { listeners, calls, sandbox };
 }
 
-test("the worker never caches an /api/ response", () => {
+test("the worker never caches API responses", () => {
   const src = fs.readFileSync(path.join(APP, "sw.js"), "utf8");
-  assert.ok(src.includes('url.pathname.startsWith("/api/")'),
-            "the /api/ bypass is the rule that keeps verdicts out of the cache");
+  assert.ok(src.includes('url.pathname.startsWith("/api/")'));
+  assert.ok(src.includes('url.pathname.startsWith("/vigil/api/")'),
+            "the VIGIL API bypass keeps image audit responses out of the cache");
   const assets = src.match(/const ASSETS = \[([\s\S]*?)\]/)[1];
   assert.ok(!/\/api\//.test(assets), "an API path in the asset list would poison the cache");
 });
@@ -263,8 +264,9 @@ test("a version bump invalidates every previous cache", async () => {
   let waited;
   listeners.activate({ waitUntil: (p) => { waited = p; } });
   await waited;
-  assert.deepStrictEqual(calls.deleted, ["raksha-citizen-v0.4.0"],
-                         "the old version must be deleted");
+  assert.deepStrictEqual(calls.deleted,
+                         ["raksha-citizen-v0.4.0", "raksha-citizen-v0.4.1"],
+                         "every previous cache version must be deleted");
 });
 
 test("an open page is not claimed mid-session", async () => {
@@ -304,6 +306,6 @@ test("the cache version is bumped when the asset list changes", () => {
   const sw = fs.readFileSync(path.join(APP, "sw.js"), "utf8");
   const version = sw.match(/const CACHE = "raksha-citizen-(v[\d.]+)"/);
   assert.ok(version, "the cache version disappeared");
-  assert.ok(version[1] !== "v0.4.0",
-            "send-state.js was added, so the cache version had to move");
+  assert.ok(version[1] !== "v0.4.0" && version[1] !== "v0.4.1",
+            "the offline shell changed, so the cache version had to move");
 });

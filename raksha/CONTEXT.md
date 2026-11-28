@@ -1,10 +1,22 @@
+> Historical provenance: the retired voice-scorer code was removed from executable paths. Active status lives in [docs/STATUS.md](../docs/STATUS.md); see the [retired code note](../archive/provenance/RETIRED.md). Real-world privacy efficacy remains UNMEASURED.
+
 # RAKSHA — Project Context for AI Collaborators
 
 > **Read this first. Then `AI_HANDOFF.md`. Then your task file.**
-> **Last updated:** 2026-11-20 · **Owner of record:** repo maintainer (human).
+> **Last updated:** 2026-11-26 · **Owner of record:** repo maintainer (human).
+> **Phase 3/4 note:** `../packages/contracts/` now owns one canonical JSON rule,
+> one signed-envelope contract and shared i18n rendering; Citizen sentences live
+> in `../apps/citizen/copy.py`. VoiceGuard/MAYA remain a frozen, disabled seam.
+> See [`PHASE3_CONTRACT_SPINE.md`](PHASE3_CONTRACT_SPINE.md) and
+> [`PHASE4_CITIZEN_CONSOLIDATION.md`](PHASE4_CITIZEN_CONSOLIDATION.md).
 > This file exists so an AI that has never seen this project can act like a
 > senior teammate by the end of one read. If you change facts here, you MUST
 > update `CHANGELOG.md`.
+>
+> **Phase 1 note:** the original Citizen scope below includes voice screening.
+> The combined-system 10-phase plan parks VoiceGuard / MAYA as a frozen seam;
+> see [`PHASE1_ARCHITECTURE_FREEZE.md`](PHASE1_ARCHITECTURE_FREEZE.md) and
+> [the retired-code note](../archive/provenance/RETIRED.md).
 
 ---
 
@@ -57,7 +69,7 @@ its battle-tested parts. Nothing below is aspirational vapor — it runs.
 | Zero-trust sanitizer + HMAC-signed telemetry + replay defense | `bus/sanitizer.py`, `fortress/telemetry_mac.py` | Both apps: untrusted input normalization + signed evidence |
 | Percolation containment (NetworkX, ρ-criticality) | `reflexes/ring4_network_healing/` | Sentinel **containment engine** core |
 | Page-Curve ransomware parity traps | `reflexes/ring3_endpoint_silicon/` | Sentinel **Endpoint shield** ransomware trap |
-| Bragg/Fiedler injection gates | `reflexes/ring2_ai_defense/` | Citizen **MessageGuard** (scam-script detection, embeddings + spectra) |
+| Bragg/Fiedler injection gates | `reflexes/ring2_ai_defense/` | Architectural lineage for input screening. The shipped Citizen **MessageGuard** is deterministic regex rules, not embeddings or a trained model |
 | Rank-1 botnet condensation detector | `reflexes/ring1_perimeter_identity/` | Sentinel **Identity shield** (botnet/session drift) |
 | Lyapunov jailbreak steering clamp | `reflexes/ring2_ai_defense/` | Sentinel **AI-Agent shield** (agent behavioral bounds) |
 | Inter-organ N-version resilience doctrine | `fortress/` | Whole-architecture principle (see `AI_HANDOFF.md` rules) |
