@@ -11,20 +11,20 @@
 <body>
 <header>
   <div class="logo">RAKSHA<span>रक्षक</span></div>
-  <div class="badge">DEMO BUILD — heuristic detectors</div>
+  <div class="badge">DEMO BUILD — MessageGuard rules + VIGIL image privacy</div>
 </header>
 
 <nav class="tabs" aria-label="Main sections">
   <button class="tab active" data-tab="home" aria-label="Home">Home</button>
   <button class="tab" data-tab="message" aria-label="Check a message">Check Message</button>
-  <button class="tab" data-tab="voice" aria-label="Check a voice">Check Voice</button>
+  <button class="tab" data-tab="privacy" aria-label="Image privacy">Image Privacy</button>
   <button class="tab" data-tab="report" aria-label="Report an incident">Report</button>
 </nav>
 
 <main>
   <section id="home" class="panel active">
     <h1>The shield between your family<br>and the scammers.</h1>
-    <p class="lede">Paste a suspicious message. Screen a suspicious call.
+    <p class="lede">Paste a suspicious message. Protect an image with VIGIL.
        Report with one tap. Raksha watches so you don't have to.</p>
     <div class="family-row">
       <label class="family-toggle">
@@ -48,24 +48,22 @@
     <div id="msgResult" class="result hidden"></div>
   </section>
 
-  <section id="voice" class="panel">
-    <h2>Check a voice</h2>
-    <p class="hint">Records up to <b>3 seconds</b> from your microphone, screens it on this device, and keeps nothing. Audio never leaves the phone — only the verdict is computed. English · हिंदी · తెలుగు.</p>
+  <section id="privacy" class="panel">
+    <h2>VIGIL image privacy</h2>
+    <p class="hint">Open VIGIL to redact or perturb selected image regions. It reports local pixel-change metrics and keeps session pixels in memory only. It does not claim deepfake prevention, modern facial recognition defeat or anonymity. Call 1930 if in doubt.</p>
     <div class="privacy-note">
       <span class="dot" aria-hidden="true"></span>
-      The microphone is open only while you hold this check. The buffer is overwritten and zeroed when you stop.
+      The active model is VIGIL PrivacyNet TorchScript. Privacy efficacy remains UNMEASURED.
     </div>
-    <button class="primary" id="btnScreenVoice">Record and check this call</button>
-    <div id="voiceIndicator" class="indicator" aria-live="polite"></div>
-    <button class="secondary" id="btnVoiceTone">Use a bundled sample instead (plumbing check)</button>
-    <div id="voiceResult" class="result hidden" aria-live="polite"></div>
+    <a class="primary" id="btnOpenVigil" href="/vigil/">Open VIGIL image privacy</a>
+    <div id="vigilStatus" class="indicator" aria-live="polite"></div>
   </section>
 
   <section id="report" class="panel">
     <h2>Report an incident — one tap</h2>
     <p class="hint">No phone numbers, no message content, no personal data leaves this phone. We send only the category and a severity band — signed and tokenized.</p>
     <div class="report-grid" role="radiogroup" aria-label="Report category">
-      <button class="chip" data-cat="voice" role="radio" aria-label="Voice or call scam">📞 Voice / call scam</button>
+      <button class="chip" data-cat="call" role="radio" aria-label="Call scam">📞 Call scam</button>
       <button class="chip" data-cat="message" role="radio" aria-label="Message scam">💬 Message scam</button>
       <button class="chip" data-cat="financial" role="radio" aria-label="Money or UPI fraud">🪙 Money / UPI fraud</button>
       <button class="chip" data-cat="other" role="radio" aria-label="Other incident">⚠️ Other</button>
@@ -79,15 +77,14 @@
     <button class="primary" id="btnReport">Send report</button>
     <div id="reportResult" class="result hidden"></div>
     <button class="panic" id="btnPanic" type="button">🆘 Need help now? Call 1930</button>
-    <p class="panic-note">Closes this screen, switches off the microphone, then dials 1930.</p>
+    <p class="panic-note">Closes this screen, clears any active VIGIL image buffer, then dials 1930.</p>
   </section>
 </main>
 
 <footer>
-  RAKSHA Citizen · open-source defence for every Indian phone · verdicts are advisory, not legal or police advice
+  RAKSHA Citizen · open-source defence for every Indian phone · verdicts are advisory, not legal or police advice ·
+  <a href="?nosw=1">Reset offline shell</a>
 </footer>
-<script src="maya-capture.js"></script>
-<script src="maya-capture-worklet.js"></script>
 <script src="send-state.js"></script>
 <script src="queue.js"></script>
 <script src="panic.js"></script>

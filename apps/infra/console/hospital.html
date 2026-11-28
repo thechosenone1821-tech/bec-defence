@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Aster Memorial Hospital · synthetic attack exercise</title>
+  <style>
+    :root { color-scheme: dark; --bg:#07101c; --panel:#0d1d30; --panel2:#0a1728; --line:#223b57; --ink:#eaf4ff; --muted:#91b0cb; --cyan:#55d6d0; --lime:#a8e05f; --amber:#ffcc66; --red:#ff7b7b; --violet:#b9a0ff; --shadow:0 18px 40px rgba(0,0,0,.35); }
+    * { box-sizing:border-box; }
+    body { margin:0; color:var(--ink); background:radial-gradient(1000px 560px at 12% -8%, #123b52 0, transparent 60%), radial-gradient(900px 500px at 92% 0, #1a2e52 0, transparent 55%), var(--bg); font:14px/1.45 ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,sans-serif; min-height:100vh; }
+    header { position:sticky; top:0; z-index:20; padding:15px clamp(16px,4vw,44px); display:flex; flex-wrap:wrap; gap:12px; align-items:center; justify-content:space-between; border-bottom:1px solid var(--line); background:rgba(7,16,28,.88); backdrop-filter:blur(14px); }
+    .brand { display:flex; gap:12px; align-items:center; font-weight:800; }
+    .mark { width:38px; height:38px; border-radius:12px; display:grid; place-items:center; background:linear-gradient(135deg,var(--cyan),#2777a8); color:#04121e; font-size:20px; font-weight:900; box-shadow:0 0 24px rgba(85,214,208,.35); }
+    .brand small { display:block; color:var(--muted); font-size:12px; letter-spacing:.08em; text-transform:uppercase; font-weight:500; }
+    .badges { display:flex; flex-wrap:wrap; gap:8px; }
+    .badge { border:1px solid var(--line); border-radius:999px; padding:5px 10px; color:var(--muted); font-size:12px; }
+    .badge.ok { color:#04121e; background:var(--lime); border-color:transparent; font-weight:800; }
+    .badge.warn { color:var(--amber); border-color:#7a5a1d; }
+    .badge.bad { color:var(--red); border-color:#7a3030; }
+    main { max-width:1420px; margin:0 auto; padding:24px clamp(16px,4vw,44px) 60px; }
+    .hero { display:grid; grid-template-columns:1.35fr .65fr; gap:18px; margin-bottom:18px; }
+    @media (max-width:900px) { .hero { grid-template-columns:1fr; } }
+    .banner, .card { border:1px solid var(--line); border-radius:20px; background:linear-gradient(165deg,rgba(16,40,63,.94),rgba(9,24,40,.94)); box-shadow:var(--shadow); }
+    .banner { padding:24px; background:linear-gradient(135deg,rgba(85,214,208,.12),rgba(16,40,63,.55)); }
+    .banner h1 { margin:0 0 8px; font-size:clamp(26px,4vw,42px); line-height:1.1; }
+    .banner p { margin:0; color:var(--muted); max-width:78ch; }
+    .notice { margin-top:16px; border-left:3px solid var(--amber); padding:10px 12px; background:rgba(255,204,102,.08); color:#ffe6ad; border-radius:0 10px 10px 0; font-size:13px; }
+    .controls { display:grid; gap:10px; align-content:center; }
+    .btn-row { display:flex; flex-wrap:wrap; gap:9px; }
+    button, .button { appearance:none; border:1px solid transparent; border-radius:11px; padding:10px 14px; background:linear-gradient(135deg,var(--cyan),#2b8fb6); color:#04121e; font-weight:800; cursor:pointer; font:inherit; text-decoration:none; display:inline-flex; align-items:center; justify-content:center; gap:7px; }
+    button:hover, .button:hover { filter:brightness(1.08); transform:translateY(-1px); }
+    button.secondary, .button.secondary { background:rgba(16,40,63,.8); color:var(--ink); border-color:var(--line); }
+    button.ghost { background:transparent; color:var(--muted); border-color:var(--line); }
+    button.danger { background:linear-gradient(135deg,var(--red),#c94f4f); color:#fff; }
+    button:disabled { opacity:.45; cursor:not-allowed; transform:none; }
+    .demo-message { min-height:20px; color:var(--cyan); font-weight:700; font-size:13px; }
+    .kpis { display:grid; grid-template-columns:repeat(6,minmax(120px,1fr)); gap:12px; margin-bottom:18px; }
+    @media (max-width:1100px) { .kpis { grid-template-columns:repeat(3,1fr); } }
+    @media (max-width:640px) { .kpis { grid-template-columns:repeat(2,1fr); } }
+    .kpi { border:1px solid var(--line); border-radius:16px; padding:14px; background:var(--panel); }
+    .kpi span { display:block; color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.1em; }
+    .kpi b { display:block; margin-top:4px; font-size:24px; }
+    .grid { display:grid; grid-template-columns:1.45fr .55fr; gap:18px; align-items:start; }
+    @media (max-width:1050px) { .grid { grid-template-columns:1fr; } }
+    .card { padding:18px; margin-bottom:18px; }
+    .card h2 { margin:0 0 12px; font-size:14px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); }
+    .scenario-line { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:14px; }
+    .pill { border:1px solid var(--line); border-radius:999px; padding:5px 10px; color:var(--muted); font-size:12px; }
+    .pill.live { color:#04121e; background:var(--lime); border-color:transparent; font-weight:800; }
+    .asset-map { display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:10px; }
+    .asset { border:1px solid var(--line); border-radius:14px; padding:12px; background:var(--panel2); }
+    .asset .role { color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.08em; }
+    .asset .name { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12px; margin:4px 0 8px; word-break:break-all; }
+    .asset .status { font-size:12px; font-weight:800; }
+    .asset.normal { border-color:#24506a; }
+    .asset.detected { border-color:var(--amber); box-shadow:0 0 16px rgba(255,204,102,.12); }
+    .asset.quarantined { border-color:var(--red); box-shadow:0 0 16px rgba(255,123,123,.14); }
+    .asset.dry_run_contained { border-color:var(--cyan); }
+    .asset.observed { border-color:var(--violet); }
+    .status-detected { color:var(--amber); }
+    .status-quarantined { color:var(--red); }
+    .status-dry_run_contained { color:var(--cyan); }
+    .status-observed { color:var(--violet); }
+    .status-normal { color:var(--muted); }
+    .attack-feed { display:grid; gap:12px; max-height:720px; overflow:auto; padding-right:4px; }
+    .attack { border:1px solid var(--line); border-radius:16px; padding:14px; background:var(--panel2); }
+    .attack.finding { border-left:4px solid var(--cyan); }
+    .attack.quarantined { border-left:4px solid var(--red); }
+    .attack.no_detection { border-left:4px solid var(--violet); }
+    .attack-head { display:flex; flex-wrap:wrap; gap:8px; align-items:center; justify-content:space-between; }
+    .attack-head strong { font-size:15px; }
+    .tag { font-size:11px; padding:3px 8px; border-radius:999px; border:1px solid var(--line); color:var(--muted); }
+    .tag.ok { color:#04121e; background:var(--lime); border-color:transparent; font-weight:800; }
+    .tag.bad { color:#fff; background:#a33b45; border-color:transparent; font-weight:800; }
+    .attack p { color:var(--muted); margin:8px 0; }
+    .kv { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:8px; margin-top:10px; }
+    .kv div { border:1px solid var(--line); border-radius:10px; padding:8px; }
+    .kv span { display:block; color:var(--muted); font-size:10px; text-transform:uppercase; letter-spacing:.08em; }
+    .kv code, .kv b { color:#bfe8ff; font-size:12px; }
+    table { width:100%; border-collapse:collapse; }
+    th,td { text-align:left; padding:8px 9px; border-bottom:1px solid var(--line); vertical-align:top; font-size:12px; }
+    th { color:var(--muted); }
+    pre { max-height:280px; overflow:auto; background:#06121f; border:1px solid var(--line); border-radius:12px; padding:12px; color:#bfe8ff; font-size:12px; white-space:pre-wrap; word-break:break-word; }
+    .muted { color:var(--muted); }
+    .empty { color:var(--muted); padding:12px 0; }
+    .toast { position:fixed; right:18px; bottom:18px; max-width:380px; background:#10243a; border:1px solid var(--line); color:var(--ink); padding:12px 14px; border-radius:10px; box-shadow:var(--shadow); opacity:0; transform:translateY(8px); pointer-events:none; transition:.18s ease; }
+    .toast.show { opacity:1; transform:translateY(0); }
+    .toast.bad { border-color:#7a3030; color:#ffd7d7; }
+    footer { text-align:center; color:var(--muted); font-size:12px; padding:0 20px 30px; }
+    [hidden] { display:none !important; }
+  </style>
+  <script src="hospital.js" defer></script>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <div class="mark">A</div>
+      <div>Aster Memorial Hospital<small>synthetic Infra defence exercise</small></div>
+    </div>
+    <div class="badges">
+      <span class="badge ok">● functional simulation</span>
+      <span class="badge">fake organisation</span>
+      <span class="badge warn">dry-run · no real containment</span>
+      <span class="badge">Commander disabled</span>
+      <span id="auth-badge" class="badge">read scope</span>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="banner">
+        <h1>Attack series on a fake hospital system.</h1>
+        <p>Each attack becomes a signed or deliberately invalid event, passes through the real detector, quarantining, campaign fusion, Governor, append-only ledger and dry-run executor path, then appears below. The organisation, hosts, traffic and findings are synthetic.</p>
+        <div class="notice"><strong>Honesty:</strong> no real patient data, real attack traffic, real containment action, Commander inference or measured real-world efficacy is used. Every proposed response is simulated only.</div>
+      </div>
+      <div class="card controls">
+        <h2>Exercise controls</h2>
+        <div class="btn-row">
+          <button id="btn-start" type="button">Start scenario</button>
+          <button id="btn-step" type="button" class="secondary">Next attack</button>
+          <button id="btn-play" type="button">Play all</button>
+          <button id="btn-pause" type="button" class="ghost" disabled>Pause</button>
+          <button id="btn-reset" type="button" class="danger">Reset</button>
+          <a class="button secondary" href="/app/console">SOC console</a>
+        </div>
+        <div id="demo-message" class="demo-message" aria-live="polite">Ready. Press Start scenario.</div>
+      </div>
+    </section>
+
+    <section class="kpis">
+      <div class="kpi"><span>Attacks shown</span><b id="kpi-steps">—</b></div>
+      <div class="kpi"><span>Findings</span><b id="kpi-findings">—</b></div>
+      <div class="kpi"><span>Quarantined</span><b id="kpi-quarantine">—</b></div>
+      <div class="kpi"><span>Dry-run decisions</span><b id="kpi-decisions">—</b></div>
+      <div class="kpi"><span>Ledger height</span><b id="kpi-ledger">—</b></div>
+      <div class="kpi"><span>Real actions</span><b id="kpi-real-actions">0</b></div>
+    </section>
+
+    <div class="grid">
+      <div>
+        <section class="card">
+          <h2>Synthetic hospital asset map</h2>
+          <div class="scenario-line">
+            <span id="scenario-state" class="pill">ready</span>
+            <span id="campaign-fused" class="pill">campaign not fused</span>
+            <span id="executor-mode" class="pill">dry-run</span>
+            <span id="next-attack" class="pill">next: credential replay</span>
+          </div>
+          <div id="asset-map" class="asset-map">Loading topology…</div>
+        </section>
+
+        <section class="card">
+          <h2>Attack feed</h2>
+          <div id="attack-feed" class="attack-feed"><div class="empty">No attacks shown yet. Press Start scenario or Play all.</div></div>
+        </section>
+      </div>
+
+      <aside>
+        <section class="card">
+          <h2>Next scripted attack</h2>
+          <div id="next-card">Loading…</div>
+        </section>
+        <section class="card">
+          <h2>Governor decisions</h2>
+          <div id="decision-list"><div class="empty">No sealed decisions yet.</div></div>
+        </section>
+        <section class="card">
+          <h2>Quarantine</h2>
+          <div id="quarantine-list"><div class="empty">No quarantined events yet.</div></div>
+        </section>
+        <section class="card">
+          <h2>Ledger verification</h2>
+          <pre id="ledger-verify">Loading…</pre>
+        </section>
+        <section class="card">
+          <h2>Runtime timeline</h2>
+          <pre id="runtime-timeline">Loading…</pre>
+        </section>
+      </aside>
+    </div>
+  </main>
+
+  <footer>RAKSHA Infra · functional fake-hospital exercise · deterministic, read-only, dry-run · real-world efficacy UNMEASURED</footer>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+</body>
+</html>

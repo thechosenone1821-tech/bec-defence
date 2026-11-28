@@ -13,11 +13,18 @@ from __future__ import annotations
 
 import hashlib
 import hmac
-import json
 import os
+import sys
 import time
 import uuid
+from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Tuple
+
+try:
+    from packages.contracts.canonical import CANONICAL_JSON_RULE, canonical_bytes
+except ImportError:  # pragma: no cover - minimal standalone checkout
+    sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
+    from packages.contracts.canonical import CANONICAL_JSON_RULE, canonical_bytes
 
 DEV_RPC_SECRET = "eigenshield-dev-rpc-secret-do-not-use-in-prod"
 
@@ -35,7 +42,7 @@ def sign_rpc(tool: str, args: Dict[str, Any], nonce: Optional[str] = None) -> Di
         "nonce": nonce or uuid.uuid4().hex,
         "ts": time.time(),
     }
-    body = json.dumps(envelope, sort_keys=True, separators=(",", ":")).encode()
+    body = canonical_bytes(envelope)
     envelope["signature"] = hmac.new(_rpc_secret(), body, hashlib.sha256).hexdigest()
     return envelope
 
@@ -45,7 +52,7 @@ def verify_rpc(envelope: Dict[str, Any]) -> bool:
     if not isinstance(envelope, dict) or "signature" not in envelope:
         return False
     body_src = {k: v for k, v in envelope.items() if k != "signature"}
-    body = json.dumps(body_src, sort_keys=True, separators=(",", ":")).encode()
+    body = canonical_bytes(body_src)
     expected = hmac.new(_rpc_secret(), body, hashlib.sha256).hexdigest()
     return hmac.compare_digest(expected, str(envelope.get("signature", "")))
 
@@ -98,12 +105,11 @@ def seal_event(event: Dict[str, Any]) -> Dict[str, Any]:
     """Sign an organ event with HMAC-SHA256 over its canonical body.
 
     Deliberately does not import `spine.telemetry_mac`: the organ must be able to
-    sign its own event without the bus being importable, because the point of
-    signing at the source is that it does not depend on the transport.
+    sign its own event without the bus being importable. Phase 3 still uses the
+    one shared canonical JSON rule from `packages.contracts.canonical`.
     """
     body = {k: v for k, v in event.items() if k not in ("mac", "signature")}
-    canonical = json.dumps(body, sort_keys=True, separators=(",", ":"),
-                           default=str).encode()
+    canonical = canonical_bytes(body)
     mac = hmac.new(_rpc_secret(), canonical, hashlib.sha256).hexdigest()
     sealed = dict(body)
     sealed["mac"] = mac
@@ -119,8 +125,7 @@ def verify_sealed(event: Dict[str, Any]) -> bool:
     if not isinstance(mac, str) or len(mac) != 64:
         return False
     body = {k: v for k, v in event.items() if k not in ("mac", "signature")}
-    canonical = json.dumps(body, sort_keys=True, separators=(",", ":"),
-                           default=str).encode()
+    canonical = canonical_bytes(body)
     expected = hmac.new(_rpc_secret(), canonical, hashlib.sha256).hexdigest()
     return hmac.compare_digest(expected, mac)
 

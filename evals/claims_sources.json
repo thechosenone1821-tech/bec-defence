@@ -1,0 +1,30 @@
+{
+  "allowed_conditions": [
+    "fixture",
+    "synthetic",
+    "sandbox",
+    "hand-authored",
+    "local training",
+    "real-world UNMEASURED"
+  ],
+  "contract": "raksha-claims-sources-v2",
+  "rows": [
+    {
+      "claim_id": "DOC-ACTIVE-HONESTY",
+      "condition": "fixture / sandbox; real-world UNMEASURED",
+      "source": "repository structure",
+      "used_in": [
+        "summary.md",
+        "README.md",
+        "docs/STATUS.md",
+        "docs/README.md",
+        "CHANGELOG.md",
+        "raksha/README.md",
+        "raksha/PHASE910_UNIFIED_RELEASE.md",
+        "raksha/MESSAGEGUARD_EVALS.md"
+      ],
+      "value": "UNMEASURED"
+    }
+  ],
+  "rules": "Every numeric token in an outward-facing static document must have a row here before the eval gate can pass. Measurement numbers in EVALS.md come from evals/results.json instead."
+}

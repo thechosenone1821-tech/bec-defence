@@ -1,0 +1,568 @@
+{
+  "measurement_scope": "hand-authored / in-distribution; real-world recall and FPR UNMEASURED",
+  "engine": "messageguard-rules-v1 (538 hand-authored/in-distribution fixtures; real-world UNMEASURED)",
+  "detector_interface": "apps/citizen/messageguard",
+  "reason_catalogue": "packages/contracts/reasons.py",
+  "generated_report": "raksha/MESSAGEGUARD_EVALS.md",
+  "corpus": {
+    "claim_scope": "hand-authored / in-distribution; real-world recall and FPR UNMEASURED",
+    "scam_total": 402,
+    "benign_total": 136,
+    "scam_by_lang": {
+      "en": 120,
+      "hi": 132,
+      "te": 120,
+      "hinglish": 30
+    },
+    "benign_by_lang": {
+      "en": 40,
+      "hi": 40,
+      "te": 40,
+      "hinglish": 16
+    }
+  },
+  "languages": {
+    "en": {
+      "scam_caught_moderate": 119,
+      "scam_caught_high": 65,
+      "scam_total": 120,
+      "detection_rate_moderate": 0.9917,
+      "detection_rate_high": 0.5417,
+      "critical_count": 65,
+      "benign_total": 40,
+      "fp_moderate": 5,
+      "fp_high": 0,
+      "fpr_moderate": 0.125,
+      "fpr_high": 0.0,
+      "tn_moderate": 35,
+      "family_recall": {
+        "credential": {
+          "labelled": 27,
+          "hit": 27,
+          "recall": 1.0
+        },
+        "authority": {
+          "labelled": 46,
+          "hit": 46,
+          "recall": 1.0
+        },
+        "money_action": {
+          "labelled": 67,
+          "hit": 67,
+          "recall": 1.0
+        },
+        "prize": {
+          "labelled": 17,
+          "hit": 17,
+          "recall": 1.0
+        },
+        "urgency": {
+          "labelled": 72,
+          "hit": 72,
+          "recall": 1.0
+        },
+        "link_grab": {
+          "labelled": 38,
+          "hit": 38,
+          "recall": 1.0
+        }
+      },
+      "fp_cases": [
+        {
+          "id": "BN-EN-024",
+          "kind": "genuine_bank_kyc_alert",
+          "score": 0.45,
+          "verdict": "HIGH",
+          "families_fired": [
+            "link_grab",
+            "urgency"
+          ],
+          "text": "HDFC Bank KYC alert: Update your KYC immediately to avoid deactivation of your account. Visit hdfcbank.com/kyc"
+        },
+        {
+          "id": "BN-EN-025",
+          "kind": "genuine_bank_kyc_alert",
+          "score": 0.25,
+          "verdict": "MODERATE",
+          "families_fired": [
+            "link_grab"
+          ],
+          "text": "SBI: Update KYC now at bit.ly/sbi-kyc to keep your account active."
+        },
+        {
+          "id": "BN-EN-026",
+          "kind": "genuine_bank_kyc_alert",
+          "score": 0.45,
+          "verdict": "HIGH",
+          "families_fired": [
+            "link_grab",
+            "urgency"
+          ],
+          "text": "ICICI Bank: KYC update pending. Update your PAN card details immediately at icicibank.com/kyc-update else card suspended."
+        },
+        {
+          "id": "BN-EN-031",
+          "kind": "marketing_offer",
+          "score": 0.3,
+          "verdict": "MODERATE",
+          "families_fired": [
+            "prize"
+          ],
+          "text": "Win exciting coupons this Diwali with Paytm! Play the in-app lucky draw now."
+        },
+        {
+          "id": "BN-EN-033",
+          "kind": "broker_market_info",
+          "score": 0.2,
+          "verdict": "MODERATE",
+          "families_fired": [
+            "urgency"
+          ],
+          "text": "Angel One: Your demat account is active. Market opens at 9:15 AM today."
+        }
+      ]
+    },
+    "hi": {
+      "scam_caught_moderate": 131,
+      "scam_caught_high": 74,
+      "scam_total": 132,
+      "detection_rate_moderate": 0.9924,
+      "detection_rate_high": 0.5606,
+      "critical_count": 74,
+      "benign_total": 40,
+      "fp_moderate": 4,
+      "fp_high": 0,
+      "fpr_moderate": 0.1,
+      "fpr_high": 0.0,
+      "tn_moderate": 36,
+      "family_recall": {
+        "credential": {
+          "labelled": 30,
+          "hit": 30,
+          "recall": 1.0
+        },
+        "authority": {
+          "labelled": 53,
+          "hit": 53,
+          "recall": 1.0
+        },
+        "money_action": {
+          "labelled": 74,
+          "hit": 74,
+          "recall": 1.0
+        },
+        "prize": {
+          "labelled": 19,
+          "hit": 19,
+          "recall": 1.0
+        },
+        "urgency": {
+          "labelled": 91,
+          "hit": 91,
+          "recall": 1.0
+        },
+        "link_grab": {
+          "labelled": 40,
+          "hit": 40,
+          "recall": 1.0
+        }
+      },
+      "fp_cases": [
+        {
+          "id": "BN-HI-024",
+          "kind": "genuine_bank_kyc_alert",
+          "score": 0.45,
+          "verdict": "HIGH",
+          "families_fired": [
+            "link_grab",
+            "urgency"
+          ],
+          "text": "एचडीएफसी बैंक केवाईसी अलर्ट: खाता डी-एक्टिवेशन से बचने के लिए तुरंत केवाईसी अपडेट करें। hdfcbank.com/kyc पर जाएं।"
+        },
+        {
+          "id": "BN-HI-025",
+          "kind": "genuine_bank_kyc_alert",
+          "score": 0.25,
+          "verdict": "MODERATE",
+          "families_fired": [
+            "link_grab"
+          ],
+          "text": "एसबीआई: खाता एक्टिव रखने के लिए अभी bit.ly/sbi-kyc पर केवाईसी अपडेट करें।"
+        },
+        {
+          "id": "BN-HI-026",
+          "kind": "genuine_bank_kyc_alert",
+          "score": 0.45,
+          "verdict": "HIGH",
+          "families_fired": [
+            "link_grab",
+            "urgency"
+          ],
+          "text": "आईसीआईसीआई बैंक: केवाईसी अपडेट लंबित। icicibank.com/kyc-update पर पैन कार्ड विवरण तुरंत अपडेट करें, अन्यथा कार्ड निलंबित।"
+        },
+        {
+          "id": "BN-HI-031",
+          "kind": "marketing_offer",
+          "score": 0.3,
+          "verdict": "MODERATE",
+          "families_fired": [
+            "prize"
+          ],
+          "text": "पेटीएम के साथ इस दिवाली शानदार कूपन जीतें! ऐप में लकी ड्रॉ खेलें।"
+        }
+      ]
+    },
+    "te": {
+      "scam_caught_moderate": 119,
+      "scam_caught_high": 65,
+      "scam_total": 120,
+      "detection_rate_moderate": 0.9917,
+      "detection_rate_high": 0.5417,
+      "critical_count": 65,
+      "benign_total": 40,
+      "fp_moderate": 5,
+      "fp_high": 0,
+      "fpr_moderate": 0.125,
+      "fpr_high": 0.0,
+      "tn_moderate": 35,
+      "family_recall": {
+        "credential": {
+          "labelled": 27,
+          "hit": 27,
+          "recall": 1.0
+        },
+        "authority": {
+          "labelled": 47,
+          "hit": 47,
+          "recall": 1.0
+        },
+        "money_action": {
+          "labelled": 68,
+          "hit": 68,
+          "recall": 1.0
+        },
+        "prize": {
+          "labelled": 17,
+          "hit": 17,
+          "recall": 1.0
+        },
+        "urgency": {
+          "labelled": 79,
+          "hit": 79,
+          "recall": 1.0
+        },
+        "link_grab": {
+          "labelled": 36,
+          "hit": 36,
+          "recall": 1.0
+        }
+      },
+      "fp_cases": [
+        {
+          "id": "BN-TE-024",
+          "kind": "genuine_bank_kyc_alert",
+          "score": 0.45,
+          "verdict": "HIGH",
+          "families_fired": [
+            "link_grab",
+            "urgency"
+          ],
+          "text": "హెచ్‌డీఎఫ్‌సీ బ్యాంక్ కెవాఈసీ అలర్ట్: ఖాతా డీ-యాక్టివేషన్ నుంచి తప్పించుకోవడానికి వెంటనే కెవాఈసీ అప్‌డేట్ చేయండి. hdfcbank.com/kyc లో చూడండి."
+        },
+        {
+          "id": "BN-TE-025",
+          "kind": "genuine_bank_kyc_alert",
+          "score": 0.25,
+          "verdict": "MODERATE",
+          "families_fired": [
+            "link_grab"
+          ],
+          "text": "ఎస్‌బీఐ: ఖాతా యాక్టివ్‌గా ఉంచడానికి ఇప్పుడే bit.ly/sbi-kyc లో కెవాఈసీ అప్‌డేట్ చేయండి."
+        },
+        {
+          "id": "BN-TE-026",
+          "kind": "genuine_bank_kyc_alert",
+          "score": 0.45,
+          "verdict": "HIGH",
+          "families_fired": [
+            "link_grab",
+            "urgency"
+          ],
+          "text": "ఐసీఐసీఐ బ్యాంక్: కెవాఈసీ అప్‌డేట్ పెండింగ్. icicibank.com/kyc-update లో పాన్ కార్డ్ వివరాలు వెంటనే అప్‌డేట్ చేయండి, లేదంటే కార్డ్ సస్పెండ్."
+        },
+        {
+          "id": "BN-TE-029",
+          "kind": "toll_challan",
+          "score": 0.3,
+          "verdict": "MODERATE",
+          "families_fired": [
+            "money_action"
+          ],
+          "text": "టోల్ నోటీసు: వాహనం TN-09-CD-4321 ఫాస్ట్‌ట్యాగ్ లేకుండా టోల్ దాటింది. ₹60 టోల్ వద్ద చెల్లించండి."
+        },
+        {
+          "id": "BN-TE-031",
+          "kind": "marketing_offer",
+          "score": 0.3,
+          "verdict": "MODERATE",
+          "families_fired": [
+            "prize"
+          ],
+          "text": "పేటీఎంతో ఈ దీపావళికి అద్భుత కూపన్లు గెలుచుకోండి! యాప్‌లో లక్కీ డ్రా ఆడండి."
+        }
+      ]
+    },
+    "hinglish": {
+      "scam_caught_moderate": 30,
+      "scam_caught_high": 19,
+      "scam_total": 30,
+      "detection_rate_moderate": 1.0,
+      "detection_rate_high": 0.6333,
+      "critical_count": 19,
+      "benign_total": 16,
+      "fp_moderate": 0,
+      "fp_high": 0,
+      "fpr_moderate": 0.0,
+      "fpr_high": 0.0,
+      "tn_moderate": 16,
+      "family_recall": {
+        "credential": {
+          "labelled": 12,
+          "hit": 12,
+          "recall": 1.0
+        },
+        "authority": {
+          "labelled": 11,
+          "hit": 11,
+          "recall": 1.0
+        },
+        "money_action": {
+          "labelled": 16,
+          "hit": 16,
+          "recall": 1.0
+        },
+        "prize": {
+          "labelled": 3,
+          "hit": 3,
+          "recall": 1.0
+        },
+        "urgency": {
+          "labelled": 27,
+          "hit": 27,
+          "recall": 1.0
+        },
+        "link_grab": {
+          "labelled": 10,
+          "hit": 10,
+          "recall": 1.0
+        }
+      },
+      "fp_cases": []
+    }
+  },
+  "family_recall": {
+    "credential": {
+      "labelled": 96,
+      "hit": 96,
+      "recall": 1.0
+    },
+    "authority": {
+      "labelled": 157,
+      "hit": 157,
+      "recall": 1.0
+    },
+    "money_action": {
+      "labelled": 225,
+      "hit": 225,
+      "recall": 1.0
+    },
+    "prize": {
+      "labelled": 56,
+      "hit": 56,
+      "recall": 1.0
+    },
+    "urgency": {
+      "labelled": 269,
+      "hit": 269,
+      "recall": 1.0
+    },
+    "link_grab": {
+      "labelled": 124,
+      "hit": 124,
+      "recall": 1.0
+    }
+  },
+  "benign_fp_cases": [
+    {
+      "lang": "en",
+      "id": "BN-EN-024",
+      "kind": "genuine_bank_kyc_alert",
+      "score": 0.45,
+      "verdict": "HIGH",
+      "families_fired": [
+        "link_grab",
+        "urgency"
+      ],
+      "text": "HDFC Bank KYC alert: Update your KYC immediately to avoid deactivation of your account. Visit hdfcbank.com/kyc"
+    },
+    {
+      "lang": "en",
+      "id": "BN-EN-025",
+      "kind": "genuine_bank_kyc_alert",
+      "score": 0.25,
+      "verdict": "MODERATE",
+      "families_fired": [
+        "link_grab"
+      ],
+      "text": "SBI: Update KYC now at bit.ly/sbi-kyc to keep your account active."
+    },
+    {
+      "lang": "en",
+      "id": "BN-EN-026",
+      "kind": "genuine_bank_kyc_alert",
+      "score": 0.45,
+      "verdict": "HIGH",
+      "families_fired": [
+        "link_grab",
+        "urgency"
+      ],
+      "text": "ICICI Bank: KYC update pending. Update your PAN card details immediately at icicibank.com/kyc-update else card suspended."
+    },
+    {
+      "lang": "en",
+      "id": "BN-EN-031",
+      "kind": "marketing_offer",
+      "score": 0.3,
+      "verdict": "MODERATE",
+      "families_fired": [
+        "prize"
+      ],
+      "text": "Win exciting coupons this Diwali with Paytm! Play the in-app lucky draw now."
+    },
+    {
+      "lang": "en",
+      "id": "BN-EN-033",
+      "kind": "broker_market_info",
+      "score": 0.2,
+      "verdict": "MODERATE",
+      "families_fired": [
+        "urgency"
+      ],
+      "text": "Angel One: Your demat account is active. Market opens at 9:15 AM today."
+    },
+    {
+      "lang": "hi",
+      "id": "BN-HI-024",
+      "kind": "genuine_bank_kyc_alert",
+      "score": 0.45,
+      "verdict": "HIGH",
+      "families_fired": [
+        "link_grab",
+        "urgency"
+      ],
+      "text": "एचडीएफसी बैंक केवाईसी अलर्ट: खाता डी-एक्टिवेशन से बचने के लिए तुरंत केवाईसी अपडेट करें। hdfcbank.com/kyc पर जाएं।"
+    },
+    {
+      "lang": "hi",
+      "id": "BN-HI-025",
+      "kind": "genuine_bank_kyc_alert",
+      "score": 0.25,
+      "verdict": "MODERATE",
+      "families_fired": [
+        "link_grab"
+      ],
+      "text": "एसबीआई: खाता एक्टिव रखने के लिए अभी bit.ly/sbi-kyc पर केवाईसी अपडेट करें।"
+    },
+    {
+      "lang": "hi",
+      "id": "BN-HI-026",
+      "kind": "genuine_bank_kyc_alert",
+      "score": 0.45,
+      "verdict": "HIGH",
+      "families_fired": [
+        "link_grab",
+        "urgency"
+      ],
+      "text": "आईसीआईसीआई बैंक: केवाईसी अपडेट लंबित। icicibank.com/kyc-update पर पैन कार्ड विवरण तुरंत अपडेट करें, अन्यथा कार्ड निलंबित।"
+    },
+    {
+      "lang": "hi",
+      "id": "BN-HI-031",
+      "kind": "marketing_offer",
+      "score": 0.3,
+      "verdict": "MODERATE",
+      "families_fired": [
+        "prize"
+      ],
+      "text": "पेटीएम के साथ इस दिवाली शानदार कूपन जीतें! ऐप में लकी ड्रॉ खेलें।"
+    },
+    {
+      "lang": "te",
+      "id": "BN-TE-024",
+      "kind": "genuine_bank_kyc_alert",
+      "score": 0.45,
+      "verdict": "HIGH",
+      "families_fired": [
+        "link_grab",
+        "urgency"
+      ],
+      "text": "హెచ్‌డీఎఫ్‌సీ బ్యాంక్ కెవాఈసీ అలర్ట్: ఖాతా డీ-యాక్టివేషన్ నుంచి తప్పించుకోవడానికి వెంటనే కెవాఈసీ అప్‌డేట్ చేయండి. hdfcbank.com/kyc లో చూడండి."
+    },
+    {
+      "lang": "te",
+      "id": "BN-TE-025",
+      "kind": "genuine_bank_kyc_alert",
+      "score": 0.25,
+      "verdict": "MODERATE",
+      "families_fired": [
+        "link_grab"
+      ],
+      "text": "ఎస్‌బీఐ: ఖాతా యాక్టివ్‌గా ఉంచడానికి ఇప్పుడే bit.ly/sbi-kyc లో కెవాఈసీ అప్‌డేట్ చేయండి."
+    },
+    {
+      "lang": "te",
+      "id": "BN-TE-026",
+      "kind": "genuine_bank_kyc_alert",
+      "score": 0.45,
+      "verdict": "HIGH",
+      "families_fired": [
+        "link_grab",
+        "urgency"
+      ],
+      "text": "ఐసీఐసీఐ బ్యాంక్: కెవాఈసీ అప్‌డేట్ పెండింగ్. icicibank.com/kyc-update లో పాన్ కార్డ్ వివరాలు వెంటనే అప్‌డేట్ చేయండి, లేదంటే కార్డ్ సస్పెండ్."
+    },
+    {
+      "lang": "te",
+      "id": "BN-TE-029",
+      "kind": "toll_challan",
+      "score": 0.3,
+      "verdict": "MODERATE",
+      "families_fired": [
+        "money_action"
+      ],
+      "text": "టోల్ నోటీసు: వాహనం TN-09-CD-4321 ఫాస్ట్‌ట్యాగ్ లేకుండా టోల్ దాటింది. ₹60 టోల్ వద్ద చెల్లించండి."
+    },
+    {
+      "lang": "te",
+      "id": "BN-TE-031",
+      "kind": "marketing_offer",
+      "score": 0.3,
+      "verdict": "MODERATE",
+      "families_fired": [
+        "prize"
+      ],
+      "text": "పేటీఎంతో ఈ దీపావళికి అద్భుత కూపన్లు గెలుచుకోండి! యాప్‌లో లక్కీ డ్రా ఆడండి."
+    }
+  ],
+  "overall": {
+    "claim_scope": "hand-authored / in-distribution; real-world recall and FPR UNMEASURED",
+    "tp_moderate": 399,
+    "tn_moderate": 122,
+    "fp_moderate": 14,
+    "fn_moderate": 3,
+    "accuracy_moderate": 0.9684,
+    "precision_moderate": 0.9661,
+    "recall_moderate": 0.9925,
+    "fpr_moderate": 0.1029
+  }
+}

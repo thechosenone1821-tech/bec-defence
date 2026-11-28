@@ -1,3 +1,5 @@
+> Historical provenance: the retired voice-scorer code was removed from executable paths. Active status lives in [docs/STATUS.md](../docs/STATUS.md); see the [retired code note](../archive/provenance/RETIRED.md). Real-world privacy efficacy remains UNMEASURED.
+
 # PART 7 — THE SPINE (shared by both apps)
 
 > **What this is.** The single shared core that every other part depends on.
@@ -327,13 +329,38 @@ asserts a final boolean is not testing the layer it names.**
 
 | Check | Result |
 |---|---|
-| `pytest tests/` | **1218 passed, 1 skipped, 1 xfailed** |
-| `pytest tests/ --collect-only` | **1220 collected** |
-| `test_part7_spine_dod.py` | 39 passed |
-| `node --test tests/*.test.js` | **90 pass, 0 fail** |
-| `boot_manifest --check` | **INTEGRITY OK — 4 files** |
+| `python tools/run_phase4_pytest.py` (repo root) | **196 passed, 0 failed, 4 warnings; no AI model modules loaded** |
+| `python ../tools/run_phase4_pytest.py` (`raksha-code/`) | **171 passed, 0 failed, 4 warnings** |
+| collect-only (repo root / legacy cwd) | **196 / 171 collected** |
+| `python tools/run_phase4_node_tests.py` | **60 pass, 0 fail; MAYA capture test skipped** |
+| `python tools/check_phase4_citizen.py` | **OK — Phase 4 Citizen consolidation; no AI model invoked** |
+| `python tools/check_phase3_contracts.py` | **OK — shared contracts pinned and consistent** |
+| `python -m packages.contracts` | **OK — 5 shared config pins unchanged** |
+| `python tools/check_frozen_assets.py` | **OK — 28 VoiceGuard/MAYA assets unchanged** |
+| MessageGuard eval `--check` | **OK — results.json matches scorer and fixtures** |
+| `python tools/check_phase5_messageguard.py` | **OK — one MessageGuard scorer/corpus/eval; no AI model invoked** |
+| `python tools/check_phase678_integration.py` | **OK — Phase 6–8 integration; no AI models loaded** |
+| `python tools/check_local_links.py` | **OK — 336/336 local Markdown links resolve** |
+| `compileall` / local links / import smoke / 5 helps / `git diff --check` | **clean / 279 of 279 / no model modules / OK / clean** |
+| **Total passing checks** | **256** — 196 Python root + 60 Node; legacy cwd is a subset |
 
-1179 + 39 = 1218 and 1181 + 39 = 1220. Both reconcile with Part 4 Phase 7.
+The Part 7 phase-end math was 1179 + 39 = 1218 and 1181 + 39 = 1220. The
+MessageGuard v1 integration later added 34 tests: 1218 + 34 = 1252 passed and
+1220 + 34 = 1254 collected. Phase 2 then added 7 architecture tests (5 boundary
+checks + 2 root layout checks): 1252 + 7 = 1259 passed from the repo root, and
+1254 + 7 = 1261 collected. Running from `raksha-code/` omits the two root layout
+tests, giving 1257 passed / 1259 collected. Phase 3 added 12 shared-contract
+tests (6 root + 6 legacy-cwd): 1259 + 12 = 1271 passed / 1273 collected from the
+repo root, and 1257 + 6 = 1263 passed / 1265 collected from `raksha-code/`.
+Phase 4 adds 13 deterministic Citizen tests and intentionally skips 23
+AI-model-dependent Python test files plus one frozen MAYA capture Node test
+file; `tools/phase4_no_ai_plugin.py` asserts that no forbidden model module
+loads. Phase 5 adds 12 deterministic MessageGuard tests and ignores the two
+archived provenance test directories. Phase 6–8 adds 10 root integration tests and one deterministic checker. Current deterministic counts are **196**
+root Python, **171** legacy-cwd Python, **60** Node and **256** total passing
+checks. The historical Phase 3 figures above remain snapshots of that phase; see
+`../BUILD_STATE.md`, `../raksha/EVALS.md` and
+`../raksha/PHASE5_MESSAGEGUARD_SINGLE_SOURCE.md` for the current authority.
 
 ## What this part still does not have
 
@@ -347,3 +374,15 @@ asserts a final boolean is not testing the layer it names.**
   two apps — deciding that report X is about the same person as event Y — is not
   implemented and the test says so.
 * **No UI.** Part 6 owns the console.
+
+## Phase 7–8 implementation note (2026-11-26)
+
+The active spine runtime is
+[`../packages/spine/runtime.py`](../packages/spine/runtime.py). It owns one
+ingest → detect → fuse → plan → decide → seal → broadcast path, scoped tokens,
+dedupe, rate limits, quarantine, metrics and one WebSocket stream. The
+deterministic safety brain is in
+[`../packages/governance/safety.py`](../packages/governance/safety.py), and the
+append-only ledger is in
+[`../packages/ledger/runtime_ledger.py`](../packages/ledger/runtime_ledger.py).
+No AI/Commander model module is imported.

@@ -1,27 +1,39 @@
 """Telemetry MAC — organ events are HMAC-SHA256 signed at birth.
 
-The /api/ingest endpoint is a public surface: anyone on the network could
-POST a fake `PARITY_ENTROPY_COLLAPSE` with severity 0.96. Without
-authentication, a garbage post — or a deliberate forgery — could trigger
-real containment actions or drown the Commander.
-
-Control: every event minted inside this process is signed with
-HMAC-SHA256 over its canonical JSON (key from EIGENSHIELD_BUS_KEY, dev
-default below). The bus accepts external posts only as UNVERIFIED: they are
-visible (dashboard, logs) but can never (a) trigger auto-orchestration,
-(b) back a host/VLAN-disruptive action — the executor requires verified
-evidence — or (c) move a blast-radius budget.
+Phase 3 delegates canonical JSON and signed-envelope validation to
+``packages.contracts`` while preserving the shipped ``mac``/``verified`` wire
+shape. External posts remain UNVERIFIED: they are visible but cannot steer
+the AI path, back a disruptive action, or move a blast-radius budget.
 
 Honest note: inside one process this is an integrity tag, not a boundary;
-the boundary is created when the bus runs as a separate UID (see
-sandbox_runner / docs/FORTRESS.md deployment checklist).
+the boundary is created when the bus runs as a separate UID.
 """
+from __future__ import annotations
 
 import hashlib
 import hmac
-import json
 import os
+import sys
 import time
+from pathlib import Path
+
+try:
+    from packages.contracts.canonical import (
+        CANONICAL_JSON_RULE, canonical_bytes, canonical_json,
+    )
+    from packages.contracts.envelope import (
+        CONTRACT_VERSION, VerificationState, bus_key, validate_envelope,
+        verify_signature,
+    )
+except ImportError:  # pragma: no cover - minimal standalone checkout
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+    from packages.contracts.canonical import (
+        CANONICAL_JSON_RULE, canonical_bytes, canonical_json,
+    )
+    from packages.contracts.envelope import (
+        CONTRACT_VERSION, VerificationState, bus_key, validate_envelope,
+        verify_signature,
+    )
 
 _DEV_KEY = "eigenshield-dev-bus-key-change-in-production"
 
@@ -32,7 +44,7 @@ def _key() -> bytes:
 
 def _canonical(event: dict) -> bytes:
     body = {k: v for k, v in event.items() if k not in ("mac", "verified")}
-    return json.dumps(body, sort_keys=True, separators=(",", ":"), default=str).encode()
+    return canonical_bytes(body)
 
 
 def sign_event(event: dict) -> dict:
@@ -42,16 +54,16 @@ def sign_event(event: dict) -> dict:
 
 
 def verify_event(event: dict) -> bool:
-    mac = event.get("mac") if isinstance(event, dict) else None
-    if not isinstance(mac, str) or len(mac) != 64:
-        return False
-    expected = hmac.new(_key(), _canonical(event), hashlib.sha256).hexdigest()
-    return hmac.compare_digest(mac, expected)
+    return verify_signature(event, key=_key()) is VerificationState.VALID
+
+
+def validate_event(event: dict, key: bytes | None = None):
+    """Phase 3 compatibility entry point returning a CanonicalEnvelope."""
+    return validate_envelope(event, key=key or bus_key(), require_signature=True)
 
 
 class SeenEventCache:
-    """Replay defense for the windowed feed: event_ids are single-use for
-    10 minutes. Same-id resubmission is dropped, not re-executed."""
+    """Replay defense for the windowed feed: event_ids are single-use."""
 
     def __init__(self, window_sec: int = 600, max_size: int = 100_000):
         self.window_sec = window_sec
@@ -71,3 +83,10 @@ class SeenEventCache:
             return False
         self._seen[event_id] = now
         return True
+
+
+__all__ = [
+    "CANONICAL_JSON_RULE", "CONTRACT_VERSION", "SeenEventCache",
+    "canonical_bytes", "canonical_json", "sign_event", "validate_event",
+    "verify_event", "verify_signature",
+]

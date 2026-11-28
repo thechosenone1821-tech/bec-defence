@@ -1,0 +1,263 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --font-geist-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-geist-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-panel: var(--panel);
+  --color-panel-foreground: var(--panel-foreground);
+  --color-phosphor: var(--phosphor);
+  --color-phosphor-bright: var(--phosphor-bright);
+  --color-sev-mild: var(--sev-mild);
+  --color-sev-moderate: var(--sev-moderate);
+  --color-sev-high: var(--sev-high);
+  --color-sev-critical: var(--sev-critical);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+/*
+ * ARK OMNITEK PHOSPHOR — unified dark identity (identical values in both
+ * roots on purpose: the platform has one locked, always-dark appearance,
+ * exactly like the reference theme).
+ */
+:root {
+  --radius: 0.875rem;
+
+  --background: #050607;
+  --foreground: #dad1b9;
+
+  --card: #121212;
+  --card-foreground: #dad1b9;
+  --popover: #121212;
+  --popover-foreground: #dad1b9;
+
+  --primary: #dad1b9;
+  --primary-foreground: #050607;
+  --secondary: #161616;
+  --secondary-foreground: #dad1b9;
+  --muted: #161616;
+  --muted-foreground: #a6a398;
+  --accent: #79c4b7;
+  --accent-foreground: #050607;
+  --destructive: #c25b38;
+  --border: #262626;
+  --input: #262626;
+  --ring: #79c4b7;
+
+  /* layered surfaces */
+  --panel: #0a0b0c;
+  --panel-foreground: #dad1b9;
+
+  /* phosphor signal colors */
+  --phosphor: #79c4b7;
+  --phosphor-bright: #a8e6da;
+  --sev-mild: #79c4b7;
+  --sev-moderate: #d9b95c;
+  --sev-high: #e0904f;
+  --sev-critical: #d4552e;
+
+  --chart-1: #79c4b7;
+  --chart-2: #dad1b9;
+  --chart-3: #a6a398;
+  --chart-4: #d9b95c;
+  --chart-5: #c25b38;
+
+  --sidebar: #0a0b0c;
+  --sidebar-foreground: #dad1b9;
+  --sidebar-primary: #79c4b7;
+  --sidebar-primary-foreground: #050607;
+  --sidebar-accent: #161616;
+  --sidebar-accent-foreground: #dad1b9;
+  --sidebar-border: #262626;
+  --sidebar-ring: #79c4b7;
+}
+
+.dark {
+  /* Ark Omnitek Phosphor is single-mode; .dark mirrors :root so a stray
+     class toggle can never wash out the identity. */
+  --background: #050607;
+  --foreground: #dad1b9;
+  --card: #121212;
+  --card-foreground: #dad1b9;
+  --popover: #121212;
+  --popover-foreground: #dad1b9;
+  --primary: #dad1b9;
+  --primary-foreground: #050607;
+  --secondary: #161616;
+  --secondary-foreground: #dad1b9;
+  --muted: #161616;
+  --muted-foreground: #a6a398;
+  --accent: #79c4b7;
+  --accent-foreground: #050607;
+  --destructive: #c25b38;
+  --border: #262626;
+  --input: #262626;
+  --ring: #79c4b7;
+  --panel: #0a0b0c;
+  --panel-foreground: #dad1b9;
+  --phosphor: #79c4b7;
+  --phosphor-bright: #a8e6da;
+  --sev-mild: #79c4b7;
+  --sev-moderate: #d9b95c;
+  --sev-high: #e0904f;
+  --sev-critical: #d4552e;
+  --chart-1: #79c4b7;
+  --chart-2: #dad1b9;
+  --chart-3: #a6a398;
+  --chart-4: #d9b95c;
+  --chart-5: #c25b38;
+  --sidebar: #0a0b0c;
+  --sidebar-foreground: #dad1b9;
+  --sidebar-primary: #79c4b7;
+  --sidebar-primary-foreground: #050607;
+  --sidebar-accent: #161616;
+  --sidebar-accent-foreground: #dad1b9;
+  --sidebar-border: #262626;
+  --sidebar-ring: #79c4b7;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    color-scheme: dark;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "ss01" on, "cv05" on;
+  }
+  ::selection {
+    background: rgba(121, 196, 183, 0.28);
+    color: #eef7f3;
+  }
+}
+
+@layer utilities {
+  /* ---- Phosphor effects: restrained by design ---- */
+
+  /* faint engineering grid + phosphor haze backdrop */
+  .ph-backdrop {
+    background-image:
+      radial-gradient(1100px 520px at 50% -8%, rgba(121, 196, 183, 0.075), transparent 62%),
+      radial-gradient(900px 480px at 88% 108%, rgba(121, 196, 183, 0.045), transparent 60%),
+      linear-gradient(rgba(121, 196, 183, 0.033) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(121, 196, 183, 0.033) 1px, transparent 1px);
+    background-size: 100% 100%, 100% 100%, 44px 44px, 44px 44px;
+  }
+
+  .ph-glow {
+    box-shadow:
+      0 0 0 1px rgba(121, 196, 183, 0.4),
+      0 0 18px rgba(121, 196, 183, 0.16),
+      0 0 52px rgba(121, 196, 183, 0.07);
+  }
+  .ph-glow-text {
+    text-shadow: 0 0 14px rgba(121, 196, 183, 0.45);
+  }
+  .ph-hairline {
+    box-shadow: 0 0 0 1px rgba(38, 38, 38, 0.9);
+  }
+
+  /* corner ticks for panels — engineered, not decorative */
+  .ph-ticks {
+    position: relative;
+  }
+  .ph-ticks::before,
+  .ph-ticks::after {
+    content: "";
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    pointer-events: none;
+    opacity: 0.55;
+  }
+  .ph-ticks::before {
+    top: -1px;
+    left: -1px;
+    border-top: 1px solid rgba(121, 196, 183, 0.6);
+    border-left: 1px solid rgba(121, 196, 183, 0.6);
+  }
+  .ph-ticks::after {
+    bottom: -1px;
+    right: -1px;
+    border-bottom: 1px solid rgba(121, 196, 183, 0.6);
+    border-right: 1px solid rgba(121, 196, 183, 0.6);
+  }
+
+  .ph-scroller {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(121, 196, 183, 0.35) transparent;
+  }
+  .ph-scroller::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  .ph-scroller::-webkit-scrollbar-thumb {
+    background: rgba(121, 196, 183, 0.28);
+    border-radius: 8px;
+  }
+  .ph-scroller::-webkit-scrollbar-track {
+    background: rgba(38, 38, 38, 0.4);
+  }
+
+  /* 3D carousel helpers */
+  .ph-perspective {
+    perspective: 1500px;
+    perspective-origin: 50% 42%;
+  }
+  .ph-preserve {
+    transform-style: preserve-3d;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

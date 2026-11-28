@@ -1,0 +1,4 @@
+# Shell launchers run on Linux/macOS terminals; batch files on cmd.exe.
+*.sh text eol=lf
+*.bat text eol=crlf
+*.cmd text eol=crlf

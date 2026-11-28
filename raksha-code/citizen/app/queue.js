@@ -8,7 +8,7 @@
  *
  *   * The queue stores only what the report rail already sends: category, a
  *     severity band, a language tag and (optionally) an opaque case token.
- *     No audio, no message text, no phone number. Ever.
+ *     No image pixel data, no message text, no phone number. Ever.
  *   * It is bounded. An unbounded queue on a low-storage phone is a way to
  *     brick the device; 50 pending reports is far more than any real use.
  *   * It is app-scoped and purgeable. One call empties it.

@@ -1,0 +1,40 @@
+{"id": "BN-EN-001", "lang": "en", "label": "benign", "kind": "otp_delivery", "text": "Your SBI OTP for net banking login is 483920. Do not share it with anyone. -SBIBNK"}
+{"id": "BN-EN-002", "lang": "en", "label": "benign", "kind": "otp_delivery", "text": "HDFC Bank: OTP 773412 for your card transaction of Rs 1,250 at DMART. Never share this OTP. -HDFCBK"}
+{"id": "BN-EN-003", "lang": "en", "label": "benign", "kind": "otp_delivery", "text": "ICICI: Your one time password is 993044. ICICI Bank never calls asking for OTP. -ICICIB"}
+{"id": "BN-EN-004", "lang": "en", "label": "benign", "kind": "otp_delivery", "text": "Your Aadhaar OTP is 554033 for e-KYC. Do not share it. -UIDAI"}
+{"id": "BN-EN-005", "lang": "en", "label": "benign", "kind": "otp_delivery", "text": "123456 is your Amazon OTP. Do not share it with anyone."}
+{"id": "BN-EN-006", "lang": "en", "label": "benign", "kind": "otp_delivery", "text": "Flipkart: OTP 884213 to login. Do not share this OTP with anyone including delivery staff."}
+{"id": "BN-EN-007", "lang": "en", "label": "benign", "kind": "transaction_alert", "text": "Rs 2,500 debited from A/c XX1234 on 26-11-26 for UPI/OKICICI. Not you? Call 1800208. -SBIBNK"}
+{"id": "BN-EN-008", "lang": "en", "label": "benign", "kind": "transaction_alert", "text": "Rs 15,000 credited to your A/c XX8821 from REFUND TAX DEPT on 25-11-26. -HDFCBK"}
+{"id": "BN-EN-009", "lang": "en", "label": "benign", "kind": "transaction_alert", "text": "Your card ending 4567 was used for Rs 1,200 at BIG BAZAAR on 25-11-26. -AXISBK"}
+{"id": "BN-EN-010", "lang": "en", "label": "benign", "kind": "emi_due", "text": "Rs 5,430 EMI of your Car Loan is due on 05-12-26. Pay via UPI or branch. -ICICIB"}
+{"id": "BN-EN-011", "lang": "en", "label": "benign", "kind": "recharge_success", "text": "Your Jio recharge of Rs 239 was successful. Valid till 26-12-26. -JIO"}
+{"id": "BN-EN-012", "lang": "en", "label": "benign", "kind": "recharge_success", "text": "Airtel: Rs 299 plan activated. Data 2GB/day. -AIRTEL"}
+{"id": "BN-EN-013", "lang": "en", "label": "benign", "kind": "delivery_genuine", "text": "Your IRCTC ticket PNR 8421593 confirmed: SEAT 42/AC2. -IRCTC"}
+{"id": "BN-EN-014", "lang": "en", "label": "benign", "kind": "delivery_genuine", "text": "Blue Dart: Your parcel BD8829121 will be delivered today between 2-5 PM. Track at bluedart.com"}
+{"id": "BN-EN-015", "lang": "en", "label": "benign", "kind": "balance_info", "text": "Your SBI A/c XX1234 balance is Rs 24,880 as on 26-11-26. -SBIBNK"}
+{"id": "BN-EN-016", "lang": "en", "label": "benign", "kind": "balance_info", "text": "Dear customer, your monthly account statement is ready. View on the official app. -HDFCBK"}
+{"id": "BN-EN-017", "lang": "en", "label": "benign", "kind": "delivery_genuine", "text": "Your Zomato order 8812 delivered. Rate your experience."}
+{"id": "BN-EN-018", "lang": "en", "label": "benign", "kind": "utility_bill", "text": "APDCL: Electricity bill Rs 1,240 for Nov is due on 28/11. Pay online to avoid late fee."}
+{"id": "BN-EN-019", "lang": "en", "label": "benign", "kind": "utility_bill", "text": "MSEB: Bill of Rs 880 generated. Last date 30/11/26. Pay before due date."}
+{"id": "BN-EN-020", "lang": "en", "label": "benign", "kind": "utility_bill", "text": "BESCOM: Your bill payment of Rs 640 received. Thank you."}
+{"id": "BN-EN-021", "lang": "en", "label": "benign", "kind": "fraud_advisory", "text": "Beware of fraud: SBI never asks for OTP, CVV or PIN through calls or SMS. -SBIBNK"}
+{"id": "BN-EN-022", "lang": "en", "label": "benign", "kind": "fraud_advisory", "text": "RBI advisory: Banks never share OTP or CVV over phone. Report fraud at rbi.org.in"}
+{"id": "BN-EN-023", "lang": "en", "label": "benign", "kind": "fraud_advisory", "text": "Cyberabad Traffic Police advisory: Never share OTP, UPI PIN with strangers. -CPTEL"}
+{"id": "BN-EN-024", "lang": "en", "label": "benign", "kind": "genuine_bank_kyc_alert", "text": "HDFC Bank KYC alert: Update your KYC immediately to avoid deactivation of your account. Visit hdfcbank.com/kyc"}
+{"id": "BN-EN-025", "lang": "en", "label": "benign", "kind": "genuine_bank_kyc_alert", "text": "SBI: Update KYC now at bit.ly/sbi-kyc to keep your account active."}
+{"id": "BN-EN-026", "lang": "en", "label": "benign", "kind": "genuine_bank_kyc_alert", "text": "ICICI Bank: KYC update pending. Update your PAN card details immediately at icicibank.com/kyc-update else card suspended."}
+{"id": "BN-EN-027", "lang": "en", "label": "benign", "kind": "fastag_genuine", "text": "Your FASTag balance is low. Recharge to avoid penalty at toll. -FASTNET"}
+{"id": "BN-EN-028", "lang": "en", "label": "benign", "kind": "toll_challan", "text": "eChallan: Rs 500 challan pending for KA-01-AB-1234. Pay on parivahan.gov.in within 7 days."}
+{"id": "BN-EN-029", "lang": "en", "label": "benign", "kind": "toll_challan", "text": "Toll notice: vehicle TN-09-CD-4321 crossed toll without FASTag. Pay Rs 60 at the toll."}
+{"id": "BN-EN-030", "lang": "en", "label": "benign", "kind": "marketing_offer", "text": "HDFC: Get 10% off on groceries with your card this weekend. T&C apply."}
+{"id": "BN-EN-031", "lang": "en", "label": "benign", "kind": "marketing_offer", "text": "Win exciting coupons this Diwali with Paytm! Play the in-app lucky draw now."}
+{"id": "BN-EN-032", "lang": "en", "label": "benign", "kind": "loan_promo", "text": "Your personal loan of Rs 3,00,000 is pre-approved. Apply on the official app. Minimum income Rs 25,000."}
+{"id": "BN-EN-033", "lang": "en", "label": "benign", "kind": "broker_market_info", "text": "Angel One: Your demat account is active. Market opens at 9:15 AM today."}
+{"id": "BN-EN-034", "lang": "en", "label": "benign", "kind": "delivery_genuine", "text": "India Post: Your parcel IP8812345 booked. Expected delivery in 3 days."}
+{"id": "BN-EN-035", "lang": "en", "label": "benign", "kind": "utility_bill", "text": "Your electricity bill of Rs 640 is paid. Receipt: EP-8812. -BESCOM"}
+{"id": "BN-EN-036", "lang": "en", "label": "benign", "kind": "balance_info", "text": "Union Bank: Your FD of Rs 1,00,000 matures on 05-01-27. Renew at branch or net banking."}
+{"id": "BN-EN-037", "lang": "en", "label": "benign", "kind": "account_security", "text": "WhatsApp: Your account was logged in from a new Android device. If this was not you, log out."}
+{"id": "BN-EN-038", "lang": "en", "label": "benign", "kind": "dth_renewal", "text": "Your DTH pack renews tomorrow. Rs 250 will be deducted from your wallet. -TATASKY"}
+{"id": "BN-EN-039", "lang": "en", "label": "benign", "kind": "transaction_alert", "text": "Your UPI transaction of Rs 150 to Ramesh Kumar was successful. -OKSBIN"}
+{"id": "BN-EN-040", "lang": "en", "label": "benign", "kind": "property_tax", "text": "GHMC property tax Rs 3,200 due. Pay at ghmc.gov.in by 31 Dec to get 5% discount."}

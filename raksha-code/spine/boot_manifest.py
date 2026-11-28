@@ -28,14 +28,17 @@ _HERE = os.path.dirname(os.path.abspath(__file__))
 _PROJECT = os.path.dirname(_HERE)
 
 _SPINE = os.path.dirname(os.path.abspath(__file__))
+try:
+    from packages.contracts.config import BOOT_MANIFEST_PATHS as _SHARED_BOOT_MANIFEST_PATHS
+except ImportError:  # pragma: no cover - minimal standalone checkout
+    import sys
+    from pathlib import Path
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+    from packages.contracts.config import BOOT_MANIFEST_PATHS as _SHARED_BOOT_MANIFEST_PATHS
+
 # Manifest stores paths RELATIVE to this module's directory so the pin file is
-# portable across machines/checkouts of the same commit.
-DEFAULT_PATHS = [
-    "config/policy.yaml",
-    "config/company_topology.json",
-    "tool_schemas.json",
-    "system_prompt.txt",
-]
+# portable across machines/checkouts of the same commit. Phase 3 owns the list.
+DEFAULT_PATHS = list(_SHARED_BOOT_MANIFEST_PATHS)
 
 
 class ConfigIntegrityError(RuntimeError):

@@ -1,33 +1,25 @@
-/* RAKSHA Citizen — panic flow (Part 1, Phase 2, task 2.1)
+/* RAKSHA Citizen — panic flow.
  *
  * A helpline link is not a panic button. This is the real sequence.
  *
- * THE ORDER IS THE SAFETY PROPERTY. Lock, then stop, then dial:
+ * THE ORDER IS THE SAFETY PROPERTY. Lock, then close, then dial:
  *
  *   1. LOCK   — put a full-screen barrier over whatever scam screen the person
  *               was looking at. If we dial first, the phone app opens over it
  *               and the user comes back to an unchanged, still-convincing
- *               screen. Nothing was achieved.
- *   2. STOP   — end any active microphone capture and zero the ring buffer.
- *               A panic tap during a recorded call must not leave audio alive.
+ *               screen.
+ *   2. CLOSE  — clear any active VIGIL image buffer and its in-memory pixels.
+ *               A panic tap must not leave an image session alive.
  *   3. DIAL   — hand off to the dialler with 1930.
  *
  * Confirmation is deliberately NOT required. In the situation this button
- * exists for, a "are you sure?" dialog is the last thing a frightened person
- * needs, and it costs the seconds that matter. The overlay instead offers a
- * single, large, obvious Cancel that returns to the home screen.
- *
- * What this module does NOT do, and why:
- *   * It cannot kill other apps or "end the scam session". That needs Android
- *     accessibility permissions, which Part 1 §8 forbids (no IME/keystroke
- *     access). The original spec claimed this behaviour; it was never
- *     implementable under this project's own privacy rules.
- *   * It does not block the dialler. The OS owns that.
+ * exists for, a "are you sure?" dialog costs seconds that matter. The overlay
+ * offers one large Cancel that returns to the home screen.
  */
 
 "use strict";
 
-var PANIC_STEPS = Object.freeze(["LOCK", "STOP_CAPTURE", "DIAL"]);
+var PANIC_STEPS = Object.freeze(["LOCK", "CLOSE_IMAGE_SESSION", "DIAL"]);
 
 var PANIC_STATE = Object.freeze({
   IDLE: "IDLE",
@@ -37,26 +29,18 @@ var PANIC_STATE = Object.freeze({
 });
 
 /**
- * Run the panic sequence in the only safe order.
- *
- * All effects are injected so the sequence can be tested without a browser.
- * Every step is attempted even if an earlier one throws — a failure to zero the
- * buffer must not prevent the call to 1930.
- *
- * @param {object} effects
- * @param {function} effects.lock      render the blocking overlay
- * @param {function} effects.stopCapture end capture + zero buffer
- * @param {function} effects.dial      open the dialler
- * @returns {{done: string[], failed: string[], state: string}}
+ * Run the panic sequence in the only safe order. All effects are injected so the
+ * sequence can be tested without a browser. Every step is attempted even if an
+ * earlier one throws — a failure to clear the image buffer must not prevent the
+ * call to 1930.
  */
 function runPanic(effects) {
   var e = effects || {};
   var done = [];
   var failed = [];
-
   var table = {
     LOCK: e.lock,
-    STOP_CAPTURE: e.stopCapture,
+    CLOSE_IMAGE_SESSION: e.closeImageSession,
     DIAL: e.dial,
   };
 
@@ -71,12 +55,9 @@ function runPanic(effects) {
       fn();
       done.push(step);
     } catch (err) {
-      // Swallow and continue. In a panic, a broken overlay must not stop the
-      // call, and a broken buffer-zero must not stop the overlay.
       failed.push(step);
     }
   }
-
   return {
     done: done,
     failed: failed,
@@ -84,27 +65,23 @@ function runPanic(effects) {
   };
 }
 
-/**
- * Build the overlay markup. Kept here (rather than in app.js) so the copy that a
- * frightened person reads is reviewable in one place, in three languages.
- */
 var PANIC_COPY = Object.freeze({
   en: {
     title: "Scam screen closed",
-    body: "Your microphone is off and the recording buffer is cleared.",
+    body: "The image buffer is closed and in-memory pixels are purged.",
     calling: "Calling 1930 — the national cybercrime helpline.",
     cancel: "Cancel and go back",
   },
   hi: {
     title: "धोखाधड़ी की स्क्रीन बंद कर दी गई",
-    body: "आपका माइक्रोफ़ोन बंद है और रिकॉर्डिंग बफ़र साफ़ कर दिया गया है।",
+    body: "छवि बफ़र बंद कर दिया गया है और स्मृति में मौजूद पिक्सेल हटा दिए गए हैं।",
     calling: "1930 पर कॉल किया जा रहा है — राष्ट्रीय साइबर अपराध हेल्पलाइन।",
     cancel: "रद्द करें और वापस जाएँ",
   },
   te: {
     title: "మోసపు స్క్రీన్ మూసివేయబడింది",
-    body: "మీ మైక్రోఫోన్ ఆఫ్‌లో ఉంది మరియు రికార్డింగ్ బఫర్ క్లియర్ చేయబడింది.",
-    calling: "1930కి కాల్ చేస్తున్నాము — జాతీయ సైబర్ నేరాల హెల్ప్‌లైన్.",
+    body: "చిత్ర బఫర్ మూసివేయబడింది మరియు మెమరీలోని పిక్సెల్\u200cలు తొలగించబడ్డాయి.",
+    calling: "1930కి కాల్ చేస్తున్నాము — జాతీయ సైబర్ నేరాల హెల్ప్\u200cలైన్.",
     cancel: "రద్దు చేసి వెనక్కి వెళ్లండి",
   },
 });
@@ -114,11 +91,6 @@ function panicCopy(lang) {
   return PANIC_COPY[base] || PANIC_COPY.en;
 }
 
-/**
- * Render the blocking overlay into a document. Returns the overlay element so a
- * caller can dismiss it. Never throws — a rendering failure must not stop the
- * call, so the dialler is opened by `runPanic` separately.
- */
 function showOverlay(doc, lang, onCancel) {
   if (!doc || !doc.body) return null;
   var copy = panicCopy(lang);

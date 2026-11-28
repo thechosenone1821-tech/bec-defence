@@ -1,0 +1,40 @@
+{"id": "BN-TE-001", "lang": "te", "label": "benign", "kind": "otp_delivery", "text": "మీ ఎస్‌బీఐ నెట్ బ్యాంకింగ్ ఓటీపీ 483920. ఎవరికీ చెప్పకండి. -SBIBNK"}
+{"id": "BN-TE-002", "lang": "te", "label": "benign", "kind": "otp_delivery", "text": "హెచ్‌డీఎఫ్‌సీ బ్యాంక్: కార్డ్ లావాదేవీ ₹1,250 కు ఓటీపీ 773412. ఈ ఓటీపీ ఎవరితోనూ షేర్ చేయకండి. -HDFCBK"}
+{"id": "BN-TE-003", "lang": "te", "label": "benign", "kind": "otp_delivery", "text": "ఐసీఐసీఐ: మీ వన్ టైమ్ పాస్‌వర్డ్ 993044. ఐసీఐసీఐ బ్యాంక్ ఎప్పుడూ ఓటీపీ అడగదు. -ICICIB"}
+{"id": "BN-TE-004", "lang": "te", "label": "benign", "kind": "otp_delivery", "text": "ఆధార్ ఓటీపీ 554033 ఈ-కెవాఈసీ కోసం. దీన్ని ఎవరికీ చెప్పవద్దు. -UIDAI"}
+{"id": "BN-TE-005", "lang": "te", "label": "benign", "kind": "otp_delivery", "text": "123456 మీ అమెజాన్ ఓటీపీ. దీన్ని ఎవరితోనూ షేర్ చేయవద్దు."}
+{"id": "BN-TE-006", "lang": "te", "label": "benign", "kind": "otp_delivery", "text": "ఫ్లిప్‌కార్ట్: లాగిన్ కు ఓటీపీ 884213. డెలివరీ స్టాఫ్‌తో సహా ఎవరికీ చెప్పకండి."}
+{"id": "BN-TE-007", "lang": "te", "label": "benign", "kind": "transaction_alert", "text": "ఖాతా XX1234 నుంచి 26-11-26న UPI/OKICICI ద్వారా ₹2,500 డెబిట్. మీరు కాదా? 1800208కు కాల్ చేయండి. -SBIBNK"}
+{"id": "BN-TE-008", "lang": "te", "label": "benign", "kind": "transaction_alert", "text": "ఖాతా XX8821 లో REFUND TAX DEPT నుంచి ₹15,000 జమ అయింది 25-11-26. -HDFCBK"}
+{"id": "BN-TE-009", "lang": "te", "label": "benign", "kind": "transaction_alert", "text": "మీ కార్డ్ 4567 25-11-26న బిగ్ బజార్ లో ₹1,200 కు వాడబడింది. -AXISBK"}
+{"id": "BN-TE-010", "lang": "te", "label": "benign", "kind": "emi_due", "text": "కార్ లోన్ ₹5,430 ఈఎంఐ 05-12-26 గడువు. యూపీఐ లేదా బ్రాంచ్ ద్వారా చెల్లించండి. -ICICIB"}
+{"id": "BN-TE-011", "lang": "te", "label": "benign", "kind": "recharge_success", "text": "మీ జియో రీచార్జ్ ₹239 విజయవంతం. 26-12-26 వరకు చెల్లుతుంది. -JIO"}
+{"id": "BN-TE-012", "lang": "te", "label": "benign", "kind": "recharge_success", "text": "ఎయిర్‌టెల్: ₹299 ప్లాన్ యాక్టివేట్. రోజూ 2GB డేటా. -AIRTEL"}
+{"id": "BN-TE-013", "lang": "te", "label": "benign", "kind": "delivery_genuine", "text": "మీ ఐఆర్‌సీటీసీ టికెట్ PNR 8421593 కన్ఫర్మ్: సీటు 42/AC2. -IRCTC"}
+{"id": "BN-TE-014", "lang": "te", "label": "benign", "kind": "delivery_genuine", "text": "బ్లూ డార్ట్: మీ పార్సెల్ BD8829121 ఈరోజు 2-5 గంటల మధ్య డెలివరీ. bluedart.com లో ట్రాక్ చేయండి."}
+{"id": "BN-TE-015", "lang": "te", "label": "benign", "kind": "balance_info", "text": "మీ ఎస్‌బీఐ ఖాతా XX1234 బ్యాలెన్స్ 26-11-26న ₹24,880. -SBIBNK"}
+{"id": "BN-TE-016", "lang": "te", "label": "benign", "kind": "balance_info", "text": "ప్రియ కస్టమర్, మీ నెలవారీ ఖాతా స్టేట్‌మెంట్ సిద్ధం. అధికారిక యాప్‌లో చూడండి. -HDFCBK"}
+{"id": "BN-TE-017", "lang": "te", "label": "benign", "kind": "delivery_genuine", "text": "మీ జొమాటో ఆర్డర్ 8812 డెలివరీ అయింది. రేటింగ్ ఇవ్వండి."}
+{"id": "BN-TE-018", "lang": "te", "label": "benign", "kind": "utility_bill", "text": "ఏపీడీసీఎల్: నవంబర్ కరెంట్ బిల్లు ₹1,240 28/11 గడువు. ఆన్‌లైన్ చెల్లింపు చేయండి, లేట్ ఫీజు నుంచి తప్పించుకోండి."}
+{"id": "BN-TE-019", "lang": "te", "label": "benign", "kind": "utility_bill", "text": "ఎంఎస్‌ఈబీ: ₹880 బిల్లు జనరేట్. చివరి తేదీ 30/11/26. గడువు లోపు చెల్లించండి."}
+{"id": "BN-TE-020", "lang": "te", "label": "benign", "kind": "utility_bill", "text": "బేసకామ్: ₹640 బిల్లు చెల్లింపు అందింది. ధన్యవాదాలు."}
+{"id": "BN-TE-021", "lang": "te", "label": "benign", "kind": "fraud_advisory", "text": "మోసాల నుంచి జాగ్రత్త: ఎస్‌బీఐ కాల్స్ లేదా ఎస్‌ఎంఎస్ ద్వారా ఓటీపీ, సీవీవీ లేదా పిన్ అడగదు. -SBIBNK"}
+{"id": "BN-TE-022", "lang": "te", "label": "benign", "kind": "fraud_advisory", "text": "ఆర్బీఐ సలహా: బ్యాంకులు ఫోన్‌లో ఓటీపీ లేదా సీవీవీ షేర్ చేయవు. ఫ్రాడ్ ను rbi.org.in లో రిపోర్ట్ చేయండి."}
+{"id": "BN-TE-023", "lang": "te", "label": "benign", "kind": "fraud_advisory", "text": "సైబరాబాద్ ట్రాఫిక్ పోలీసుల సలహా: పరిచయస్తులకు కూడా ఓటీపీ లేదా యూపీఐ పిన్ చెప్పకండి. -CPTEL"}
+{"id": "BN-TE-024", "lang": "te", "label": "benign", "kind": "genuine_bank_kyc_alert", "text": "హెచ్‌డీఎఫ్‌సీ బ్యాంక్ కెవాఈసీ అలర్ట్: ఖాతా డీ-యాక్టివేషన్ నుంచి తప్పించుకోవడానికి వెంటనే కెవాఈసీ అప్‌డేట్ చేయండి. hdfcbank.com/kyc లో చూడండి."}
+{"id": "BN-TE-025", "lang": "te", "label": "benign", "kind": "genuine_bank_kyc_alert", "text": "ఎస్‌బీఐ: ఖాతా యాక్టివ్‌గా ఉంచడానికి ఇప్పుడే bit.ly/sbi-kyc లో కెవాఈసీ అప్‌డేట్ చేయండి."}
+{"id": "BN-TE-026", "lang": "te", "label": "benign", "kind": "genuine_bank_kyc_alert", "text": "ఐసీఐసీఐ బ్యాంక్: కెవాఈసీ అప్‌డేట్ పెండింగ్. icicibank.com/kyc-update లో పాన్ కార్డ్ వివరాలు వెంటనే అప్‌డేట్ చేయండి, లేదంటే కార్డ్ సస్పెండ్."}
+{"id": "BN-TE-027", "lang": "te", "label": "benign", "kind": "fastag_genuine", "text": "మీ ఫాస్ట్‌ట్యాగ్ బ్యాలెన్స్ తక్కువ. రీచార్జ్ చేయండి. -FASTNET"}
+{"id": "BN-TE-028", "lang": "te", "label": "benign", "kind": "toll_challan", "text": "ఈ-చలాన్: KA-01-AB-1234 ₹500 చలాన్ బాకీ. 7 రోజుల్లోపు parivahan.gov.in లో చెల్లించండి."}
+{"id": "BN-TE-029", "lang": "te", "label": "benign", "kind": "toll_challan", "text": "టోల్ నోటీసు: వాహనం TN-09-CD-4321 ఫాస్ట్‌ట్యాగ్ లేకుండా టోల్ దాటింది. ₹60 టోల్ వద్ద చెల్లించండి."}
+{"id": "BN-TE-030", "lang": "te", "label": "benign", "kind": "marketing_offer", "text": "హెచ్‌డీఎఫ్‌సీ: ఈ వీకెండ్ కిరాణా ఖరీదులపై మీ కార్డ్‌తో 10% డిస్కౌంట్. నియమాలు వర్తిస్తాయి."}
+{"id": "BN-TE-031", "lang": "te", "label": "benign", "kind": "marketing_offer", "text": "పేటీఎంతో ఈ దీపావళికి అద్భుత కూపన్లు గెలుచుకోండి! యాప్‌లో లక్కీ డ్రా ఆడండి."}
+{"id": "BN-TE-032", "lang": "te", "label": "benign", "kind": "loan_promo", "text": "మీ ₹3,00,000 పర్సనల్ లోన్ ప్రీ-అప్రూవ్డ్. అధికారిక యాప్‌లో అప్లై చేయండి. కనీస ఆదాయం ₹25,000."}
+{"id": "BN-TE-033", "lang": "te", "label": "benign", "kind": "broker_market_info", "text": "యాంజెల్ వన్: మీ డీమ్యాట్ ఖాతా యాక్టివ్. మార్కెట్ ఈరోజు ఉదయం 9:15 గంటలకు ఓపెన్."}
+{"id": "BN-TE-034", "lang": "te", "label": "benign", "kind": "delivery_genuine", "text": "ఇండియా పోస్ట్: మీ పార్సెల్ IP8812345 బుక్. 3 రోజుల్లో డెలివరీ."}
+{"id": "BN-TE-035", "lang": "te", "label": "benign", "kind": "utility_bill", "text": "₹640 కరెంట్ బిల్లు చెల్లింపు జరిగింది. రసీదు EP-8812. -BESCOM"}
+{"id": "BN-TE-036", "lang": "te", "label": "benign", "kind": "balance_info", "text": "యూనియన్ బ్యాంక్: మీ ₹1,00,000 ఎఫ్‌డీ 05-01-27 మెచ్యూర్. బ్రాంచ్ లేదా నెట్ బ్యాంకింగ్‌లో రిన్యూ చేయండి."}
+{"id": "BN-TE-037", "lang": "te", "label": "benign", "kind": "account_security", "text": "వాట్సాప్: మీ అకౌంట్ కొత్త యాండ్రాయిడ్ డివైస్ నుంచి లాగిన్. మీరు కాకపోతే లాగ్ అవుట్ చేయండి."}
+{"id": "BN-TE-038", "lang": "te", "label": "benign", "kind": "dth_renewal", "text": "టాటా స్కై: మీ డీటీహెచ్ ప్యాక్ రేపు రిన్యూ. ₹250 వాలెట్ నుంచి తీసుకుంటారు."}
+{"id": "BN-TE-039", "lang": "te", "label": "benign", "kind": "transaction_alert", "text": "రమేష్ కుమార్ కు ₹150 యూపీఐ చెల్లింపు విజయవంతం. -OKSBIN"}
+{"id": "BN-TE-040", "lang": "te", "label": "benign", "kind": "property_tax", "text": "జీహెచ్‌ఎంసీ ప్రాపర్టీ ట్యాక్స్ ₹3,200 గడువు. 31 డిసెంబర్ లోపు ghmc.gov.in లో చెల్లించండి, 5% డిస్కౌంట్."}
