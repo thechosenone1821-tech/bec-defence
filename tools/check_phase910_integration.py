@@ -25,7 +25,8 @@ from tools import (  # noqa: E402
 
 CANONICAL = (
     "summary.md", "README.md", "docs/STATUS.md", "docs/README.md", "CHANGELOG.md",
-    "PRESENTATION_DEMO_SCRIPT.md",
+    "PRESENTATION_DEMO_SCRIPT.md", "PRESENTATION_TALKING_POINTS.md",
+    "PROJECT_CONCEPTS_GUIDE.md",
     "EVALS.md", "raksha/PHASE910_UNIFIED_RELEASE.md", "Makefile",
     "requirements.txt", "tools/launch_apps.py", ".github/workflows/ci.yml",
     "evals/run_evals.py", "evals/corpus.py", "evals/replay.py",

@@ -33,6 +33,8 @@ refuses anything it did not start.
 ## Active surfaces
 
 - [Presentation demo script](PRESENTATION_DEMO_SCRIPT.md) is the one-page runbook: start, what to click, what to expect, stop, and the fallbacks.
+- [Presentation talking points](PRESENTATION_TALKING_POINTS.md) splits that runbook across five speakers, with handoffs, per-scenario lines to say and a Q&A map.
+- [Project concepts guide](PROJECT_CONCEPTS_GUIDE.md) is the learning document: the contract, the pipeline, each organ's actual rule, governance, the ledger, both demos, and five hands-on exercises.
 - [Status](docs/STATUS.md) describes the active runtime and its honesty limits.
 - [Frontend integration](frontend/README.md) documents the new static build, routing and gateway.
 - [Gateway package](packages/frontend/README.md) documents the shared serving layer.

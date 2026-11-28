@@ -59,7 +59,7 @@ The library holds eight scenarios. These five make the shortest complete story:
 | 1 | Suspicious login activity | Trigger on `suspicious-login` | 2 detected (`COOKIE-TURBULENT-REPLAY`), 2 held unverified (the unsigned retry and the forged signature), 1 correctly quiet baseline. Alert line appears; campaign `SIMULATED-suspicious-login-<tag>` fuses across both legs. |
 | 2 | Suspicious infrastructure activity | Trigger on `infra-anomaly` | 2 detected on two different organs (`LANDAUER-POWER-RESIDUAL`, `HESSIAN-LYAPUNOV-CLIFF`), 1 held, 1 quiet rack. The point: an anomaly is a finding, not a verdict. |
 | 3 | Coordinated AI-agent flood | Trigger on `ai-agent-flood` | 5 detected across three organs (`BEC-RANK1-CONDENSATION` ×3, `HASHIMOTO-CASCADE-RISK`, plus the consumer-leg report), 1 quiet human-traffic step. Many small events becoming one campaign. |
-| 4 | Ransomware encryption sweep | Trigger on `ransomware-sweep` | 3 detected (`PAGECURVE-PARITY-BREAK` ×2, honey-page invariant broken), 2 verified no-finding steps — including the backup job with the same burst rate. |
+| 4 | Ransomware encryption sweep | Trigger on `ransomware-sweep` | 3 detected (`PAGECURVE-PARITY-BREAK` ×2 on the encrypt burst and the shadow-delete, plus the victim's consumer-leg report), 2 verified no-finding steps — the nightly `backup-job` (busy, invariant intact) and an `endpoint-note` with no readable page-curve features. |
 | 5 | Benign load spike (control) | Trigger on `benign-baseline` | 6 events accepted and verified, 0 findings, 0 quarantines, 0 decisions. Loudly quiet is the correct answer, and it proves the demos above are not rigged. |
 
 Other scenarios in the same list, if asked: `hostile-document`, `kernel-tamper`, `staged-exfil`
